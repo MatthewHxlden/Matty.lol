@@ -1,0 +1,36 @@
+import { ReactNode } from "react";
+import { motion } from "framer-motion";
+import TerminalHeader from "./TerminalHeader";
+import TerminalFooter from "./TerminalFooter";
+
+interface TerminalLayoutProps {
+  children: ReactNode;
+}
+
+const TerminalLayout = ({ children }: TerminalLayoutProps) => {
+  return (
+    <div className="min-h-screen flex flex-col matrix-bg crt-flicker">
+      {/* Scanlines overlay */}
+      <div className="scanlines" />
+      
+      {/* Grid background */}
+      <div className="fixed inset-0 grid-bg opacity-30 pointer-events-none" />
+
+      <TerminalHeader />
+
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex-1 pt-32 pb-8"
+      >
+        {children}
+      </motion.main>
+
+      <TerminalFooter />
+    </div>
+  );
+};
+
+export default TerminalLayout;
