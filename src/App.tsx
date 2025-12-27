@@ -10,8 +10,11 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BlogAdmin from "./pages/BlogAdmin";
 import Apps from "./pages/Apps";
+import AppsAdmin from "./pages/AppsAdmin";
 import Tools from "./pages/Tools";
+import ToolsAdmin from "./pages/ToolsAdmin";
 import Links from "./pages/Links";
+import LinksAdmin from "./pages/LinksAdmin";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -32,6 +35,9 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/admin/blog" element={<BlogAdmin />} />
+              <Route path="/admin/apps" element={<AppsAdmin />} />
+              <Route path="/admin/tools" element={<ToolsAdmin />} />
+              <Route path="/admin/links" element={<LinksAdmin />} />
               <Route path="/apps" element={<Apps />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/links" element={<Links />} />
