@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { LogIn, LogOut, User } from "lucide-react";
 
 const navLinks = [
   { name: "home", path: "/" },
@@ -12,6 +14,7 @@ const navLinks = [
 
 const TerminalHeader = () => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <motion.header
@@ -40,7 +43,7 @@ const TerminalHeader = () => {
           </Link>
 
           {/* Navigation */}
-          <nav className="flex flex-wrap gap-1 md:gap-2">
+          <nav className="flex flex-wrap items-center gap-1 md:gap-2">
             {navLinks.map((link, index) => (
               <motion.div
                 key={link.name}
@@ -70,6 +73,36 @@ const TerminalHeader = () => {
                 </Link>
               </motion.div>
             ))}
+
+            {/* Auth button */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: navLinks.length * 0.1 }}
+              className="ml-2"
+            >
+              {user ? (
+                <button
+                  onClick={() => signOut()}
+                  className="flex items-center gap-1 px-3 py-1 text-sm text-accent hover:text-primary transition-all hover-glow"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">logout</span>
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  className={`flex items-center gap-1 px-3 py-1 text-sm transition-all ${
+                    location.pathname === "/auth"
+                      ? "text-primary neon-text"
+                      : "text-secondary hover:text-primary hover-glow"
+                  }`}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span className="hidden sm:inline">login</span>
+                </Link>
+              )}
+            </motion.div>
           </nav>
         </div>
 
