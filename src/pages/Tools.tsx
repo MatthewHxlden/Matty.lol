@@ -1,46 +1,17 @@
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Wrench, ExternalLink, Sparkles } from "lucide-react";
+import { Wrench, ExternalLink, Sparkles, AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const tools = [
-  {
-    name: "Color Converter",
-    description: "Convert between HEX, RGB, HSL and more",
-    category: "design",
-    link: "#",
-  },
-  {
-    name: "JSON Formatter",
-    description: "Pretty print and validate JSON data",
-    category: "dev",
-    link: "#",
-  },
-  {
-    name: "Base64 Encoder",
-    description: "Encode and decode Base64 strings",
-    category: "dev",
-    link: "#",
-  },
-  {
-    name: "Lorem Generator",
-    description: "Generate placeholder text with style",
-    category: "content",
-    link: "#",
-  },
-  {
-    name: "Regex Tester",
-    description: "Test and debug regular expressions",
-    category: "dev",
-    link: "#",
-  },
-  {
-    name: "CSS Gradient Maker",
-    description: "Create beautiful CSS gradients",
-    category: "design",
-    link: "#",
-  },
-];
+interface Tool {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  url: string | null;
+}
 
 const categoryColors: Record<string, string> = {
   dev: "border-secondary text-secondary",
@@ -49,6 +20,18 @@ const categoryColors: Record<string, string> = {
 };
 
 const Tools = () => {
+  const { data: tools, isLoading, error } = useQuery({
+    queryKey: ["tools"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tools")
+        .select("*")
+        .order("sort_order");
+      if (error) throw error;
+      return data as Tool[];
+    },
+  });
+
   return (
     <TerminalLayout>
       <div className="container mx-auto px-4">
@@ -72,44 +55,82 @@ const Tools = () => {
             </p>
           </div>
 
-          {/* Tools Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tools.map((tool, index) => (
-              <motion.a
-                key={tool.name}
-                href={tool.link}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.02 }}
-                className="group"
-              >
-                <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm">
+          {/* Loading state */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="border border-border p-4 animate-pulse">
                   <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Wrench className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                        <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                          {tool.name}
-                        </h3>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      {tool.description}
-                    </p>
-
-                    <span
-                      className={`inline-block text-xs px-2 py-1 border ${categoryColors[tool.category]}`}
-                    >
-                      {tool.category}
-                    </span>
+                    <div className="h-4 bg-muted rounded w-1/2" />
+                    <div className="h-3 bg-muted rounded w-3/4" />
                   </div>
                 </div>
-              </motion.a>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <TerminalCard className="border-destructive">
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="w-5 h-5" />
+                <span>Error loading tools: {(error as Error).message}</span>
+              </div>
+            </TerminalCard>
+          )}
+
+          {/* Tools Grid */}
+          {!isLoading && !error && tools && tools.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {tools.map((tool, index) => (
+                <motion.a
+                  key={tool.id}
+                  href={tool.url || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="group"
+                >
+                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <Wrench className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                            {tool.name}
+                          </h3>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        {tool.description}
+                      </p>
+
+                      <span
+                        className={`inline-block text-xs px-2 py-1 border ${categoryColors[tool.category] || categoryColors.dev}`}
+                      >
+                        {tool.category}
+                      </span>
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && !error && (!tools || tools.length === 0) && (
+            <TerminalCard>
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-lg">// no tools found</p>
+                <p className="text-sm mt-2">check back soon...</p>
+              </div>
+            </TerminalCard>
+          )}
 
           {/* Coming Soon */}
           <motion.div
