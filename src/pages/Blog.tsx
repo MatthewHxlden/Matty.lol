@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import { Calendar, Clock, Tag, AlertCircle } from "lucide-react";
@@ -107,46 +107,48 @@ const Blog = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300">
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(post.created_at)}
-                        </span>
-                        {post.read_time && (
+                  <Link to={`/blog/${post.slug}`}>
+                    <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300">
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {post.read_time}
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(post.created_at)}
                           </span>
+                          {post.read_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {post.read_time}
+                            </span>
+                          )}
+                        </div>
+
+                        <h2 className="text-xl font-bold text-foreground group-hover:text-primary group-hover:neon-text transition-all">
+                          <span className="text-secondary">{">"}</span> {post.title}
+                        </h2>
+
+                        {post.excerpt && (
+                          <p className="text-muted-foreground text-sm">
+                            {post.excerpt}
+                          </p>
+                        )}
+
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {post.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/30 text-accent"
+                              >
+                                <Tag className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
-
-                      <h2 className="text-xl font-bold text-foreground group-hover:text-primary group-hover:neon-text transition-all">
-                        <span className="text-secondary">{">"}</span> {post.title}
-                      </h2>
-
-                      {post.excerpt && (
-                        <p className="text-muted-foreground text-sm">
-                          {post.excerpt}
-                        </p>
-                      )}
-
-                      {post.tags && post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {post.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/30 text-accent"
-                            >
-                              <Tag className="w-3 h-3" />
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </TerminalCard>
+                    </TerminalCard>
+                  </Link>
                 </motion.div>
               ))}
             </div>

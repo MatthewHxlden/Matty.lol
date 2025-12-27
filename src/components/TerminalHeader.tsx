@@ -1,7 +1,16 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, LogOut, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { LogIn, LogOut, User, Settings, Shield } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { name: "home", path: "/" },
@@ -15,6 +24,21 @@ const navLinks = [
 const TerminalHeader = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+
+  // Check if user is admin
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data, error } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+      if (error) return false;
+      return data as boolean;
+    },
+    enabled: !!user,
+  });
 
   return (
     <motion.header
@@ -82,13 +106,36 @@ const TerminalHeader = () => {
               className="ml-2"
             >
               {user ? (
-                <button
-                  onClick={() => signOut()}
-                  className="flex items-center gap-1 px-3 py-1 text-sm text-accent hover:text-primary transition-all hover-glow"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">logout</span>
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1 text-sm text-accent hover:text-primary transition-all hover-glow">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">account</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-background border-border">
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="w-4 h-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/blog" className="flex items-center gap-2 cursor-pointer">
+                            <Shield className="w-4 h-4" />
+                            Blog Admin
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link
                   to="/auth"
