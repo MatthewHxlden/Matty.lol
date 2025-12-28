@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           author_id: string | null
           content: string | null
+          cover_image: string | null
           created_at: string
           excerpt: string | null
           id: string
@@ -73,6 +74,7 @@ export type Database = {
         Insert: {
           author_id?: string | null
           content?: string | null
+          cover_image?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
@@ -86,6 +88,7 @@ export type Database = {
         Update: {
           author_id?: string | null
           content?: string | null
+          cover_image?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
@@ -94,6 +97,36 @@ export type Database = {
           slug?: string
           tags?: string[] | null
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_info: {
+        Row: {
+          created_at: string
+          discussion_topics: string[] | null
+          email: string
+          id: string
+          location: string
+          response_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discussion_topics?: string[] | null
+          email?: string
+          id?: string
+          location?: string
+          response_time?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discussion_topics?: string[] | null
+          email?: string
+          id?: string
+          location?: string
+          response_time?: string
           updated_at?: string
         }
         Relationships: []
@@ -158,6 +191,69 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      site_profile: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          color_class: string
+          created_at: string
+          icon_name: string
+          id: string
+          sort_order: number | null
+          stat_key: string
+          stat_label: string
+          stat_value: string
+          updated_at: string
+        }
+        Insert: {
+          color_class?: string
+          created_at?: string
+          icon_name?: string
+          id?: string
+          sort_order?: number | null
+          stat_key: string
+          stat_label: string
+          stat_value: string
+          updated_at?: string
+        }
+        Update: {
+          color_class?: string
+          created_at?: string
+          icon_name?: string
+          id?: string
+          sort_order?: number | null
+          stat_key?: string
+          stat_label?: string
+          stat_value?: string
+          updated_at?: string
         }
         Relationships: []
       }

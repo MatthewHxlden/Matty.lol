@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, AlertCircle, Shield } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -21,6 +21,7 @@ interface BlogPost {
   tags: string[];
   read_time: string | null;
   published: boolean;
+  cover_image: string | null;
   created_at: string;
 }
 
@@ -29,9 +30,11 @@ const BlogAdmin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -40,6 +43,7 @@ const BlogAdmin = () => {
     tags: "",
     read_time: "5 min",
     published: false,
+    cover_image: "",
   });
 
   // Check if user is admin
@@ -71,6 +75,36 @@ const BlogAdmin = () => {
     enabled: isAdmin === true,
   });
 
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `blog/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("blog-images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("blog-images")
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, cover_image: urlData.publicUrl });
+      toast({ title: "UPLOADED", description: "Image uploaded successfully." });
+    } catch (error: any) {
+      toast({ title: "ERROR", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Create post mutation
   const createMutation = useMutation({
     mutationFn: async (post: typeof formData) => {
@@ -82,6 +116,7 @@ const BlogAdmin = () => {
         tags: post.tags.split(",").map((t) => t.trim()).filter(Boolean),
         read_time: post.read_time || "5 min",
         published: post.published,
+        cover_image: post.cover_image || null,
         author_id: user?.id,
       });
       if (error) throw error;
@@ -111,6 +146,7 @@ const BlogAdmin = () => {
           tags: post.tags.split(",").map((t) => t.trim()).filter(Boolean),
           read_time: post.read_time || "5 min",
           published: post.published,
+          cover_image: post.cover_image || null,
         })
         .eq("id", id);
       if (error) throw error;
@@ -152,6 +188,7 @@ const BlogAdmin = () => {
       tags: "",
       read_time: "5 min",
       published: false,
+      cover_image: "",
     });
   };
 
@@ -166,6 +203,7 @@ const BlogAdmin = () => {
       tags: post.tags?.join(", ") || "",
       read_time: post.read_time || "5 min",
       published: post.published || false,
+      cover_image: post.cover_image || "",
     });
   };
 
@@ -304,6 +342,54 @@ const BlogAdmin = () => {
                     </div>
                   </div>
 
+                  {/* Cover Image Upload */}
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Cover Image</label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {isUploading ? "Uploading..." : "Upload Image"}
+                      </Button>
+                      {formData.cover_image && (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={formData.cover_image}
+                            alt="Cover preview"
+                            className="w-16 h-16 object-cover border border-border"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFormData({ ...formData, cover_image: "" })}
+                            className="text-destructive"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <Input
+                      value={formData.cover_image}
+                      onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
+                      placeholder="Or paste image URL"
+                      className="mt-2"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">Excerpt</label>
                     <Textarea
@@ -410,14 +496,28 @@ const BlogAdmin = () => {
                     animate={{ opacity: 1 }}
                     className="flex items-center justify-between p-3 border border-border hover:border-primary transition-all"
                   >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={post.published ? "text-secondary" : "text-muted-foreground"}>
-                          {post.published ? "[LIVE]" : "[DRAFT]"}
-                        </span>
-                        <h3 className="font-bold text-foreground truncate">{post.title}</h3>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {post.cover_image && (
+                        <img
+                          src={post.cover_image}
+                          alt=""
+                          className="w-10 h-10 object-cover border border-border hidden sm:block"
+                        />
+                      )}
+                      {!post.cover_image && (
+                        <div className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hidden sm:flex">
+                          <Image className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className={post.published ? "text-secondary" : "text-muted-foreground"}>
+                            {post.published ? "[LIVE]" : "[DRAFT]"}
+                          </span>
+                          <h3 className="font-bold text-foreground truncate">{post.title}</h3>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">/{post.slug}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">/{post.slug}</p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <Button

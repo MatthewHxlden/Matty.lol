@@ -16,6 +16,8 @@ import ToolsAdmin from "./pages/ToolsAdmin";
 import Links from "./pages/Links";
 import LinksAdmin from "./pages/LinksAdmin";
 import Contact from "./pages/Contact";
+import ContactAdmin from "./pages/ContactAdmin";
+import SiteAdmin from "./pages/SiteAdmin";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -38,6 +40,8 @@ const App = () => (
               <Route path="/admin/apps" element={<AppsAdmin />} />
               <Route path="/admin/tools" element={<ToolsAdmin />} />
               <Route path="/admin/links" element={<LinksAdmin />} />
+              <Route path="/admin/contact" element={<ContactAdmin />} />
+              <Route path="/admin/site" element={<SiteAdmin />} />
               <Route path="/apps" element={<Apps />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/links" element={<Links />} />
