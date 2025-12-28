@@ -122,6 +122,12 @@ const TerminalHeader = () => {
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
+                          <Link to="/admin/site" className="flex items-center gap-2 cursor-pointer">
+                            <Shield className="w-4 h-4" />
+                            Site Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/admin/blog" className="flex items-center gap-2 cursor-pointer">
                             <Shield className="w-4 h-4" />
                             Blog Admin
@@ -143,6 +149,12 @@ const TerminalHeader = () => {
                           <Link to="/admin/links" className="flex items-center gap-2 cursor-pointer">
                             <Shield className="w-4 h-4" />
                             Links Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/contact" className="flex items-center gap-2 cursor-pointer">
+                            <Shield className="w-4 h-4" />
+                            Contact Admin
                           </Link>
                         </DropdownMenuItem>
                       </>

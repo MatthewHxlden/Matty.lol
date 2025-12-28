@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import { Send, Mail, MapPin, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface ContactInfo {
+  id: string;
+  email: string;
+  location: string;
+  response_time: string;
+  discussion_topics: string[];
+}
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +22,19 @@ const Contact = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: contactInfo } = useQuery({
+    queryKey: ["contact-info"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_info")
+        .select("*")
+        .limit(1)
+        .single();
+      if (error && error.code !== "PGRST116") throw error;
+      return data as ContactInfo | null;
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +51,17 @@ const Contact = () => {
     setFormData({ name: "", email: "", message: "" });
     setIsSubmitting(false);
   };
+
+  // Fallback values
+  const email = contactInfo?.email || "hello@matty.lol";
+  const location = contactInfo?.location || "The Internet";
+  const responseTime = contactInfo?.response_time || "~24-48 hours";
+  const topics = contactInfo?.discussion_topics || [
+    "New projects & ideas",
+    "Collaboration opportunities",
+    "Tech & dev discussions",
+    "Coffee recommendations ☕",
+  ];
 
   return (
     <TerminalLayout>
@@ -66,7 +100,7 @@ const Contact = () => {
                     <Mail className="w-5 h-5 text-accent" />
                     <div>
                       <div className="text-xs text-muted-foreground">email:</div>
-                      <div className="text-foreground">hello@matty.lol</div>
+                      <div className="text-foreground">{email}</div>
                     </div>
                   </div>
 
@@ -74,7 +108,7 @@ const Contact = () => {
                     <MapPin className="w-5 h-5 text-secondary" />
                     <div>
                       <div className="text-xs text-muted-foreground">location:</div>
-                      <div className="text-foreground">The Internet</div>
+                      <div className="text-foreground">{location}</div>
                     </div>
                   </div>
 
@@ -82,7 +116,7 @@ const Contact = () => {
                     <Clock className="w-5 h-5 text-primary" />
                     <div>
                       <div className="text-xs text-muted-foreground">response_time:</div>
-                      <div className="text-foreground">~24-48 hours</div>
+                      <div className="text-foreground">{responseTime}</div>
                     </div>
                   </div>
                 </div>
@@ -95,18 +129,11 @@ const Contact = () => {
                     I'm always open to discussing:
                   </p>
                   <ul className="space-y-1 pl-4">
-                    <li className="flex items-center gap-2">
-                      <span className="text-accent">→</span> New projects & ideas
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-accent">→</span> Collaboration opportunities
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-accent">→</span> Tech & dev discussions
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-accent">→</span> Coffee recommendations ☕
-                    </li>
+                    {topics.map((topic, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <span className="text-accent">→</span> {topic}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </TerminalCard>
