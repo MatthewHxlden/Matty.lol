@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>matty.lol Blog</title>
+    <link>https://matty.lol</link>
+    <description>thoughts, tutorials, and random musings</description>
+    <atom:link href="https://matty.lol/rss.xml" rel="self" type="application/rss+xml"/>
+    <!-- RSS feed is generated dynamically - see RssFeed component -->
+  </channel>
+</rss>

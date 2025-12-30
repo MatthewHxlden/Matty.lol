@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Calendar, Clock, Tag, ArrowLeft, User, AlertCircle } from "lucide-react";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { Calendar, Clock, Tag, ArrowLeft, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -209,7 +210,9 @@ const BlogPost = () => {
               {/* Content */}
               <TerminalCard title={`${post.slug}.md`}>
                 <div className="prose prose-invert max-w-none">
-                  {post.content ? renderContent(post.content) : (
+                  {post.content ? (
+                    <MarkdownRenderer content={post.content} />
+                  ) : (
                     <p className="text-muted-foreground italic">// no content available</p>
                   )}
                 </div>

@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import SearchModal from "@/components/SearchModal";
+import TerminalCommand from "@/components/TerminalCommand";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, LogOut, User, Settings, Shield } from "lucide-react";
+import { LogIn, LogOut, User, Settings, Shield, Search, Terminal, BarChart3, Rss } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +27,8 @@ const navLinks = [
 const TerminalHeader = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
 
   // Check if user is admin
   const { data: isAdmin } = useQuery({
@@ -38,7 +43,21 @@ const TerminalHeader = () => {
       return data as boolean;
     },
     enabled: !!user,
-  });
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "`") {
+        e.preventDefault();
+        setTerminalOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <motion.header
@@ -97,6 +116,22 @@ const TerminalHeader = () => {
                 </Link>
               </motion.div>
             ))}
+
+            {/* Search & Terminal buttons */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="px-2 py-1 text-muted-foreground hover:text-primary transition-all"
+              title="Search (⌘K)"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setTerminalOpen(true)}
+              className="px-2 py-1 text-muted-foreground hover:text-secondary transition-all"
+              title="Terminal (⌘`)"
+            >
+              <Terminal className="w-4 h-4" />
+            </button>
 
             {/* Auth button */}
             <motion.div
