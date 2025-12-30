@@ -20,6 +20,8 @@ import ContactAdmin from "./pages/ContactAdmin";
 import SiteAdmin from "./pages/SiteAdmin";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Analytics from "./pages/Analytics";
+import RssFeed from "./pages/RssFeed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +50,8 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin/analytics" element={<Analytics />} />
+              <Route path="/rss" element={<RssFeed />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

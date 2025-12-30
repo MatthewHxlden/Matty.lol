@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -402,12 +403,9 @@ const BlogAdmin = () => {
 
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">Content (Markdown)</label>
-                    <Textarea
+                    <MarkdownEditor
                       value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="# Your post content..."
-                      rows={10}
-                      className="font-mono text-sm"
+                      onChange={(value) => setFormData({ ...formData, content: value })}
                     />
                   </div>
 
