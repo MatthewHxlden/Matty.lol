@@ -844,7 +844,7 @@ const Index = () => {
                     transition={{ delay: 2.7 + index * 0.1 }}
                   >
                     <Link to={link.path} className="group block">
-                      <div className="border border-border p-4 transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm">
+                      <div className="border border-border p-4 transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm shine-hover">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <Icon className="w-5 h-5 text-accent group-hover:text-primary transition-colors" />
@@ -890,7 +890,7 @@ const Index = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 3.5 + index * 0.1 }}
                     whileHover={{ scale: 1.05 }}
-                    className="p-4 border border-border/50 bg-muted/20"
+                    className="p-4 border border-border/50 bg-muted/20 shine-hover"
                   >
                     <Icon className={`w-6 h-6 mx-auto mb-2 ${stat.color_class}`} />
                     <div className={`text-xl font-bold ${stat.color_class}`}>

@@ -45,6 +45,7 @@ export const changelog: ChangelogEntry[] = [
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
       "Added live crypto prices (SOL/BTC/ETH/Venice) with 24h change in footer.",
+      "Added hover shine effect to quick links and status boxes.",
     ],
     tags: ["trading", "ui", "data"],
   },
