@@ -488,7 +488,7 @@ const Index = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-secondary">STATUS:</span>
-                <span className="px-2 py-1 text-xs font-mono bg-green-500/20 text-green-500 border border-green-500/50 rounded">
+                <span className="px-2 py-1 text-xs font-mono bg-green-500/20 text-green-500 border border-green-500/50 rounded animate-pulse">
                   LIVE
                 </span>
               </div>

@@ -48,6 +48,7 @@ export const changelog: ChangelogEntry[] = [
       "Added hover shine effect to quick links and status boxes.",
       "Added Jupiter perps block to top of trades page with live positions and activity.",
       "Updated Jupiter Perps title and added green LIVE indicator on home and trades pages.",
+      "Added slowly flashing effect to LIVE indicators.",
     ],
     tags: ["trading", "ui", "data"],
   },
