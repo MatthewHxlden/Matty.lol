@@ -7,7 +7,7 @@ import { useRainTheme } from "@/hooks/useRainTheme";
 import SearchModal from "@/components/SearchModal";
 import TerminalCommand from "@/components/TerminalCommand";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, LogOut, User, Settings, Shield, Search, CloudRain } from "lucide-react";
+import { LogIn, LogOut, User, Settings, Shield, Search, CloudRain, Github, Rss, CloudSun, Activity } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -244,7 +244,6 @@ const TerminalHeader = () => {
             {/* Theme toggle (farthest right) */}
             <div className="ml-2 flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
               <CloudRain className="w-4 h-4 text-primary" />
-              <span className="text-xs text-muted-foreground font-mono hidden sm:inline">rain</span>
               <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
             </div>
           </div>
@@ -263,7 +262,20 @@ const TerminalHeader = () => {
             <div className="marquee">
               {[...tickerMessages, ...tickerMessages].map((msg, idx) => (
                 <span key={idx} className="px-4">
-                  <span className="text-secondary">$</span> {msg}
+                  <span className="inline-flex items-center gap-2">
+                    {msg.startsWith("github:") ? (
+                      <Github className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : msg.startsWith("reddit:") ? (
+                      <Rss className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : msg.startsWith("external conditions:") ? (
+                      <CloudSun className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : msg.startsWith("system:") ? (
+                      <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : (
+                      <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <span>{msg}</span>
+                  </span>
                 </span>
               ))}
             </div>

@@ -63,11 +63,11 @@ export default async function handler(req: any, res: any) {
 
     const title = item.title || "(no title)";
 
-    const subredditFromTitle = title.match(/\\(\\s*r\\/([^\\)]+)\\s*\\)/i)?.[1];
-    const subredditFromLink = item.link?.match(/reddit\\.com\\/r\\/([^/]+)/i)?.[1];
+    const subredditFromTitle = title.match(/\(\s*r\/([^\)]+)\s*\)/i)?.[1];
+    const subredditFromLink = item.link?.match(/reddit\.com\/r\/([^/]+)/i)?.[1];
     const subreddit = subredditFromTitle || subredditFromLink;
 
-    const cleanedTitle = title.replace(/\\(\\s*r\\/[^\\)]+\\s*\\)/i, "").trim();
+    const cleanedTitle = title.replace(/\(\s*r\/[^\)]+\s*\)/i, "").trim();
     const msg = subreddit ? `reddit: last post in r/${subreddit} — ${cleanedTitle}` : `reddit: ${cleanedTitle}`;
 
     res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=3600");
