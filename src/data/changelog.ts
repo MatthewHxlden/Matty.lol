@@ -33,6 +33,7 @@ export const changelog: ChangelogEntry[] = [
       "Moved the status ticker into its own bar below the navbar.",
       "Changed weather status display to Celsius.",
       "Made the rain toggle icon-only in the navbar.",
+      "Added /feed page + admin posting UI for site activity updates.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",

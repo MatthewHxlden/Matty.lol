@@ -18,7 +18,7 @@ const Feed = () => {
     queryKey: ["activity-feed"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("activity_feed" as any)
+        .from("activity_feed")
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: false })

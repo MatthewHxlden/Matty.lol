@@ -46,7 +46,7 @@ const FeedAdmin = () => {
     queryKey: ["admin-activity-feed"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("activity_feed" as any)
+        .from("activity_feed")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(200);
@@ -72,13 +72,13 @@ const FeedAdmin = () => {
     mutationFn: async () => {
       if (editingItem) {
         const { error } = await supabase
-          .from("activity_feed" as any)
+          .from("activity_feed")
           .update({ title: form.title, content: form.content, published: form.published })
           .eq("id", editingItem.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from("activity_feed" as any)
+          .from("activity_feed")
           .insert({ title: form.title, content: form.content, published: form.published, author_id: user?.id });
         if (error) throw error;
       }
@@ -95,7 +95,7 @@ const FeedAdmin = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("activity_feed" as any).delete().eq("id", id);
+      const { error } = await supabase.from("activity_feed").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
