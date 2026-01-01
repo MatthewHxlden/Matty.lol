@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image, Tag as TagIcon, Palette, Filter, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar, Clock, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image, Tag as TagIcon, Palette, Filter, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar, Clock, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain, Bitcoin, Coins } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -368,6 +368,8 @@ const BlogAdmin = () => {
     Sun,
     Moon,
     CloudRain,
+    Bitcoin,
+    Coins,
   };
 
   // Icon options
@@ -378,7 +380,8 @@ const BlogAdmin = () => {
     "Smartphone", "Tablet", "Watch", "Gamepad2", "Cpu", "Zap", "Battery",
     "Wifi", "Bluetooth", "Navigation", "MapPin", "Calendar", "Clock",
     "TrendingUp", "BarChart", "PieChart", "Activity", "Target", "Award",
-    "Trophy", "Medal", "Gem", "Sparkles", "Flame", "Sun", "Moon", "CloudRain"
+    "Trophy", "Medal", "Gem", "Sparkles", "Flame", "Sun", "Moon", "CloudRain",
+    "Bitcoin", "Coins"
   ];
 
   const generateSlug = (title: string) => {
