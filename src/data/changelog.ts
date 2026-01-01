@@ -8,12 +8,18 @@ export type ChangelogEntry = {
 export const changelog: ChangelogEntry[] = [
   {
     date: "2026-01-01",
-    title: "Jupiter perps + market signals",
+    title: "Perps UI, admin hub, and theme upgrades",
     items: [
       "Added live Jupiter perps open positions widget on the homepage.",
       "Added P/L coloring, signed P/L formatting, and mark-price trend coloring.",
       "Added BTC/ETH/SOL signals + Fear/Greed index widget.",
-      "Added Trades page placeholder and Jupiter referral CTA.",
+      "Added Trades page session tracker (baseline-from-now, not historical).",
+      "Added Site Admin hub (/admin) to access admin modules from one place.",
+      "Made homepage mission.txt editable via Site Admin (site_profile.mission).",
+      "Added rain theme toggle + background-only canvas rain effect.",
+      "Added /now page (editable via admin).",
+      "Embedded /links list into the Profile page.",
+      "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
     ],
     tags: ["trading", "ui", "data"],

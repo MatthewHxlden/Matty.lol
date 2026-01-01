@@ -22,6 +22,7 @@ interface SiteProfile {
   name: string;
   role: string;
   status: string;
+  mission?: string;
 }
 
 interface SiteStat {
@@ -113,6 +114,10 @@ const Index = () => {
       return data as SiteProfile | null;
     },
   });
+
+  const missionText =
+    siteProfile?.mission ||
+    "Welcome to my corner of the web. This is where I share projects, thoughts, and random experiments. Navigate using the links above or explore below.";
 
   const { data: siteStats } = useQuery({
     queryKey: ["site-stats"],
@@ -381,9 +386,7 @@ const Index = () => {
                   transition={{ delay: 2.2 }}
                   className="text-muted-foreground pl-4"
                 >
-                  Welcome to my corner of the web. This is where I share projects,
-                  thoughts, and random experiments. Navigate using the links above
-                  or explore below.
+                  {missionText}
                 </motion.p>
               </div>
             </TerminalCard>

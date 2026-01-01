@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
+import { RainThemeProvider } from "@/hooks/useRainTheme";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -18,6 +19,10 @@ import LinksAdmin from "./pages/LinksAdmin";
 import Contact from "./pages/Contact";
 import ContactAdmin from "./pages/ContactAdmin";
 import SiteAdmin from "./pages/SiteAdmin";
+import AdminHub from "./pages/AdminHub";
+import TradesAdmin from "./pages/TradesAdmin";
+import Now from "./pages/Now";
+import NowAdmin from "./pages/NowAdmin";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Analytics from "./pages/Analytics";
@@ -30,38 +35,44 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/admin/blog" element={<BlogAdmin />} />
-              <Route path="/admin/apps" element={<AppsAdmin />} />
-              <Route path="/admin/tools" element={<ToolsAdmin />} />
-              <Route path="/admin/links" element={<LinksAdmin />} />
-              <Route path="/admin/contact" element={<ContactAdmin />} />
-              <Route path="/admin/site" element={<SiteAdmin />} />
-              <Route path="/apps" element={<Apps />} />
-              <Route path="/changelog" element={<Changelog />} />
-              <Route path="/trades" element={<Trades />} />
-              <Route path="/tools" element={<Tools />} />
-              <Route path="/links" element={<Links />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin/analytics" element={<Analytics />} />
-              <Route path="/rss" element={<RssFeed />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+    <RainThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/admin" element={<AdminHub />} />
+                <Route path="/admin/site" element={<SiteAdmin />} />
+                <Route path="/admin/blog" element={<BlogAdmin />} />
+                <Route path="/admin/apps" element={<AppsAdmin />} />
+                <Route path="/admin/tools" element={<ToolsAdmin />} />
+                <Route path="/admin/links" element={<LinksAdmin />} />
+                <Route path="/admin/contact" element={<ContactAdmin />} />
+                <Route path="/admin/trades" element={<TradesAdmin />} />
+                <Route path="/admin/now" element={<NowAdmin />} />
+                <Route path="/admin/analytics" element={<Analytics />} />
+                <Route path="/apps" element={<Apps />} />
+                <Route path="/changelog" element={<Changelog />} />
+                <Route path="/trades" element={<Trades />} />
+                <Route path="/tools" element={<Tools />} />
+                <Route path="/links" element={<Links />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/now" element={<Now />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/rss" element={<RssFeed />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </RainThemeProvider>
   </QueryClientProvider>
 );
 

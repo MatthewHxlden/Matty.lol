@@ -198,6 +198,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          mission: string
           name: string
           role: string
           status: string
@@ -206,6 +207,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          mission?: string
           name?: string
           role?: string
           status?: string
@@ -214,9 +216,34 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          mission?: string
           name?: string
           role?: string
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      now_page: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []

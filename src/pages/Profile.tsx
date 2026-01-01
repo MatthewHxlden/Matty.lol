@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Upload, Save, Camera, Shield } from "lucide-react";
+import { User, Save, Camera, Shield, Github, Twitter, Linkedin, Mail, Globe, Youtube, MessageCircle, AlertCircle, type LucideIcon } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -20,6 +20,24 @@ interface Profile {
   avatar_url: string | null;
   bio: string | null;
 }
+
+interface LinkItem {
+  id: string;
+  name: string;
+  handle: string | null;
+  url: string;
+  icon: string;
+}
+
+const iconMap: Record<string, LucideIcon> = {
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
+  Globe,
+  Youtube,
+  MessageCircle,
+};
 
 const Profile = () => {
   const { user } = useAuth();
@@ -48,6 +66,18 @@ const Profile = () => {
       return data as Profile | null;
     },
     enabled: !!user,
+  });
+
+  const { data: links, isLoading: linksLoading, error: linksError } = useQuery({
+    queryKey: ["links"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("links")
+        .select("*")
+        .order("sort_order");
+      if (error) throw error;
+      return data as LinkItem[];
+    },
   });
 
   // Update form when profile loads
@@ -271,6 +301,50 @@ const Profile = () => {
                     // email cannot be changed here
                   </p>
                 </div>
+              </TerminalCard>
+
+              {/* Links */}
+              <TerminalCard title="~/links.list" promptText="cat links.list">
+                {linksError && (
+                  <div className="flex items-center gap-2 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Error loading links: {(linksError as Error).message}</span>
+                  </div>
+                )}
+
+                {linksLoading && <div className="text-sm text-muted-foreground">loading...</div>}
+
+                {!linksLoading && !linksError && links && links.length > 0 && (
+                  <div className="space-y-3">
+                    {links.map((link) => {
+                      const Icon = iconMap[link.icon] || Globe;
+                      return (
+                        <a
+                          key={link.id}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block border border-border p-4 transition-all duration-300 bg-card/30 backdrop-blur-sm hover:border-primary/60 hover:bg-primary/5"
+                        >
+                          <div className="flex items-center gap-4">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <div className="flex-1">
+                              <div className="font-bold text-foreground">{link.name}</div>
+                              {link.handle && (
+                                <div className="text-sm text-muted-foreground">{link.handle}</div>
+                              )}
+                            </div>
+                            <span className="text-muted-foreground">→</span>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {!linksLoading && !linksError && (!links || links.length === 0) && (
+                  <div className="text-sm text-muted-foreground">// no links found</div>
+                )}
               </TerminalCard>
             </>
           )}

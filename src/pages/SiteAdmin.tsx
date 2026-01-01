@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,6 +17,7 @@ interface SiteProfile {
   name: string;
   role: string;
   status: string;
+  mission?: string;
 }
 
 interface SiteStat {
@@ -38,6 +40,7 @@ const SiteAdmin = () => {
     name: "",
     role: "",
     status: "",
+    mission: "",
   });
 
   const [editingStat, setEditingStat] = useState<SiteStat | null>(null);
@@ -98,6 +101,7 @@ const SiteAdmin = () => {
         name: siteProfile.name,
         role: siteProfile.role,
         status: siteProfile.status,
+        mission: siteProfile.mission || "",
       });
     }
   }, [siteProfile]);
@@ -310,6 +314,16 @@ const SiteAdmin = () => {
                     onChange={(e) => setProfileData({ ...profileData, status: e.target.value })}
                     placeholder="building cool stuff"
                     required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Mission (mission.txt)</label>
+                  <Textarea
+                    value={profileData.mission}
+                    onChange={(e) => setProfileData({ ...profileData, mission: e.target.value })}
+                    placeholder="Welcome to my corner of the web..."
+                    className="min-h-[120px]"
                   />
                 </div>
                 <Button

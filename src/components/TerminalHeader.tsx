@@ -3,10 +3,12 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useRainTheme } from "@/hooks/useRainTheme";
 import SearchModal from "@/components/SearchModal";
 import TerminalCommand from "@/components/TerminalCommand";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, LogOut, User, Settings, Shield, Search, Terminal, BarChart3, Rss } from "lucide-react";
+import { LogIn, LogOut, User, Settings, Shield, Search, Terminal, CloudRain } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +29,7 @@ const navLinks = [
 const TerminalHeader = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { rainEnabled, setRainEnabled } = useRainTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
 
@@ -70,55 +73,52 @@ const TerminalHeader = () => {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          {/* Logo */}
-          <Link to="/" className="group">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2"
-            >
-              <span className="text-secondary">$</span>
-              <span
-                className="glitch text-2xl font-bold neon-text"
-                data-text="matty.lol"
-              >
-                matty.lol
-              </span>
-              <span className="cursor-blink text-primary">_</span>
-            </motion.div>
-          </Link>
-
-          {/* Navigation */}
-          <nav className="flex flex-wrap items-center gap-1 md:gap-2">
-            {navLinks.map((link, index) => (
-              <motion.div
-                key={link.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link
-                  to={link.path}
-                  className={`group relative px-3 py-1 text-sm transition-all duration-300 ${
-                    location.pathname === link.path
-                      ? "text-primary neon-text"
-                      : "text-muted-foreground hover-glow"
-                  }`}
-                >
-                  <span className="text-secondary opacity-50 group-hover:opacity-100 transition-opacity">
-                    ./
-                  </span>
-                  {link.name}
-                  {location.pathname === link.path && (
-                    <motion.span
-                      layoutId="activeTab"
-                      className="absolute inset-0 border border-primary/50 -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </Link>
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Logo */}
+            <Link to="/" className="group">
+              <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2">
+                <span className="text-secondary">$</span>
+                <span className="glitch text-2xl font-bold neon-text" data-text="matty.lol">
+                  matty.lol
+                </span>
+                <span className="cursor-blink text-primary">_</span>
               </motion.div>
-            ))}
+            </Link>
 
+            {/* Main nav (left beside logo) */}
+            <nav className="flex flex-wrap items-center gap-1 md:gap-2">
+              {navLinks.map((link, index) => (
+                <motion.div
+                  key={link.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link
+                    to={link.path}
+                    className={`group relative px-3 py-1 text-sm transition-all duration-300 ${
+                      location.pathname === link.path
+                        ? "text-primary neon-text"
+                        : "text-muted-foreground hover-glow"
+                    }`}
+                  >
+                    <span className="text-secondary opacity-50 group-hover:opacity-100 transition-opacity">./</span>
+                    {link.name}
+                    {location.pathname === link.path && (
+                      <motion.span
+                        layoutId="activeTab"
+                        className="absolute inset-0 border border-primary/50 -z-10"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              ))}
+            </nav>
+          </div>
+
+          {/* Right-side controls */}
+          <div className="flex items-center justify-end gap-2">
             {/* Search & Terminal buttons */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -135,7 +135,7 @@ const TerminalHeader = () => {
               <Terminal className="w-4 h-4" />
             </button>
 
-            {/* Auth button */}
+            {/* Account dropdown */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -149,53 +149,20 @@ const TerminalHeader = () => {
                     <span className="hidden sm:inline">account</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-background border-border">
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                          <Shield className="w-4 h-4" />
+                          Site Admin
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                         <Settings className="w-4 h-4" />
-                        Profile
+                        Edit Profile
                       </Link>
                     </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/site" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Site Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/blog" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Blog Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/apps" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Apps Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/tools" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Tools Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/links" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Links Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/contact" className="flex items-center gap-2 cursor-pointer">
-                            <Shield className="w-4 h-4" />
-                            Contact Admin
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -232,7 +199,14 @@ const TerminalHeader = () => {
                 <span className="text-[10px] px-1.5 py-0.5 border border-accent/50 text-accent">NEW</span>
               </Link>
             </motion.div>
-          </nav>
+
+            {/* Theme toggle (farthest right) */}
+            <div className="ml-2 flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
+              <CloudRain className="w-4 h-4 text-primary" />
+              <span className="text-xs text-muted-foreground font-mono hidden sm:inline">rain</span>
+              <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
+            </div>
+          </div>
         </div>
 
         {/* Terminal line */}
