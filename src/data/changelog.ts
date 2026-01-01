@@ -23,6 +23,7 @@ export const changelog: ChangelogEntry[] = [
       "Added homepage + footer shortcuts for /now and /links.",
       "Added a homepage shortcut tile for /trades.",
       "Fixed Solscan links in perps widgets to link to the correct position/account (not always SOL).",
+      "Added navbar >_ command terminal shortcut and fixed its modal sizing on small screens.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
     ],

@@ -7,7 +7,7 @@ import { useRainTheme } from "@/hooks/useRainTheme";
 import SearchModal from "@/components/SearchModal";
 import TerminalCommand from "@/components/TerminalCommand";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, LogOut, User, Settings, Shield, Search, Terminal, CloudRain } from "lucide-react";
+import { LogIn, LogOut, User, Settings, Shield, Search, CloudRain } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -137,13 +137,6 @@ const TerminalHeader = () => {
               title="Command Terminal (Ctrl/⌘+K)"
             >
               <span className="text-sm leading-none">&gt;_</span>
-            </button>
-            <button
-              onClick={() => setTerminalOpen(true)}
-              className="px-2 py-1 text-muted-foreground hover:text-secondary transition-all"
-              title="Terminal (⌘`)"
-            >
-              <Terminal className="w-4 h-4" />
             </button>
 
             {/* Account dropdown */}
