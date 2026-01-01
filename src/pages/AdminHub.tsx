@@ -77,6 +77,7 @@ const AdminHub = () => {
   const links = [
     { label: "site", path: "/admin/site", desc: "homepage profile, mission, stats" },
     { label: "now", path: "/admin/now", desc: "edit /now page content" },
+    { label: "feed", path: "/admin/feed", desc: "post updates to /feed" },
     { label: "blog", path: "/admin/blog", desc: "posts, images, publish" },
     { label: "apps", path: "/admin/apps", desc: "projects list" },
     { label: "tools", path: "/admin/tools", desc: "tool catalog" },

@@ -278,7 +278,7 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl mx-auto bg-card border border-primary neon-border max-h-[calc(100vh-14rem)] overflow-hidden"
+            className="w-full max-w-2xl mx-auto bg-card border border-primary neon-border h-[calc(100vh-14rem)] overflow-hidden flex flex-col"
           >
             {/* Terminal Header */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted">
@@ -299,7 +299,7 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
             {/* Terminal Body */}
             <div
               ref={terminalRef}
-              className="max-h-[calc(100vh-20rem)] overflow-y-auto p-4 font-mono text-sm"
+              className="flex-1 overflow-y-auto p-4 font-mono text-sm"
               onClick={() => inputRef.current?.focus()}
             >
               {/* Welcome message */}

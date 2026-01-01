@@ -23,6 +23,8 @@ import AdminHub from "./pages/AdminHub";
 import TradesAdmin from "./pages/TradesAdmin";
 import Now from "./pages/Now";
 import NowAdmin from "./pages/NowAdmin";
+import Feed from "./pages/Feed";
+import FeedAdmin from "./pages/FeedAdmin";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Analytics from "./pages/Analytics";
@@ -55,9 +57,11 @@ const App = () => (
                 <Route path="/admin/contact" element={<ContactAdmin />} />
                 <Route path="/admin/trades" element={<TradesAdmin />} />
                 <Route path="/admin/now" element={<NowAdmin />} />
+                <Route path="/admin/feed" element={<FeedAdmin />} />
                 <Route path="/admin/analytics" element={<Analytics />} />
                 <Route path="/apps" element={<Apps />} />
                 <Route path="/changelog" element={<Changelog />} />
+                <Route path="/feed" element={<Feed />} />
                 <Route path="/trades" element={<Trades />} />
                 <Route path="/tools" element={<Tools />} />
                 <Route path="/links" element={<Links />} />
