@@ -393,231 +393,12 @@ const Index = () => {
               </div>
             </TerminalCard>
 
-            {/* Trades box (full width, status-style) */}
-            <TerminalCard title="~/trades.log" delay={0.45} promptText="jup perps --open">
-              <div className="space-y-3 text-xs md:text-sm font-mono">
-                {jupiterPositionsLoading && (
-                  <p className="text-muted-foreground pl-4">loading...</p>
-                )}
-
-                {jupiterPositionsIsError && (
-                  <p className="text-muted-foreground pl-4">
-                    error: {jupiterPositionsError instanceof Error ? jupiterPositionsError.message : "unknown error"}
-                  </p>
-                )}
-
-                {!jupiterPositionsLoading && !jupiterPositionsIsError && (
-                  <div className="grid grid-cols-1 gap-4">
-                    {(() => {
-                      const tokenInfoSolana = jupiterPositions?.tokenInfo?.solana || {};
-                      const leverageElements = (jupiterPositions?.elements || []).filter(
-                        (e) => e.type === "leverage"
-                      );
-
-                      const positions: JupiterPerpsPosition[] = leverageElements.flatMap((el) => {
-                        const data = el.data as any;
-                        const isolatedPositions = data?.isolated?.positions;
-                        return Array.isArray(isolatedPositions) ? (isolatedPositions as JupiterPerpsPosition[]) : [];
-                      });
-
-                      if (positions.length === 0) {
-                        return <p className="text-muted-foreground pl-4">no open positions</p>;
-                      }
-
-                      return positions.slice(0, 6).map((pos, idx) => {
-                        const symbol = tokenInfoSolana?.[pos.address]?.symbol || pos.address.slice(0, 4);
-                        const logoURI = tokenInfoSolana?.[pos.address]?.logoURI;
-                        const isSol =
-                          pos.address === "So11111111111111111111111111111111111111112" ||
-                          symbol === "SOL" ||
-                          symbol === "wSOL";
-                        const side = (pos.side || "").toUpperCase();
-                        const leverage = typeof pos.leverage === "number" ? `${pos.leverage.toFixed(1)}x` : "-";
-                        const sizeUsd = typeof pos.sizeValue === "number" ? `$${formatUsd(pos.sizeValue)}` : "-";
-                        const pnlUsd =
-                          typeof pos.pnlValue === "number"
-                            ? `${pos.pnlValue > 0 ? "+" : pos.pnlValue < 0 ? "-" : ""}$${formatUsd(Math.abs(pos.pnlValue))}`
-                            : "-";
-                        const liq = typeof pos.liquidationPrice === "number" ? formatPrice(pos.liquidationPrice) : "-";
-                        const entry = typeof pos.entryPrice === "number" ? formatPrice(pos.entryPrice) : "-";
-                        const markNum = typeof pos.markPrice === "number" ? pos.markPrice : undefined;
-                        const mark = typeof markNum === "number" ? formatPrice(markNum) : "-";
-                        const prevMark = prevMarkByMintRef.current[pos.address];
-                        const markTrendClass =
-                          typeof markNum === "number" && typeof prevMark === "number"
-                            ? markNum > prevMark
-                              ? "text-secondary"
-                              : markNum < prevMark
-                                ? "text-destructive"
-                                : "text-muted-foreground"
-                            : "text-muted-foreground";
-                        const pnlClass =
-                          typeof pos.pnlValue === "number"
-                            ? pos.pnlValue < 0
-                              ? "text-destructive"
-                              : pos.pnlValue > 0
-                                ? "text-secondary"
-                                : "text-muted-foreground"
-                            : "text-muted-foreground";
-
-                        return (
-                          <div
-                            key={`${pos.address}-${idx}`}
-                            className="p-4 border border-border/50 bg-muted/20"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {isSol ? (
-                                  <img
-                                    src="/Solana-Round-Logo-PNG.png"
-                                    alt={symbol}
-                                    className="w-6 h-6 rounded-full"
-                                    loading="lazy"
-                                  />
-                                ) : logoURI ? (
-                                  <img
-                                    src={logoURI}
-                                    alt={symbol}
-                                    className="w-6 h-6 rounded-full"
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer"
-                                  />
-                                ) : null}
-
-                                <div className="text-foreground">
-                                  {symbol}
-                                </div>
-
-                                <a
-                                  href={`https://solscan.io/token/${pos.address}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-muted-foreground hover:text-primary transition-colors"
-                                  title="View on Solscan"
-                                >
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
-
-                                <div className="text-muted-foreground text-xs">
-                                  entry {entry} | liq {liq} |{" "}
-                                  <span className={markTrendClass}>mark {mark}</span>
-                                </div>
-                              </div>
-
-                              <div className={pos.side === "long" ? "text-primary" : "text-destructive"}>
-                                {side}
-                              </div>
-                            </div>
-
-                            <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
-                              <div className="p-3 border border-border/50 bg-muted/20 text-center">
-                                <div className="text-xs text-accent">leverage</div>
-                                <div className="text-sm text-muted-foreground">{leverage}</div>
-                              </div>
-                              <div className="p-3 border border-border/50 bg-muted/20 text-center">
-                                <div className="text-xs text-accent">size</div>
-                                <div className="text-sm text-muted-foreground">{sizeUsd}</div>
-                              </div>
-                              <div className="p-3 border border-border/50 bg-muted/20 text-center">
-                                <div className="text-xs text-accent">Profit &amp; Loss</div>
-                                <div className={`text-sm ${pnlClass}`}>{pnlUsd}</div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
-
-                <div className="p-4 border border-border/50 bg-muted/20">
-                  <div className="text-xs text-accent font-mono">activity</div>
-                  <div className="mt-2 text-sm text-foreground font-mono">
-                    {activeActivity ? (
-                      <div className="flex items-start gap-2">
-                        <span className="text-secondary shrink-0">$</span>
-                        <TypeWriter text={activeActivity.text} delay={35} className="text-foreground" />
-                        {activeActivity.address && (
-                          <a
-                            href={`https://solscan.io/token/${activeActivity.address}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title="View on Solscan"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
-                      </div>
-                    ) : activityLog.length > 0 ? (
-                      <div className="flex items-start gap-2">
-                        <span className="text-secondary shrink-0">$</span>
-                        <span className="text-muted-foreground">{activityLog[0].text}</span>
-                        {activityLog[0].address && (
-                          <a
-                            href={`https://solscan.io/token/${activityLog[0].address}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title="View on Solscan"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-2">
-                        <span className="text-secondary shrink-0">$</span>
-                        <span className="text-muted-foreground">waiting for next update...</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {activityLog.length > 1 && (
-                    <div className="mt-3 space-y-1 text-xs text-muted-foreground font-mono">
-                      {activityLog.slice(1, 5).map((line, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <span className="text-muted-foreground">-</span>
-                          <span className="truncate">{line.text}</span>
-                          {line.address && (
-                            <a
-                              href={`https://solscan.io/token/${line.address}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-muted-foreground hover:text-primary transition-colors"
-                              title="View on Solscan"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-2">
-                  <a
-                    href="https://jup.ag/?refId=crbvb8z35bbd"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-2 border border-primary/50 text-primary hover:text-foreground hover:bg-primary/10 hover:border-primary transition-all"
-                  >
-                    <span>Join me on Jupiter!</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                  <p className="mt-2 text-[11px] text-muted-foreground">
-                    users get a 10% trading points bonus using my link.
-                  </p>
-                </div>
-              </div>
-            </TerminalCard>
-
-            <TerminalCard title="~/signals.log" delay={0.48} promptText="watch signals --live">
-              {(() => {
-                const btc = marketPrices?.bitcoin?.usd;
-                const eth = marketPrices?.ethereum?.usd;
-                const sol = marketPrices?.solana?.usd;
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TerminalCard title="~/signals.log" delay={0.45} promptText="watch signals --live">
+                {(() => {
+                  const btc = marketPrices?.bitcoin?.usd;
+                  const eth = marketPrices?.ethereum?.usd;
+                  const sol = marketPrices?.solana?.usd;
 
                 const btcPrev = prevSignalByKeyRef.current.btc;
                 const ethPrev = prevSignalByKeyRef.current.eth;
@@ -718,7 +499,228 @@ const Index = () => {
                   </div>
                 );
               })()}
-            </TerminalCard>
+              </TerminalCard>
+
+              {/* Trades box (full width, status-style) */}
+              <TerminalCard title="~/trades.log" delay={0.48} promptText="jup perps --open">
+                <div className="space-y-3 text-xs md:text-sm font-mono">
+                  {jupiterPositionsLoading && (
+                    <p className="text-muted-foreground pl-4">loading...</p>
+                  )}
+
+                  {jupiterPositionsIsError && (
+                    <p className="text-muted-foreground pl-4">
+                      error: {jupiterPositionsError instanceof Error ? jupiterPositionsError.message : "unknown error"}
+                    </p>
+                  )}
+
+                  {!jupiterPositionsLoading && !jupiterPositionsIsError && (
+                    <div className="grid grid-cols-1 gap-4">
+                      {(() => {
+                        const tokenInfoSolana = jupiterPositions?.tokenInfo?.solana || {};
+                        const leverageElements = (jupiterPositions?.elements || []).filter(
+                          (e) => e.type === "leverage"
+                        );
+
+                        const positions: JupiterPerpsPosition[] = leverageElements.flatMap((el) => {
+                          const data = el.data as any;
+                          const isolatedPositions = data?.isolated?.positions;
+                          return Array.isArray(isolatedPositions) ? (isolatedPositions as JupiterPerpsPosition[]) : [];
+                        });
+
+                        if (positions.length === 0) {
+                          return <p className="text-muted-foreground pl-4">no open positions</p>;
+                        }
+
+                        return positions.slice(0, 6).map((pos, idx) => {
+                          const symbol = tokenInfoSolana?.[pos.address]?.symbol || pos.address.slice(0, 4);
+                          const logoURI = tokenInfoSolana?.[pos.address]?.logoURI;
+                          const isSol =
+                            pos.address === "So11111111111111111111111111111111111111112" ||
+                            symbol === "SOL" ||
+                            symbol === "wSOL";
+                          const side = (pos.side || "").toUpperCase();
+                          const leverage = typeof pos.leverage === "number" ? `${pos.leverage.toFixed(1)}x` : "-";
+                          const sizeUsd = typeof pos.sizeValue === "number" ? `$${formatUsd(pos.sizeValue)}` : "-";
+                          const pnlUsd =
+                            typeof pos.pnlValue === "number"
+                              ? `${pos.pnlValue > 0 ? "+" : pos.pnlValue < 0 ? "-" : ""}$${formatUsd(Math.abs(pos.pnlValue))}`
+                              : "-";
+                          const liq = typeof pos.liquidationPrice === "number" ? formatPrice(pos.liquidationPrice) : "-";
+                          const entry = typeof pos.entryPrice === "number" ? formatPrice(pos.entryPrice) : "-";
+                          const markNum = typeof pos.markPrice === "number" ? pos.markPrice : undefined;
+                          const mark = typeof markNum === "number" ? formatPrice(markNum) : "-";
+                          const prevMark = prevMarkByMintRef.current[pos.address];
+                          const markTrendClass =
+                            typeof markNum === "number" && typeof prevMark === "number"
+                              ? markNum > prevMark
+                                ? "text-secondary"
+                                : markNum < prevMark
+                                  ? "text-destructive"
+                                  : "text-muted-foreground"
+                              : "text-muted-foreground";
+                          const pnlClass =
+                            typeof pos.pnlValue === "number"
+                              ? pos.pnlValue < 0
+                                ? "text-destructive"
+                                : pos.pnlValue > 0
+                                  ? "text-secondary"
+                                  : "text-muted-foreground"
+                              : "text-muted-foreground";
+
+                          return (
+                            <div
+                              key={`${pos.address}-${idx}`}
+                              className="p-4 border border-border/50 bg-muted/20"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  {isSol ? (
+                                    <img
+                                      src="/Solana-Round-Logo-PNG.png"
+                                      alt={symbol}
+                                      className="w-6 h-6 rounded-full"
+                                      loading="lazy"
+                                    />
+                                  ) : logoURI ? (
+                                    <img
+                                      src={logoURI}
+                                      alt={symbol}
+                                      className="w-6 h-6 rounded-full"
+                                      loading="lazy"
+                                      referrerPolicy="no-referrer"
+                                    />
+                                  ) : null}
+
+                                  <div className="text-foreground">
+                                    {symbol}
+                                  </div>
+
+                                  <a
+                                    href={`https://solscan.io/token/${pos.address}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                    title="View on Solscan"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+
+                                  <div className="text-muted-foreground text-xs">
+                                    entry {entry} | liq {liq} |{" "}
+                                    <span className={markTrendClass}>mark {mark}</span>
+                                  </div>
+                                </div>
+
+                                <div className={pos.side === "long" ? "text-primary" : "text-destructive"}>
+                                  {side}
+                                </div>
+                              </div>
+
+                              <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div className="p-3 border border-border/50 bg-muted/20 text-center">
+                                  <div className="text-xs text-accent">leverage</div>
+                                  <div className="text-sm text-muted-foreground">{leverage}</div>
+                                </div>
+                                <div className="p-3 border border-border/50 bg-muted/20 text-center">
+                                  <div className="text-xs text-accent">size</div>
+                                  <div className="text-sm text-muted-foreground">{sizeUsd}</div>
+                                </div>
+                                <div className="p-3 border border-border/50 bg-muted/20 text-center">
+                                  <div className="text-xs text-accent">Profit &amp; Loss</div>
+                                  <div className={`text-sm ${pnlClass}`}>{pnlUsd}</div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+
+                  <div className="p-4 border border-border/50 bg-muted/20">
+                    <div className="text-xs text-accent font-mono">activity</div>
+                    <div className="mt-2 text-sm text-foreground font-mono">
+                      {activeActivity ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-secondary shrink-0">$</span>
+                          <TypeWriter text={activeActivity.text} delay={35} className="text-foreground" />
+                          {activeActivity.address && (
+                            <a
+                              href={`https://solscan.io/token/${activeActivity.address}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                              title="View on Solscan"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      ) : activityLog.length > 0 ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-secondary shrink-0">$</span>
+                          <span className="text-muted-foreground">{activityLog[0].text}</span>
+                          {activityLog[0].address && (
+                            <a
+                              href={`https://solscan.io/token/${activityLog[0].address}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                              title="View on Solscan"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-2">
+                          <span className="text-secondary shrink-0">$</span>
+                          <span className="text-muted-foreground">waiting for next update...</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {activityLog.length > 1 && (
+                      <div className="mt-3 space-y-1 text-xs text-muted-foreground font-mono">
+                        {activityLog.slice(1, 5).map((line, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <span className="text-muted-foreground">-</span>
+                            <span className="truncate">{line.text}</span>
+                            {line.address && (
+                              <a
+                                href={`https://solscan.io/token/${line.address}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-primary transition-colors"
+                                title="View on Solscan"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    <a
+                      href="https://jup.ag/?refId=crbvb8z35bbd"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 border border-primary/50 text-primary hover:text-foreground hover:bg-primary/10 hover:border-primary transition-all"
+                    >
+                      <span>Join me on Jupiter!</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      users get a 10% trading points bonus using my link.
+                    </p>
+                  </div>
+                </div>
+              </TerminalCard>
+            </div>
           </motion.div>
         </section>
 

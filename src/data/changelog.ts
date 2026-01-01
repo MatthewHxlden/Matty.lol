@@ -22,6 +22,7 @@ export const changelog: ChangelogEntry[] = [
       "Fixed Vercel SPA routing so direct links like /now and /links load correctly.",
       "Added homepage + footer shortcuts for /now and /links.",
       "Added a homepage shortcut tile for /trades.",
+      "Reworked homepage hero panels: signals + trades render side-by-side on desktop.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
     ],
