@@ -46,9 +46,15 @@ const TerminalFooter = () => {
           <CryptoPrices />
 
           <div className="text-muted-foreground/50">
-            <span>// built with </span>
-            <span className="text-accent">♥</span>
-            <span> and caffeine</span>
+            <span>// built by </span>
+            <a 
+              href="https://github.com/matthewhxlden" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-accent hover:text-primary transition-colors"
+            >
+              @JaeSwift
+            </a>
           </div>
         </div>
       </div>
