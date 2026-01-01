@@ -6,7 +6,7 @@ import TerminalCard from "@/components/TerminalCard";
 import TypeWriter from "@/components/TypeWriter";
 import GlitchText from "@/components/GlitchText";
 import { Link } from "react-router-dom";
-import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, LucideIcon } from "lucide-react";
+import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, LucideIcon, ChartLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as LucideIcons from "lucide-react";
 
@@ -14,6 +14,7 @@ const quickLinks = [
   { name: "blog", path: "/blog", icon: Terminal, desc: "thoughts & tutorials" },
   { name: "apps", path: "/apps", icon: Code, desc: "things i've built" },
   { name: "tools", path: "/tools", icon: Zap, desc: "useful utilities" },
+  { name: "trades", path: "/trades", icon: ChartLine, desc: "perps session tracker" },
   { name: "now", path: "/now", icon: Coffee, desc: "what i'm up to" },
   { name: "links", path: "/links", icon: Binary, desc: "my corner of the web" },
 ];

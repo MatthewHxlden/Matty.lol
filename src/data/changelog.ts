@@ -21,6 +21,7 @@ export const changelog: ChangelogEntry[] = [
       "Embedded /links list into the Profile page.",
       "Fixed Vercel SPA routing so direct links like /now and /links load correctly.",
       "Added homepage + footer shortcuts for /now and /links.",
+      "Added a homepage shortcut tile for /trades.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
     ],
