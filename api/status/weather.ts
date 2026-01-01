@@ -6,17 +6,33 @@ export default async function handler(req: any, res: any) {
 
   const latRaw = process.env.WEATHER_LAT;
   const lonRaw = process.env.WEATHER_LON;
-  if (!latRaw || !lonRaw) {
-    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=600");
-    res.status(200).json({ ok: false, message: "external conditions: weather not configured" });
-    return;
+
+  let lat = Number(latRaw);
+  let lon = Number(lonRaw);
+
+  try {
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      const geoRes = await fetch(
+        "https://geocoding-api.open-meteo.com/v1/search?name=Rossendale%2C%20Lancashire&count=1&language=en&format=json"
+      );
+      if (geoRes.ok) {
+        const geo = (await geoRes.json()) as any;
+        const first = geo?.results?.[0];
+        const geoLat = typeof first?.latitude === "number" ? first.latitude : undefined;
+        const geoLon = typeof first?.longitude === "number" ? first.longitude : undefined;
+        if (typeof geoLat === "number" && typeof geoLon === "number") {
+          lat = geoLat;
+          lon = geoLon;
+        }
+      }
+    }
+  } catch {
+    // swallow geocoding errors; we'll fall back to a friendly message below
   }
 
-  const lat = Number(latRaw);
-  const lon = Number(lonRaw);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=600");
-    res.status(200).json({ ok: false, message: "external conditions: invalid coordinates" });
+    res.status(200).json({ ok: false, message: "external conditions: weather unavailable" });
     return;
   }
 

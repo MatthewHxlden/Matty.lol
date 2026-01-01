@@ -4,8 +4,8 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO;
+  const owner = process.env.GITHUB_OWNER || "MatthewHxlden";
+  const repo = process.env.GITHUB_REPO || "matty-s-cyber-den";
   if (!owner || !repo) {
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=600");
     res.status(200).json({ ok: false, message: "github: not configured" });

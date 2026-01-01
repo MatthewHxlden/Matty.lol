@@ -26,6 +26,7 @@ export const changelog: ChangelogEntry[] = [
       "Added navbar >_ command terminal shortcut and fixed its modal sizing on small screens.",
       "Added a scrolling status ticker across the top of the site.",
       "Added status integrations (weather/github/reddit) to power the top ticker.",
+      "Defaulted ticker status sources to Rossendale weather + jaeswift Reddit when env vars are not set.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",

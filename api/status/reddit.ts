@@ -21,7 +21,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const username = process.env.REDDIT_USERNAME;
+  const username = process.env.REDDIT_USERNAME || "jaeswift";
   if (!username) {
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=600");
     res.status(200).json({ ok: false, message: "reddit: not configured" });
