@@ -28,6 +28,7 @@ export const changelog: ChangelogEntry[] = [
       "Added status integrations (weather/github/reddit) to power the top ticker.",
       "Defaulted ticker status sources to Rossendale weather + jaeswift Reddit when env vars are not set.",
       "Adjusted the command terminal modal to drop below the navbar instead of clipping off-screen.",
+      "Fixed command terminal modal bottom clipping by improving scroll/padding.",
       "Replaced ticker $ markers with status icons (GitHub/Reddit/Weather/System).",
       "Made the rain toggle icon-only in the navbar.",
       "Synced homepage perps activity panel with the /trades session activity log.",
