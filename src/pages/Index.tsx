@@ -483,7 +483,7 @@ const Index = () => {
     trades: () => (
       <>
         {/* Trades box (full width, status-style) */}
-        <section className="py-12">
+        <section>
           <TerminalCard title="~/trades.log" delay={0.45} promptText="jup perps --open">
             <div className="space-y-3 text-xs md:text-sm font-mono">
               {jupiterPositionsLoading && (
@@ -708,7 +708,7 @@ const Index = () => {
     ),
     signals: () => (
       <>
-        <section className="py-12">
+        <section>
           <TerminalCard title="~/signals.log" delay={0.48} promptText="watch signals --live">
             {(() => {
               const btc = marketPrices?.bitcoin?.usd;
@@ -821,7 +821,7 @@ const Index = () => {
     quick_links: () => (
       <>
         {/* Quick Links Grid */}
-        <section className="py-12">
+        <section>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -877,7 +877,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 3.2 }}
-          className="py-12"
+          className=""
         >
           <TerminalCard title="~/status.log" delay={3.2} promptText="cat status.log">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -912,13 +912,15 @@ const Index = () => {
   return (
     <TerminalLayout>
       <div className="container mx-auto px-4">
-        {homeLayout
-          .filter((item) => item.enabled)
-          .map((item) => (
-            <React.Fragment key={item.id}>
-              {sectionRenderers[item.id]?.() || null}
-            </React.Fragment>
-          ))}
+        <div className="space-y-6">
+          {homeLayout
+            .filter((item) => item.enabled)
+            .map((item) => (
+              <React.Fragment key={item.id}>
+                {sectionRenderers[item.id]?.() || null}
+              </React.Fragment>
+            ))}
+        </div>
       </div>
     </TerminalLayout>
   );
