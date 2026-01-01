@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
@@ -7,10 +7,11 @@ import TerminalCard from "@/components/TerminalCard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, Shield, Plus, Edit, Trash2, X } from "lucide-react";
+import { Save, Shield, Plus, Edit, Trash2, X, GripVertical } from "lucide-react";
 
 interface SiteProfile {
   id: string;
@@ -29,6 +30,48 @@ interface SiteStat {
   color_class: string;
   sort_order: number;
 }
+
+type HomeLayoutItem = {
+  id: string;
+  enabled: boolean;
+};
+
+type HomeLayoutRow = {
+  id: string;
+  layout: unknown;
+};
+
+const DEFAULT_HOME_LAYOUT: HomeLayoutItem[] = [
+  { id: "hero", enabled: true },
+  { id: "trades", enabled: true },
+  { id: "signals", enabled: true },
+  { id: "quick_links", enabled: true },
+  { id: "status", enabled: true },
+];
+
+const normalizeHomeLayout = (raw: unknown): HomeLayoutItem[] => {
+  const parsed = Array.isArray(raw) ? (raw as any[]) : [];
+  const items: HomeLayoutItem[] = parsed
+    .map((v) => ({
+      id: typeof v?.id === "string" ? v.id : "",
+      enabled: typeof v?.enabled === "boolean" ? v.enabled : true,
+    }))
+    .filter((v) => v.id);
+
+  const merged = [...DEFAULT_HOME_LAYOUT];
+  for (const item of items) {
+    const idx = merged.findIndex((m) => m.id === item.id);
+    if (idx >= 0) merged[idx] = item;
+    else merged.push(item);
+  }
+
+  const dedup: HomeLayoutItem[] = [];
+  for (const item of merged) {
+    if (dedup.some((d) => d.id === item.id)) continue;
+    dedup.push(item);
+  }
+  return dedup;
+};
 
 const SiteAdmin = () => {
   const { user } = useAuth();
@@ -53,6 +96,8 @@ const SiteAdmin = () => {
     color_class: "text-primary",
     sort_order: 0,
   });
+
+  const [homeLayout, setHomeLayout] = useState<HomeLayoutItem[]>(DEFAULT_HOME_LAYOUT);
 
   const { data: isAdmin, isLoading: isCheckingAdmin } = useQuery({
     queryKey: ["is-admin", user?.id],
@@ -81,6 +126,25 @@ const SiteAdmin = () => {
     },
     enabled: isAdmin === true,
   });
+
+  const { data: homeLayoutRow } = useQuery({
+    queryKey: ["home-layout-admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("home_layout")
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (error && error.code !== "PGRST116") throw error;
+      return data as HomeLayoutRow | null;
+    },
+    enabled: isAdmin === true,
+  });
+
+  useEffect(() => {
+    setHomeLayout(normalizeHomeLayout(homeLayoutRow?.layout));
+  }, [homeLayoutRow]);
 
   const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ["site-stats-admin"],
@@ -188,6 +252,27 @@ const SiteAdmin = () => {
       sort_order: 0,
     });
   };
+
+  const saveHomeLayoutMutation = useMutation({
+    mutationFn: async () => {
+      if (homeLayoutRow) {
+        const { error } = await supabase
+          .from("home_layout")
+          .update({ layout: homeLayout as any })
+          .eq("id", homeLayoutRow.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("home_layout").insert({ layout: homeLayout as any });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["home-layout-admin"] });
+      queryClient.invalidateQueries({ queryKey: ["home-layout"] });
+      toast({ title: "SAVED", description: "Homepage layout updated." });
+    },
+    onError: (error: Error) => toast({ title: "ERROR", description: error.message, variant: "destructive" }),
+  });
 
   const handleEditStat = (stat: SiteStat) => {
     setEditingStat(stat);
@@ -337,6 +422,58 @@ const SiteAdmin = () => {
               </form>
             </TerminalCard>
           )}
+
+          <TerminalCard title="home_layout.json" promptText="edit home_layout">
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-sm text-muted-foreground">
+                drag to reorder. toggle to enable/disable.
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHomeLayout(DEFAULT_HOME_LAYOUT)}
+                >
+                  Reset
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => saveHomeLayoutMutation.mutate()}
+                  disabled={saveHomeLayoutMutation.isPending}
+                  className="flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {saveHomeLayoutMutation.isPending ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Reorder.Group axis="y" values={homeLayout} onReorder={setHomeLayout} className="space-y-2">
+                {homeLayout.map((item) => (
+                  <Reorder.Item
+                    key={item.id}
+                    value={item}
+                    className="flex items-center justify-between gap-4 p-3 border border-border/50 bg-muted/10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-mono text-foreground">{item.id}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-mono">enabled</span>
+                      <Switch
+                        checked={item.enabled}
+                        onCheckedChange={(v) =>
+                          setHomeLayout((prev) => prev.map((p) => (p.id === item.id ? { ...p, enabled: v } : p)))
+                        }
+                      />
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+            </div>
+          </TerminalCard>
 
           {/* Stats Section */}
           <div className="flex items-center justify-between">

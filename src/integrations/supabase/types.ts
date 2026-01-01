@@ -161,6 +161,27 @@ export type Database = {
         }
         Relationships: []
       }
+      home_layout: {
+        Row: {
+          created_at: string
+          id: string
+          layout: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          layout?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          layout?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       links: {
         Row: {
           created_at: string
