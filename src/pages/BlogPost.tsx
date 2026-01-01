@@ -18,6 +18,7 @@ interface BlogPostWithAuthor {
   read_time: string | null;
   created_at: string;
   author_id: string | null;
+  cover_image: string | null;
   profiles: {
     username: string | null;
     display_name: string | null;
@@ -35,7 +36,7 @@ const BlogPost = () => {
       // Fetch post
       const { data: postData, error: postError } = await supabase
         .from("blog_posts")
-        .select("id, title, slug, excerpt, content, tags, read_time, created_at, author_id")
+        .select("id, title, slug, excerpt, content, tags, read_time, created_at, author_id, cover_image")
         .eq("slug", slug!)
         .eq("published", true)
         .single();
@@ -182,6 +183,28 @@ const BlogPost = () => {
                 )}
               </div>
 
+              {/* Cover Image */}
+              {post.cover_image && (
+                <div className="w-full">
+                  <img
+                    src={post.cover_image}
+                    alt={post.title}
+                    className="w-full h-auto max-h-96 object-cover rounded-lg border border-border/50"
+                  />
+                </div>
+              )}
+
+              {/* Content */}
+              <TerminalCard title={`${post.slug}.md`} promptText={`cat ./blog/${post.slug}.md`}>
+                <div className="prose prose-invert max-w-none">
+                  {post.content ? (
+                    <MarkdownRenderer content={post.content} />
+                  ) : (
+                    <p className="text-muted-foreground italic">// no content available</p>
+                  )}
+                </div>
+              </TerminalCard>
+
               {/* Author section */}
               {post.profiles && (
                 <TerminalCard title="author.info" promptText="cat author.info">
@@ -206,17 +229,6 @@ const BlogPost = () => {
                   </div>
                 </TerminalCard>
               )}
-
-              {/* Content */}
-              <TerminalCard title={`${post.slug}.md`} promptText={`cat ./blog/${post.slug}.md`}>
-                <div className="prose prose-invert max-w-none">
-                  {post.content ? (
-                    <MarkdownRenderer content={post.content} />
-                  ) : (
-                    <p className="text-muted-foreground italic">// no content available</p>
-                  )}
-                </div>
-              </TerminalCard>
             </>
           )}
         </motion.div>

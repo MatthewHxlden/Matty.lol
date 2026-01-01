@@ -50,6 +50,8 @@ export const changelog: ChangelogEntry[] = [
       "Updated Jupiter Perps title and added green LIVE indicator on home and trades pages.",
       "Added slowly flashing effect to LIVE indicators.",
       "Updated footer credit to @JaeSwift with GitHub link.",
+      "Added blog cover image display on blog list and individual post pages.",
+      "Moved blog author section from top to bottom of posts.",
     ],
     tags: ["trading", "ui", "data"],
   },

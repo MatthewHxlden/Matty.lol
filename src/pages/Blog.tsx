@@ -14,6 +14,7 @@ interface BlogPost {
   tags: string[];
   read_time: string | null;
   created_at: string;
+  cover_image: string | null;
 }
 
 const Blog = () => {
@@ -22,7 +23,7 @@ const Blog = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title, slug, excerpt, tags, read_time, created_at")
+        .select("id, title, slug, excerpt, tags, read_time, created_at, cover_image")
         .eq("published", true)
         .order("created_at", { ascending: false });
 
@@ -110,6 +111,17 @@ const Blog = () => {
                   <Link to={`/blog/${post.slug}`}>
                     <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300" showPrompt={false}>
                       <div className="space-y-3">
+                        {/* Cover Image */}
+                        {post.cover_image && (
+                          <div className="relative w-full h-48 overflow-hidden rounded-lg border border-border/50">
+                            <img
+                              src={post.cover_image}
+                              alt={post.title}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          </div>
+                        )}
+
                         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
