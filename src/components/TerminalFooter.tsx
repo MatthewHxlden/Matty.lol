@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import WebVitalsDisplay from "./WebVitals";
+import CryptoPrices from "./CryptoPrices";
 
 const TerminalFooter = () => {
   const currentYear = new Date().getFullYear();
@@ -43,7 +43,7 @@ const TerminalFooter = () => {
             <span className="text-muted-foreground/50">]</span>
           </motion.div>
 
-          <WebVitalsDisplay />
+          <CryptoPrices />
 
           <div className="text-muted-foreground/50">
             <span>// built with </span>

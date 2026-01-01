@@ -44,7 +44,7 @@ export const changelog: ChangelogEntry[] = [
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
-      "Added Core Web Vitals display in footer with real-time performance metrics.",
+      "Added live crypto prices (SOL/BTC/ETH/Venice) with 24h change in footer.",
     ],
     tags: ["trading", "ui", "data"],
   },
