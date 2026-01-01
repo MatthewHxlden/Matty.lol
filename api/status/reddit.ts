@@ -4,10 +4,16 @@ type RedditRssItem = {
 };
 
 const extractFirstTag = (xml: string, tag: string): string | undefined => {
-  const re = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i");
+  const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i");
   const m = xml.match(re);
   if (!m) return undefined;
   return m[1]?.trim();
+};
+
+const extractFirstAttr = (xml: string, tag: string, attr: string): string | undefined => {
+  const re = new RegExp(`<${tag}[^>]*\\s${attr}="([^"]+)"[^>]*/?>`, "i");
+  const m = xml.match(re);
+  return m?.[1];
 };
 
 const decodeCdata = (v?: string): string | undefined => {
@@ -44,24 +50,25 @@ export default async function handler(req: any, res: any) {
     }
 
     const xml = await upstreamRes.text();
-    const items = xml.split(/<item>/i).slice(1);
 
-    const firstItemRaw = items[0];
-    const itemXml = firstItemRaw ? `<item>${firstItemRaw}` : "";
+    // Reddit's submitted.rss is an Atom feed with <entry> items.
+    const entries = xml.split(/<entry>/i).slice(1);
+    const firstEntryRaw = entries[0];
+    const entryXml = firstEntryRaw ? `<entry>${firstEntryRaw}` : "";
 
     const item: RedditRssItem = {
-      title: decodeCdata(extractFirstTag(itemXml, "title")),
-      link: decodeCdata(extractFirstTag(itemXml, "link")),
+      title: decodeCdata(extractFirstTag(entryXml, "title")),
+      link: extractFirstAttr(entryXml, "link", "href") || decodeCdata(extractFirstTag(entryXml, "link")),
     };
 
     const title = item.title || "(no title)";
 
-    const subredditMatch = title.match(/\(\s*r\/([^\)]+)\s*\)/i);
-    const subreddit = subredditMatch?.[1];
+    const subredditFromTitle = title.match(/\\(\\s*r\\/([^\\)]+)\\s*\\)/i)?.[1];
+    const subredditFromLink = item.link?.match(/reddit\\.com\\/r\\/([^/]+)/i)?.[1];
+    const subreddit = subredditFromTitle || subredditFromLink;
 
-    const msg = subreddit
-      ? `reddit: last post in r/${subreddit} — ${title.replace(/\(\s*r\/[^\)]+\s*\)/i, "").trim()}`
-      : `reddit: ${title}`;
+    const cleanedTitle = title.replace(/\\(\\s*r\\/[^\\)]+\\s*\\)/i, "").trim();
+    const msg = subreddit ? `reddit: last post in r/${subreddit} — ${cleanedTitle}` : `reddit: ${cleanedTitle}`;
 
     res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=3600");
     res.status(200).json({ ok: true, message: msg, link: item.link });

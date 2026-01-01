@@ -13,13 +13,19 @@ export default async function handler(req: any, res: any) {
   try {
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       const geoRes = await fetch(
-        "https://geocoding-api.open-meteo.com/v1/search?name=Rossendale%2C%20Lancashire&count=1&language=en&format=json"
+        "https://geocoding-api.open-meteo.com/v1/search?name=Rossendale&count=5&language=en&format=json"
       );
       if (geoRes.ok) {
         const geo = (await geoRes.json()) as any;
-        const first = geo?.results?.[0];
-        const geoLat = typeof first?.latitude === "number" ? first.latitude : undefined;
-        const geoLon = typeof first?.longitude === "number" ? first.longitude : undefined;
+        const results: any[] = Array.isArray(geo?.results) ? geo.results : [];
+        const preferred =
+          results.find((r) =>
+            typeof r?.country === "string" &&
+            r.country.toLowerCase().includes("united kingdom")
+          ) || results[0];
+
+        const geoLat = typeof preferred?.latitude === "number" ? preferred.latitude : undefined;
+        const geoLon = typeof preferred?.longitude === "number" ? preferred.longitude : undefined;
         if (typeof geoLat === "number" && typeof geoLon === "number") {
           lat = geoLat;
           lon = geoLon;
@@ -28,6 +34,12 @@ export default async function handler(req: any, res: any) {
     }
   } catch {
     // swallow geocoding errors; we'll fall back to a friendly message below
+  }
+
+  // Hard fallback: Rossendale, Lancashire (approx)
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    lat = 53.68;
+    lon = -2.27;
   }
 
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
