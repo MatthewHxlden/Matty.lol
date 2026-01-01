@@ -39,6 +39,8 @@ export const changelog: ChangelogEntry[] = [
       "Fixed homepage layout ordering to persist correctly after saving.",
       "Tightened spacing between homepage blocks.",
       "Removed thick neon glow borders in favor of a subtler card style.",
+      "Switched terminal cards to a glass UI style (frosted backgrounds + subtle highlight borders).",
+      "Added a subtle hover-only shine effect on blocks.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",

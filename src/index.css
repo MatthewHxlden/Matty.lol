@@ -252,7 +252,11 @@
 
 /* Neon border */
 .neon-border {
-  box-shadow: 0 12px 30px hsl(var(--foreground) / 0.06);
+  box-shadow:
+    0 16px 40px hsl(var(--foreground) / 0.08),
+    0 1px 0 hsl(var(--foreground) / 0.08),
+    inset 0 0 0 1px hsl(var(--foreground) / 0.10),
+    inset 0 1px 0 hsl(var(--foreground) / 0.10);
 }
 
 /* Terminal prompt */
@@ -341,6 +345,31 @@
   transform: translateX(-120%);
   animation: shine-sweep 3s linear infinite;
   pointer-events: none;
+}
+
+.shine-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-hover::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.075) 20%,
+    transparent 40%
+  );
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shine-hover:hover::after {
+  opacity: 1;
+  animation: shine-sweep 2.1s ease-out 1;
 }
 
 @keyframes shine-sweep {
