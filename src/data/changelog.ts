@@ -47,6 +47,7 @@ export const changelog: ChangelogEntry[] = [
       "Added live crypto prices (SOL/BTC/ETH/Venice) with 24h change in footer.",
       "Added hover shine effect to quick links and status boxes.",
       "Added Jupiter perps block to top of trades page with live positions and activity.",
+      "Updated Jupiter Perps title and added green LIVE indicator on home and trades pages.",
     ],
     tags: ["trading", "ui", "data"],
   },

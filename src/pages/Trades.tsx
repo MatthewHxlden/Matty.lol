@@ -317,7 +317,15 @@ const Trades = () => {
           )}
 
           {/* Jupiter Perps Block */}
-          <TerminalCard title="~/trades.log" delay={0.45} promptText="jup perps --open">
+          <TerminalCard title="~/trades.log" delay={0.45} promptText="Jupiter Perps Trades">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-secondary">STATUS:</span>
+                <span className="px-2 py-1 text-xs font-mono bg-green-500/20 text-green-500 border border-green-500/50 rounded">
+                  LIVE
+                </span>
+              </div>
+            </div>
             <div className="space-y-3 text-xs md:text-sm font-mono">
               {isLoading && (
                 <p className="text-muted-foreground pl-4">loading...</p>
