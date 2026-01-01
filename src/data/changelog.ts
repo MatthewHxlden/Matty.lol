@@ -36,6 +36,7 @@ export const changelog: ChangelogEntry[] = [
       "Made the rain toggle icon-only in the navbar.",
       "Added /feed page + admin posting UI for site activity updates.",
       "Added Site Admin homepage layout manager (reorder + enable/disable homepage sections).",
+      "Fixed homepage layout ordering to persist correctly after saving.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",

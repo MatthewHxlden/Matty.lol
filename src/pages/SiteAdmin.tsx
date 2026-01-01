@@ -58,19 +58,17 @@ const normalizeHomeLayout = (raw: unknown): HomeLayoutItem[] => {
     }))
     .filter((v) => v.id);
 
-  const merged = [...DEFAULT_HOME_LAYOUT];
+  // Preserve saved order first, then append any missing defaults.
+  const next: HomeLayoutItem[] = [];
   for (const item of items) {
-    const idx = merged.findIndex((m) => m.id === item.id);
-    if (idx >= 0) merged[idx] = item;
-    else merged.push(item);
+    if (next.some((n) => n.id === item.id)) continue;
+    next.push(item);
   }
-
-  const dedup: HomeLayoutItem[] = [];
-  for (const item of merged) {
-    if (dedup.some((d) => d.id === item.id)) continue;
-    dedup.push(item);
+  for (const def of DEFAULT_HOME_LAYOUT) {
+    if (next.some((n) => n.id === def.id)) continue;
+    next.push(def);
   }
-  return dedup;
+  return next;
 };
 
 const SiteAdmin = () => {
