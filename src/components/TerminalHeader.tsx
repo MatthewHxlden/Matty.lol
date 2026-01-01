@@ -256,8 +256,10 @@ const TerminalHeader = () => {
           transition={{ delay: 0.5, duration: 1 }}
           className="mt-4 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
         />
+      </div>
 
-        <div className="mt-3 border border-border/50 bg-card/20 overflow-hidden">
+      <div className="border-t border-border/50 bg-card/20 overflow-hidden">
+        <div className="container mx-auto px-4">
           <div className="py-1 text-xs font-mono text-muted-foreground whitespace-nowrap">
             <div className="marquee">
               {[...tickerMessages, ...tickerMessages].map((msg, idx) => (

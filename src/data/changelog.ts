@@ -30,6 +30,8 @@ export const changelog: ChangelogEntry[] = [
       "Adjusted the command terminal modal to drop below the navbar instead of clipping off-screen.",
       "Fixed command terminal modal bottom clipping by improving scroll/padding.",
       "Replaced ticker $ markers with status icons (GitHub/Reddit/Weather/System).",
+      "Moved the status ticker into its own bar below the navbar.",
+      "Changed weather status display to Celsius.",
       "Made the rain toggle icon-only in the navbar.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",

@@ -52,7 +52,7 @@ export default async function handler(req: any, res: any) {
     const upstreamRes = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(String(lat))}&longitude=${encodeURIComponent(
         String(lon)
-      )}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`
+      )}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=celsius&wind_speed_unit=kmh`
     );
 
     if (!upstreamRes.ok) {
@@ -71,9 +71,9 @@ export default async function handler(req: any, res: any) {
     const wind = typeof current?.wind_speed_10m === "number" ? current.wind_speed_10m : undefined;
 
     const parts: string[] = [];
-    if (typeof temp === "number") parts.push(`${Math.round(temp)}°F`);
-    if (typeof feels === "number") parts.push(`feels ${Math.round(feels)}°F`);
-    if (typeof wind === "number") parts.push(`wind ${Math.round(wind)}mph`);
+    if (typeof temp === "number") parts.push(`${Math.round(temp)}°C`);
+    if (typeof feels === "number") parts.push(`feels ${Math.round(feels)}°C`);
+    if (typeof wind === "number") parts.push(`wind ${Math.round(wind)}km/h`);
 
     const message = parts.length > 0 ? `external conditions: ${parts.join(" | ")}` : "external conditions: unavailable";
 
