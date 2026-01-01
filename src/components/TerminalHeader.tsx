@@ -33,10 +33,40 @@ const TerminalHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
 
+  const { data: weatherStatus } = useQuery({
+    queryKey: ["status", "weather"],
+    queryFn: async () => {
+      const res = await fetch("/api/status/weather");
+      if (!res.ok) throw new Error(`weather status error (${res.status})`);
+      return (await res.json()) as { ok?: boolean; message?: string };
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const { data: githubStatus } = useQuery({
+    queryKey: ["status", "github"],
+    queryFn: async () => {
+      const res = await fetch("/api/status/github");
+      if (!res.ok) throw new Error(`github status error (${res.status})`);
+      return (await res.json()) as { ok?: boolean; message?: string };
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const { data: redditStatus } = useQuery({
+    queryKey: ["status", "reddit"],
+    queryFn: async () => {
+      const res = await fetch("/api/status/reddit");
+      if (!res.ok) throw new Error(`reddit status error (${res.status})`);
+      return (await res.json()) as { ok?: boolean; message?: string; link?: string };
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const tickerMessages = [
-    "external conditions: loading weather...",
-    "github: checking latest activity...",
-    "reddit: fetching last post...",
+    weatherStatus?.message || "external conditions: loading weather...",
+    githubStatus?.message || "github: checking latest activity...",
+    redditStatus?.message || "reddit: fetching last post...",
     "system: all signals green.",
   ];
 
