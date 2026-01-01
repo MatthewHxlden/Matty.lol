@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface CommandOutput {
   command: string;
@@ -10,6 +11,15 @@ interface CommandOutput {
 const COMMANDS: Record<string, { output: string | React.ReactNode; description: string }> = {
   help: {
     output: `Available commands:
+  open <path>  - Navigate to a page (ex: open /feed)
+  go <path>    - Alias for open
+  open feed    - Shortcut for /feed
+  open trades  - Shortcut for /trades
+  open now     - Shortcut for /now
+  open links   - Shortcut for /links
+  open blog    - Shortcut for /blog
+  open apps    - Shortcut for /apps
+  open tools   - Shortcut for /tools
   help     - Show this help message
   whoami   - Display user info
   ls       - List directories
@@ -114,6 +124,7 @@ interface TerminalCommandProps {
 }
 
 const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
+  const navigate = useNavigate();
   const [history, setHistory] = useState<CommandOutput[]>([]);
   const [input, setInput] = useState("");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -134,22 +145,77 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
   }, [history]);
 
   const executeCommand = (cmd: string) => {
-    const trimmedCmd = cmd.trim().toLowerCase();
+    const trimmedCmd = cmd.trim();
+    const normalizedCmd = trimmedCmd.toLowerCase();
     
     if (!trimmedCmd) return;
 
-    if (trimmedCmd === "clear") {
+    if (normalizedCmd === "clear") {
       setHistory([]);
       return;
     }
 
-    if (trimmedCmd === "exit") {
+    if (normalizedCmd === "exit") {
       setHistory([...history, { command: cmd, output: COMMANDS.exit.output }]);
       setTimeout(onClose, 1000);
       return;
     }
 
-    const commandDef = COMMANDS[trimmedCmd];
+    const maybeNavigate = (path: string) => {
+      const dest = path.trim();
+      if (!dest) {
+        setHistory([
+          ...history,
+          {
+            command: cmd,
+            output: "usage: open <path> (ex: open /feed)",
+            isError: true,
+          },
+        ]);
+        return true;
+      }
+
+      const shortcuts: Record<string, string> = {
+        feed: "/feed",
+        trades: "/trades",
+        now: "/now",
+        links: "/links",
+        blog: "/blog",
+        apps: "/apps",
+        tools: "/tools",
+        changelog: "/changelog",
+        admin: "/admin",
+      };
+
+      const resolved = shortcuts[dest.toLowerCase()] || dest;
+
+      setHistory([
+        ...history,
+        {
+          command: cmd,
+          output: `navigating to ${resolved}...`,
+        },
+      ]);
+      navigate(resolved);
+      setTimeout(onClose, 300);
+      return true;
+    };
+
+    if (normalizedCmd.startsWith("open ")) {
+      maybeNavigate(trimmedCmd.slice(5));
+      setCommandHistory([...commandHistory, cmd]);
+      setHistoryIndex(-1);
+      return;
+    }
+
+    if (normalizedCmd.startsWith("go ")) {
+      maybeNavigate(trimmedCmd.slice(3));
+      setCommandHistory([...commandHistory, cmd]);
+      setHistoryIndex(-1);
+      return;
+    }
+
+    const commandDef = COMMANDS[normalizedCmd];
     
     if (commandDef) {
       setHistory([
@@ -161,7 +227,7 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
         ...history,
         { 
           command: cmd, 
-          output: `bash: ${trimmedCmd}: command not found. Type 'help' for available commands.`,
+          output: `bash: ${normalizedCmd}: command not found. Type 'help' for available commands.`,
           isError: true 
         },
       ]);

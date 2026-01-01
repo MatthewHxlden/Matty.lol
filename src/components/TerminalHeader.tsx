@@ -51,9 +51,13 @@ const TerminalHeader = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k" && e.shiftKey) {
         e.preventDefault();
         setSearchOpen(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "k" && !e.shiftKey) {
+        e.preventDefault();
+        setTerminalOpen(true);
       }
       if ((e.metaKey || e.ctrlKey) && e.key === "`") {
         e.preventDefault();
@@ -123,9 +127,16 @@ const TerminalHeader = () => {
             <button
               onClick={() => setSearchOpen(true)}
               className="px-2 py-1 text-muted-foreground hover:text-primary transition-all"
-              title="Search (⌘K)"
+              title="Search (Ctrl/⌘+Shift+K)"
             >
               <Search className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setTerminalOpen(true)}
+              className="px-2 py-1 text-muted-foreground hover:text-secondary transition-all font-mono"
+              title="Command Terminal (Ctrl/⌘+K)"
+            >
+              <span className="text-sm leading-none">&gt;_</span>
             </button>
             <button
               onClick={() => setTerminalOpen(true)}
@@ -217,6 +228,9 @@ const TerminalHeader = () => {
           className="mt-4 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
         />
       </div>
+
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      <TerminalCommand isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
     </motion.header>
   );
 };
