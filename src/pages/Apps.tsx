@@ -62,7 +62,7 @@ const Apps = () => {
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <TerminalCard key={i} className="animate-pulse h-48">
+                <TerminalCard key={i} className="animate-pulse h-48" showPrompt={false}>
                   <div className="space-y-3">
                     <div className="h-4 bg-muted rounded w-1/4" />
                     <div className="h-6 bg-muted rounded w-3/4" />
@@ -75,7 +75,7 @@ const Apps = () => {
 
           {/* Error state */}
           {error && (
-            <TerminalCard className="border-destructive">
+            <TerminalCard className="border-destructive" showPrompt={false}>
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="w-5 h-5" />
                 <span>Error loading apps: {(error as Error).message}</span>
@@ -160,7 +160,7 @@ const Apps = () => {
 
           {/* Empty state */}
           {!isLoading && !error && (!apps || apps.length === 0) && (
-            <TerminalCard>
+            <TerminalCard showPrompt={false}>
               <div className="text-center py-8 text-muted-foreground">
                 <p className="text-lg">// no apps found</p>
                 <p className="text-sm mt-2">check back soon...</p>
@@ -175,7 +175,7 @@ const Apps = () => {
             transition={{ delay: 0.5 }}
             className="text-center py-8"
           >
-            <TerminalCard className="inline-block">
+            <TerminalCard className="inline-block" showPrompt={false}>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Code className="w-4 h-4 text-secondary" />
                 <span>More projects on</span>

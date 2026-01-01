@@ -22,6 +22,8 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Analytics from "./pages/Analytics";
 import RssFeed from "./pages/RssFeed";
+import Trades from "./pages/Trades";
+import Changelog from "./pages/Changelog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,8 @@ const App = () => (
               <Route path="/admin/contact" element={<ContactAdmin />} />
               <Route path="/admin/site" element={<SiteAdmin />} />
               <Route path="/apps" element={<Apps />} />
+              <Route path="/changelog" element={<Changelog />} />
+              <Route path="/trades" element={<Trades />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/links" element={<Links />} />
               <Route path="/contact" element={<Contact />} />

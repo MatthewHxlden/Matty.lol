@@ -94,7 +94,7 @@ const Contact = () => {
               transition={{ delay: 0.2 }}
               className="space-y-4"
             >
-              <TerminalCard title="~/info.json">
+              <TerminalCard title="~/info.json" promptText="cat info.json">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-accent" />
@@ -122,7 +122,7 @@ const Contact = () => {
                 </div>
               </TerminalCard>
 
-              <TerminalCard>
+              <TerminalCard promptText="cat topics.txt">
                 <div className="text-sm text-muted-foreground space-y-2">
                   <p>
                     <span className="text-secondary">// </span>
@@ -145,7 +145,7 @@ const Contact = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <TerminalCard title="~/compose.sh">
+              <TerminalCard title="~/compose.sh" promptText="./compose.sh --interactive">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">

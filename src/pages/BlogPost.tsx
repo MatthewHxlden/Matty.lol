@@ -118,7 +118,7 @@ const BlogPost = () => {
 
           {/* Loading state */}
           {isLoading && (
-            <TerminalCard className="animate-pulse">
+            <TerminalCard className="animate-pulse" showPrompt={false}>
               <div className="space-y-4">
                 <div className="h-8 bg-muted rounded w-3/4" />
                 <div className="h-4 bg-muted rounded w-1/4" />
@@ -130,7 +130,7 @@ const BlogPost = () => {
 
           {/* Error state */}
           {error && (
-            <TerminalCard className="border-destructive">
+            <TerminalCard className="border-destructive" showPrompt={false}>
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="w-5 h-5" />
                 <span>Error loading post: {(error as Error).message}</span>
@@ -184,7 +184,7 @@ const BlogPost = () => {
 
               {/* Author section */}
               {post.profiles && (
-                <TerminalCard title="author.info">
+                <TerminalCard title="author.info" promptText="cat author.info">
                   <div className="flex items-center gap-4">
                     <Avatar className="w-16 h-16 border-2 border-primary">
                       <AvatarImage src={post.profiles.avatar_url || undefined} />
@@ -208,7 +208,7 @@ const BlogPost = () => {
               )}
 
               {/* Content */}
-              <TerminalCard title={`${post.slug}.md`}>
+              <TerminalCard title={`${post.slug}.md`} promptText={`cat ./blog/${post.slug}.md`}>
                 <div className="prose prose-invert max-w-none">
                   {post.content ? (
                     <MarkdownRenderer content={post.content} />

@@ -66,7 +66,7 @@ const Blog = () => {
           {isLoading && (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <TerminalCard key={i} className="animate-pulse">
+                <TerminalCard key={i} className="animate-pulse" showPrompt={false}>
                   <div className="space-y-3">
                     <div className="h-4 bg-muted rounded w-1/4" />
                     <div className="h-6 bg-muted rounded w-3/4" />
@@ -79,7 +79,7 @@ const Blog = () => {
 
           {/* Error state */}
           {error && (
-            <TerminalCard className="border-destructive">
+            <TerminalCard className="border-destructive" showPrompt={false}>
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="w-5 h-5" />
                 <span>Error loading posts: {error.message}</span>
@@ -89,7 +89,7 @@ const Blog = () => {
 
           {/* Empty state */}
           {!isLoading && !error && blogPosts?.length === 0 && (
-            <TerminalCard>
+            <TerminalCard showPrompt={false}>
               <div className="text-center py-8 text-muted-foreground">
                 <p className="text-lg">// no posts found</p>
                 <p className="text-sm mt-2">check back soon for new content...</p>
@@ -108,7 +108,7 @@ const Blog = () => {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Link to={`/blog/${post.slug}`}>
-                    <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300">
+                    <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300" showPrompt={false}>
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">

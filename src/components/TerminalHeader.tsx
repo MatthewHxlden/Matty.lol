@@ -20,7 +20,7 @@ const navLinks = [
   { name: "blog", path: "/blog" },
   { name: "apps", path: "/apps" },
   { name: "tools", path: "/tools" },
-  { name: "links", path: "/links" },
+  { name: "trades", path: "/trades" },
   { name: "contact", path: "/contact" },
 ];
 
@@ -43,6 +43,8 @@ const TerminalHeader = () => {
       return data as boolean;
     },
     enabled: !!user,
+  });
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -214,6 +216,21 @@ const TerminalHeader = () => {
                   <span className="hidden sm:inline">login</span>
                 </Link>
               )}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: (navLinks.length + 1) * 0.1 }}
+              className="ml-2"
+            >
+              <Link
+                to="/changelog"
+                className="relative inline-flex items-center gap-2 px-3 py-1 text-sm border border-primary/60 bg-card/30 backdrop-blur-sm text-primary hover:text-foreground hover:bg-primary/10 transition-all shine-box"
+              >
+                <span>changelog</span>
+                <span className="text-[10px] px-1.5 py-0.5 border border-accent/50 text-accent">NEW</span>
+              </Link>
             </motion.div>
           </nav>
         </div>

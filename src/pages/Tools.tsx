@@ -71,7 +71,7 @@ const Tools = () => {
 
           {/* Error state */}
           {error && (
-            <TerminalCard className="border-destructive">
+            <TerminalCard className="border-destructive" showPrompt={false}>
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="w-5 h-5" />
                 <span>Error loading tools: {(error as Error).message}</span>
@@ -124,7 +124,7 @@ const Tools = () => {
 
           {/* Empty state */}
           {!isLoading && !error && (!tools || tools.length === 0) && (
-            <TerminalCard>
+            <TerminalCard showPrompt={false}>
               <div className="text-center py-8 text-muted-foreground">
                 <p className="text-lg">// no tools found</p>
                 <p className="text-sm mt-2">check back soon...</p>
@@ -138,7 +138,7 @@ const Tools = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <TerminalCard className="text-center">
+            <TerminalCard className="text-center" showPrompt={false}>
               <div className="flex flex-col items-center gap-2 py-4">
                 <Sparkles className="w-8 h-8 text-accent animate-float" />
                 <p className="text-muted-foreground">
