@@ -20,6 +20,7 @@ export const changelog: ChangelogEntry[] = [
       "Added /now page (editable via admin).",
       "Embedded /links list into the Profile page.",
       "Fixed Vercel SPA routing so direct links like /now and /links load correctly.",
+      "Added homepage + footer shortcuts for /now and /links.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
     ],

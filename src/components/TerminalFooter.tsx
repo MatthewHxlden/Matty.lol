@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const TerminalFooter = () => {
   const currentYear = new Date().getFullYear();
@@ -16,6 +17,14 @@ const TerminalFooter = () => {
             <span className="text-secondary">$</span>
             <span>echo "© {currentYear} matty.lol"</span>
             <span className="cursor-blink text-primary">_</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs font-mono">
+            <span className="text-muted-foreground/50">[</span>
+            <Link to="/now" className="text-muted-foreground hover:text-primary transition-colors">now</Link>
+            <span className="text-muted-foreground/50">|</span>
+            <Link to="/links" className="text-muted-foreground hover:text-primary transition-colors">links</Link>
+            <span className="text-muted-foreground/50">]</span>
           </div>
 
           <motion.div
