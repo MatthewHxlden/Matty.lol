@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image, Tag as TagIcon, Palette, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image, Tag as TagIcon, Palette, Filter, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar, Clock, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -319,6 +319,57 @@ const BlogAdmin = () => {
     }
   };
 
+  // Icon mapping
+  const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }> | any> = {
+    Tag: TagIcon,
+    Hash,
+    Bookmark,
+    Star,
+    Heart,
+    ThumbsUp,
+    MessageSquare,
+    Code,
+    Database,
+    Server,
+    Cloud,
+    Globe,
+    Link,
+    FileText,
+    Video,
+    Music,
+    Headphones,
+    Camera,
+    Mic,
+    Monitor,
+    Smartphone,
+    Tablet,
+    Watch,
+    Gamepad2,
+    Cpu,
+    Zap,
+    Battery,
+    Wifi,
+    Bluetooth,
+    Navigation,
+    MapPin,
+    Calendar,
+    Clock,
+    TrendingUp,
+    BarChart,
+    PieChart,
+    Activity,
+    Target,
+    Award,
+    Trophy,
+    Medal,
+    Gem,
+    Sparkles,
+    Flame,
+    Sun,
+    Moon,
+    CloudRain,
+  };
+
   // Icon options
   const iconOptions = [
     "Tag", "Hash", "Bookmark", "Star", "Heart", "ThumbsUp", "MessageSquare",
@@ -461,12 +512,22 @@ const BlogAdmin = () => {
                         onChange={(e) => setNewTag({ ...newTag, icon: e.target.value })}
                         className="w-full mt-1 px-3 py-2 bg-background border border-border rounded-md text-foreground"
                       >
-                        {iconOptions.map((icon) => (
-                          <option key={icon} value={icon}>
-                            {icon}
-                          </option>
-                        ))}
+                        {iconOptions.map((icon) => {
+                          const IconComponent = iconMap[icon];
+                          return (
+                            <option key={icon} value={icon}>
+                              {icon}
+                            </option>
+                          );
+                        })}
                       </select>
+                      <div className="mt-2 flex items-center gap-2 p-2 border border-border/50 rounded bg-muted/20">
+                        {(() => {
+                          const IconComponent = iconMap[newTag.icon];
+                          return IconComponent ? <IconComponent className="w-4 h-4" /> : <TagIcon className="w-4 h-4" />;
+                        })()}
+                        <span className="text-sm text-muted-foreground">Preview: {newTag.icon}</span>
+                      </div>
                     </div>
                     
                     <div>
@@ -517,37 +578,40 @@ const BlogAdmin = () => {
                 <div className="space-y-4">
                   {tags && tags.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {tags.map((tag) => (
-                        <div
-                          key={tag.id}
-                          className="flex items-center justify-between p-4 border border-border/50 bg-muted/20 rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                              style={{ backgroundColor: tag.color }}
-                            >
-                              <TagIcon className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-foreground">{tag.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {tag.icon} • {tag.color}
+                      {tags.map((tag) => {
+                        const IconComponent = iconMap[tag.icon] || TagIcon;
+                        return (
+                          <div
+                            key={tag.id}
+                            className="flex items-center justify-between p-4 border border-border/50 bg-muted/20 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-white"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                <IconComponent className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="font-medium text-foreground">{tag.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {tag.icon} • {tag.color}
+                                </div>
                               </div>
                             </div>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteTag(tag.id)}
+                              disabled={deleteTagMutation.isPending}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteTag(tag.id)}
-                            disabled={deleteTagMutation.isPending}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-center text-muted-foreground py-8">

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { Calendar, Clock, Tag, ArrowLeft, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Tag, ArrowLeft, AlertCircle, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link as LinkIcon, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar as CalendarIcon, Clock as ClockIcon, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -27,8 +27,67 @@ interface BlogPostWithAuthor {
   } | null;
 }
 
+interface BlogTag {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  created_at: string;
+}
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
+
+  // Icon mapping
+  const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }> | any> = {
+    Tag,
+    Hash,
+    Bookmark,
+    Star,
+    Heart,
+    ThumbsUp,
+    MessageSquare,
+    Code,
+    Database,
+    Server,
+    Cloud,
+    Globe,
+    Link: LinkIcon,
+    FileText,
+    Video,
+    Music,
+    Headphones,
+    Camera,
+    Mic,
+    Monitor,
+    Smartphone,
+    Tablet,
+    Watch,
+    Gamepad2,
+    Cpu,
+    Zap,
+    Battery,
+    Wifi,
+    Bluetooth,
+    Navigation,
+    MapPin,
+    Calendar: CalendarIcon,
+    Clock: ClockIcon,
+    TrendingUp,
+    BarChart,
+    PieChart,
+    Activity,
+    Target,
+    Award,
+    Trophy,
+    Medal,
+    Gem,
+    Sparkles,
+    Flame,
+    Sun,
+    Moon,
+    CloudRain,
+  };
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: ["blog-post", slug],
@@ -57,6 +116,19 @@ const BlogPost = () => {
       return { ...postData, profiles } as BlogPostWithAuthor;
     },
     enabled: !!slug,
+  });
+
+  // Fetch tags
+  const { data: tags } = useQuery({
+    queryKey: ["blog-tags"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_tags")
+        .select("*")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data as BlogTag[];
+    },
   });
 
   const formatDate = (dateString: string) => {
@@ -170,15 +242,24 @@ const BlogPost = () => {
                 {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/30 text-accent"
-                      >
-                        <Tag className="w-3 h-3" />
-                        {tag}
-                      </span>
-                    ))}
+                    {post.tags.map((tagName) => {
+                      const tagConfig = tags?.find(t => t.name === tagName);
+                      const IconComponent = tagConfig ? (iconMap[tagConfig.icon] || Tag) : Tag;
+                      return (
+                        <span
+                          key={tagName}
+                          className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105"
+                          style={{
+                            backgroundColor: tagConfig?.color + "20" || undefined,
+                            borderColor: tagConfig?.color || undefined,
+                            color: tagConfig?.color || undefined,
+                          }}
+                        >
+                          <IconComponent className="w-3 h-3" />
+                          {tagName}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </div>

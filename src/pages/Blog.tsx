@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Calendar, Clock, Tag, AlertCircle, Filter } from "lucide-react";
+import { Calendar, Clock, Tag, AlertCircle, Filter, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link as LinkIcon, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar as CalendarIcon, Clock as ClockIcon, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface BlogPost {
@@ -28,6 +28,57 @@ interface BlogTag {
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedTag = searchParams.get("tag");
+
+  // Icon mapping
+  const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }> | any> = {
+    Tag,
+    Hash,
+    Bookmark,
+    Star,
+    Heart,
+    ThumbsUp,
+    MessageSquare,
+    Code,
+    Database,
+    Server,
+    Cloud,
+    Globe,
+    Link: LinkIcon,
+    FileText,
+    Video,
+    Music,
+    Headphones,
+    Camera,
+    Mic,
+    Monitor,
+    Smartphone,
+    Tablet,
+    Watch,
+    Gamepad2,
+    Cpu,
+    Zap,
+    Battery,
+    Wifi,
+    Bluetooth,
+    Navigation,
+    MapPin,
+    Calendar: CalendarIcon,
+    Clock: ClockIcon,
+    TrendingUp,
+    BarChart,
+    PieChart,
+    Activity,
+    Target,
+    Award,
+    Trophy,
+    Medal,
+    Gem,
+    Sparkles,
+    Flame,
+    Sun,
+    Moon,
+    CloudRain,
+  };
 
   const { data: blogPosts, isLoading, error } = useQuery({
     queryKey: ["blog-posts", selectedTag],
@@ -149,27 +200,30 @@ const Blog = () => {
                     All Posts
                   </button>
                   
-                  {tags.map((tag) => (
-                    <button
-                      key={tag.id}
-                      onClick={() => {
-                        setSearchParams(tag.name ? { tag: tag.name } : {});
-                      }}
-                      className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1 ${
-                        selectedTag === tag.name
-                          ? "border-primary text-primary"
-                          : "border-border/50 text-muted-foreground hover:border-primary hover:text-foreground"
-                      }`}
-                      style={{
-                        backgroundColor: selectedTag === tag.name ? tag.color + "20" : undefined,
-                        borderColor: selectedTag === tag.name ? tag.color : undefined,
-                        color: selectedTag === tag.name ? tag.color : undefined,
-                      }}
-                    >
-                      <Tag className="w-3 h-3" />
-                      {tag.name}
-                    </button>
-                  ))}
+                  {tags.map((tag) => {
+                        const IconComponent = iconMap[tag.icon] || Tag;
+                        return (
+                          <button
+                            key={tag.id}
+                            onClick={() => {
+                              setSearchParams(tag.name ? { tag: tag.name } : {});
+                            }}
+                            className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1 ${
+                              selectedTag === tag.name
+                                ? "border-primary text-primary"
+                                : "border-border/50 text-muted-foreground hover:border-primary hover:text-foreground"
+                            }`}
+                            style={{
+                              backgroundColor: selectedTag === tag.name ? tag.color + "20" : undefined,
+                              borderColor: selectedTag === tag.name ? tag.color : undefined,
+                              color: selectedTag === tag.name ? tag.color : undefined,
+                            }}
+                          >
+                            <IconComponent className="w-3 h-3" />
+                            {tag.name}
+                          </button>
+                        );
+                      })}
                 </div>
                 
                 {selectedTag && (
@@ -241,6 +295,7 @@ const Blog = () => {
                           <div className="flex flex-wrap gap-2">
                             {post.tags.slice(0, 3).map((tagName) => {
                               const tagConfig = tags?.find(t => t.name === tagName);
+                              const IconComponent = tagConfig ? (iconMap[tagConfig.icon] || Tag) : Tag;
                               return (
                                 <span
                                   key={tagName}
@@ -251,7 +306,7 @@ const Blog = () => {
                                     color: tagConfig?.color || undefined,
                                   }}
                                 >
-                                  <Tag className="w-3 h-3" />
+                                  <IconComponent className="w-3 h-3" />
                                   {tagName}
                                 </span>
                               );
