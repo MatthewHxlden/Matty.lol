@@ -7,7 +7,7 @@ import TerminalCard from "@/components/TerminalCard";
 import TypeWriter from "@/components/TypeWriter";
 import GlitchText from "@/components/GlitchText";
 import { Link } from "react-router-dom";
-import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, LucideIcon, ChartLine } from "lucide-react";
+import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, LucideIcon, ChartLine, User, Rss, Link as LinkIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as LucideIcons from "lucide-react";
 
@@ -476,6 +476,39 @@ const Index = () => {
                 </motion.p>
               </div>
             </TerminalCard>
+
+            {/* Hero CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.4 }}
+              className="flex flex-wrap gap-3 justify-center"
+            >
+              <Link
+                to="/profile"
+                className="group inline-flex items-center gap-2 px-4 py-2 border border-border/60 bg-card/30 backdrop-blur-md neon-border shine-hover text-sm font-mono text-foreground hover:text-primary transition-all"
+              >
+                <User className="w-4 h-4" />
+                <span>About/Profile</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link
+                to="/feed"
+                className="group inline-flex items-center gap-2 px-4 py-2 border border-border/60 bg-card/30 backdrop-blur-md neon-border shine-hover text-sm font-mono text-foreground hover:text-primary transition-all"
+              >
+                <Rss className="w-4 h-4" />
+                <span>Feed</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link
+                to="/links"
+                className="group inline-flex items-center gap-2 px-4 py-2 border border-border/60 bg-card/30 backdrop-blur-md neon-border shine-hover text-sm font-mono text-foreground hover:text-primary transition-all"
+              >
+                <LinkIcon className="w-4 h-4" />
+                <span>Links</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              </Link>
+            </motion.div>
           </motion.div>
         </section>
       </>

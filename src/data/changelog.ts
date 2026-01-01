@@ -44,6 +44,7 @@ export const changelog: ChangelogEntry[] = [
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
+      "Added compact hero CTAs (About/Profile, Feed, Links) with terminal styling and hover shine.",
     ],
     tags: ["trading", "ui", "data"],
   },
