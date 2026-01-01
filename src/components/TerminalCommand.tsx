@@ -121,9 +121,10 @@ This incident will be reported. 🚨`,
 interface TerminalCommandProps {
   isOpen: boolean;
   onClose: () => void;
+  topOffset?: number;
 }
 
-const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
+const TerminalCommand = ({ isOpen, onClose, topOffset }: TerminalCommandProps) => {
   const navigate = useNavigate();
   const [history, setHistory] = useState<CommandOutput[]>([]);
   const [input, setInput] = useState("");
@@ -131,6 +132,7 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -263,6 +265,17 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onGlobalKeyDown);
+    return () => window.removeEventListener("keydown", onGlobalKeyDown);
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -270,15 +283,19 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-background/80 backdrop-blur-sm pt-44 pb-6"
-          onClick={onClose}
+          className="fixed inset-0 z-50"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl mx-auto bg-card border border-primary neon-border h-[calc(100vh-14rem)] overflow-hidden flex flex-col"
+            ref={panelRef}
+            initial={{ y: -8, opacity: 0, scale: 0.99 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -8, opacity: 0, scale: 0.99 }}
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{ top: (topOffset ?? 0) + 8 }}
+            className="fixed left-1/2 -translate-x-1/2 w-[min(42rem,calc(100vw-1.5rem))] bg-card border border-primary neon-border overflow-hidden flex flex-col shadow-2xl"
           >
             {/* Terminal Header */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted">
@@ -299,7 +316,7 @@ const TerminalCommand = ({ isOpen, onClose }: TerminalCommandProps) => {
             {/* Terminal Body */}
             <div
               ref={terminalRef}
-              className="flex-1 overflow-y-auto p-4 font-mono text-sm"
+              className="max-h-[60vh] overflow-y-auto p-4 font-mono text-sm"
               onClick={() => inputRef.current?.focus()}
             >
               {/* Welcome message */}

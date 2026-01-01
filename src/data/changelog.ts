@@ -29,6 +29,7 @@ export const changelog: ChangelogEntry[] = [
       "Defaulted ticker status sources to Rossendale weather + jaeswift Reddit when env vars are not set.",
       "Adjusted the command terminal modal to drop below the navbar instead of clipping off-screen.",
       "Fixed command terminal modal bottom clipping by improving scroll/padding.",
+      "Reworked the command terminal into a dropdown panel below the navbar (no full-screen overlay).",
       "Replaced ticker $ markers with status icons (GitHub/Reddit/Weather/System).",
       "Moved the status ticker into its own bar below the navbar.",
       "Changed weather status display to Celsius.",

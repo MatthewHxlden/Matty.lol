@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -32,6 +32,24 @@ const TerminalHeader = () => {
   const { rainEnabled, setRainEnabled } = useRainTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    const el = headerRef.current;
+    const read = () => setHeaderHeight(el.getBoundingClientRect().height);
+    read();
+
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    window.addEventListener("resize", read);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", read);
+    };
+  }, []);
 
   const { data: weatherStatus } = useQuery({
     queryKey: ["status", "weather"],
@@ -107,6 +125,7 @@ const TerminalHeader = () => {
 
   return (
     <motion.header
+      ref={headerRef}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -286,7 +305,7 @@ const TerminalHeader = () => {
       </div>
 
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-      <TerminalCommand isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} />
+      <TerminalCommand isOpen={terminalOpen} onClose={() => setTerminalOpen(false)} topOffset={headerHeight} />
     </motion.header>
   );
 };
