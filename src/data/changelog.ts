@@ -46,6 +46,7 @@ export const changelog: ChangelogEntry[] = [
       "Added terminal prompt line above cards for consistent theme.",
       "Added live crypto prices (SOL/BTC/ETH/Venice) with 24h change in footer.",
       "Added hover shine effect to quick links and status boxes.",
+      "Added Jupiter perps block to top of trades page with live positions and activity.",
     ],
     tags: ["trading", "ui", "data"],
   },
