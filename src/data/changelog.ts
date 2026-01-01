@@ -63,6 +63,8 @@ export const changelog: ChangelogEntry[] = [
       "Implemented icon mapping for 50+ Lucide React icons.",
       "Enhanced blog post tags to show custom icons and colors.",
       "Updated individual blog post pages to display styled tags.",
+      "Replaced text input with checkbox selector for blog post tags.",
+      "Updated tag styling to only color text, icon, and border (dark background).",
     ],
     tags: ["trading", "ui", "data"],
   },

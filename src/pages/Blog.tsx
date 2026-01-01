@@ -208,18 +208,17 @@ const Blog = () => {
                             onClick={() => {
                               setSearchParams(tag.name ? { tag: tag.name } : {});
                             }}
-                            className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1 ${
+                            className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1 bg-background ${
                               selectedTag === tag.name
                                 ? "border-primary text-primary"
                                 : "border-border/50 text-muted-foreground hover:border-primary hover:text-foreground"
                             }`}
                             style={{
-                              backgroundColor: selectedTag === tag.name ? tag.color + "20" : undefined,
                               borderColor: selectedTag === tag.name ? tag.color : undefined,
                               color: selectedTag === tag.name ? tag.color : undefined,
                             }}
                           >
-                            <IconComponent className="w-3 h-3" />
+                            <IconComponent className="w-3 h-3" style={{ color: selectedTag === tag.name ? tag.color : undefined }} />
                             {tag.name}
                           </button>
                         );
@@ -299,14 +298,13 @@ const Blog = () => {
                               return (
                                 <span
                                   key={tagName}
-                                  className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105"
+                                  className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105 bg-background"
                                   style={{
-                                    backgroundColor: tagConfig?.color + "20" || undefined,
                                     borderColor: tagConfig?.color || undefined,
                                     color: tagConfig?.color || undefined,
                                   }}
                                 >
-                                  <IconComponent className="w-3 h-3" />
+                                  <IconComponent className="w-3 h-3" style={{ color: tagConfig?.color || undefined }} />
                                   {tagName}
                                 </span>
                               );

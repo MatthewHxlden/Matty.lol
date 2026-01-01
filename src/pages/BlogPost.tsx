@@ -248,14 +248,13 @@ const BlogPost = () => {
                       return (
                         <span
                           key={tagName}
-                          className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105"
+                          className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105 bg-background"
                           style={{
-                            backgroundColor: tagConfig?.color + "20" || undefined,
                             borderColor: tagConfig?.color || undefined,
                             color: tagConfig?.color || undefined,
                           }}
                         >
-                          <IconComponent className="w-3 h-3" />
+                          <IconComponent className="w-3 h-3" style={{ color: tagConfig?.color || undefined }} />
                           {tagName}
                         </span>
                       );

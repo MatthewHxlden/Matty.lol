@@ -728,12 +728,45 @@ const BlogAdmin = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm text-muted-foreground">Tags (comma separated)</label>
-                      <Input
-                        value={formData.tags}
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                        placeholder="tech, tutorial, news"
-                      />
+                      <label className="text-sm text-muted-foreground">Tags</label>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {tags && tags.length > 0 ? (
+                          tags.map((tag) => {
+                            const IconComponent = iconMap[tag.icon] || TagIcon;
+                            const isSelected = formData.tags.split(',').map(t => t.trim()).includes(tag.name);
+                            return (
+                              <label key={tag.id} className="flex items-center gap-2 p-2 border border-border/50 rounded hover:bg-muted/20 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    const currentTags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+                                    if (e.target.checked) {
+                                      currentTags.push(tag.name);
+                                    } else {
+                                      const index = currentTags.indexOf(tag.name);
+                                      if (index > -1) currentTags.splice(index, 1);
+                                    }
+                                    setFormData({ ...formData, tags: currentTags.join(', ') });
+                                  }}
+                                  className="rounded"
+                                />
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center"
+                                  style={{ backgroundColor: tag.color }}
+                                >
+                                  <IconComponent className="w-2 h-2 text-white" />
+                                </div>
+                                <span className="text-sm" style={{ color: tag.color }}>
+                                  {tag.name}
+                                </span>
+                              </label>
+                            );
+                          })
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No tags created yet. Create tags in the Tag Settings section above.</p>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm text-muted-foreground">Read Time</label>
