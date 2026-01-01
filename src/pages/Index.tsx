@@ -409,7 +409,7 @@ const Index = () => {
     hero: () => (
       <>
         {/* Hero Section */}
-        <section className="min-h-[60vh] flex flex-col justify-center">
+        <section className="min-h-[40vh] flex flex-col justify-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -912,14 +912,20 @@ const Index = () => {
   return (
     <TerminalLayout>
       <div className="container mx-auto px-4">
-        <div className="space-y-6">
+        <div>
           {homeLayout
             .filter((item) => item.enabled)
-            .map((item) => (
-              <React.Fragment key={item.id}>
-                {sectionRenderers[item.id]?.() || null}
-              </React.Fragment>
-            ))}
+            .map((item, idx, arr) => {
+              const isLast = idx === arr.length - 1;
+              const isHero = item.id === "hero";
+              const gapClass = isLast ? "" : isHero ? "mb-6" : "mb-10";
+
+              return (
+                <div key={item.id} className={gapClass}>
+                  {sectionRenderers[item.id]?.() || null}
+                </div>
+              );
+            })}
         </div>
       </div>
     </TerminalLayout>

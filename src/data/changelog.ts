@@ -38,6 +38,7 @@ export const changelog: ChangelogEntry[] = [
       "Added Site Admin homepage layout manager (reorder + enable/disable homepage sections).",
       "Fixed homepage layout ordering to persist correctly after saving.",
       "Tightened spacing between homepage blocks.",
+      "Removed thick neon glow borders in favor of a subtler card style.",
       "Synced homepage perps activity panel with the /trades session activity log.",
       "Added Trades Admin placeholder page for future trades settings.",
       "Added terminal prompt line above cards for consistent theme.",
