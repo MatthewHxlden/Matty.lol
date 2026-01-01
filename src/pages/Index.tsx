@@ -80,6 +80,21 @@ type JupiterActivityEntry = {
   address?: string;
 };
 
+type TradesSessionEvent = {
+  ts: number;
+  message: string;
+  address?: string;
+};
+
+const safeJsonParse = <T,>(v: string | null): T | null => {
+  if (!v) return null;
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
+};
+
 const formatUsd = (n: number) =>
   n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -104,6 +119,31 @@ const Index = () => {
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
   const [activityLog, setActivityLog] = useState<JupiterActivityEntry[]>([]);
   const [activeActivity, setActiveActivity] = useState<JupiterActivityEntry | null>(null);
+
+  useEffect(() => {
+    const readLatestSessionEvent = () => {
+      const stored = safeJsonParse<TradesSessionEvent[]>(
+        window.localStorage.getItem("tradesSessionEvents")
+      );
+      if (!stored || stored.length === 0) return;
+      const newest = stored[0];
+      if (!newest?.message) return;
+
+      setActivityLog((prev) => {
+        if (prev.length > 0 && prev[0].text === newest.message) return prev;
+        const next = [{ text: newest.message, address: newest.address }, ...prev].slice(0, 10);
+        return next;
+      });
+    };
+
+    readLatestSessionEvent();
+    const t = window.setInterval(readLatestSessionEvent, 4000);
+    window.addEventListener("focus", readLatestSessionEvent);
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener("focus", readLatestSessionEvent);
+    };
+  }, []);
 
   const { data: siteProfile } = useQuery({
     queryKey: ["site-profile"],
