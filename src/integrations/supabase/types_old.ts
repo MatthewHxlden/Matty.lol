@@ -131,30 +131,6 @@ export type Database = {
         }
         Relationships: []
       }
-      blog_tags: {
-        Row: {
-          color: string
-          created_at: string | null
-          icon: string
-          id: string
-          name: string
-        }
-        Insert: {
-          color?: string
-          created_at?: string | null
-          icon?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          color?: string
-          created_at?: string | null
-          icon?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
       contact_info: {
         Row: {
           created_at: string
@@ -225,7 +201,7 @@ export type Database = {
           name: string
           sort_order?: number | null
           updated_at?: string
-          url?: string
+          url: string
         }
         Update: {
           created_at?: string
@@ -236,30 +212,6 @@ export type Database = {
           sort_order?: number | null
           updated_at?: string
           url?: string
-        }
-        Relationships: []
-      }
-      now_page: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          content?: string
-          created_at?: string
-          id?: string
-          title?: string
-          updated_at?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -278,7 +230,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
-          id?: string
+          id: string
           updated_at?: string
           username?: string | null
         }
@@ -323,6 +275,30 @@ export type Database = {
         }
         Relationships: []
       }
+      now_page: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_stats: {
         Row: {
           color_class: string
@@ -353,8 +329,8 @@ export type Database = {
           id?: string
           sort_order?: number | null
           stat_key?: string
-          stat_label: string
-          stat_value: string
+          stat_label?: string
+          stat_value?: string
           updated_at?: string
         }
         Relationships: []
@@ -515,7 +491,7 @@ export type TablesUpdate<
         Update: infer U
       }
       ? U
-    : never
+      : never
     : never
 
 export type Enums<

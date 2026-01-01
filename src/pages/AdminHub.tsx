@@ -79,6 +79,7 @@ const AdminHub = () => {
     { label: "now", path: "/admin/now", desc: "edit /now page content" },
     { label: "feed", path: "/admin/feed", desc: "post updates to /feed" },
     { label: "blog", path: "/admin/blog", desc: "posts, images, publish" },
+    { label: "blog-settings", path: "/admin/blog/settings", desc: "tags, icons, colors" },
     { label: "apps", path: "/admin/apps", desc: "projects list" },
     { label: "tools", path: "/admin/tools", desc: "tool catalog" },
     { label: "links", path: "/admin/links", desc: "social links" },

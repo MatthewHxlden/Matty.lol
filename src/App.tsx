@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BlogAdmin from "./pages/BlogAdmin";
+import BlogSettings from "./pages/BlogSettings";
 import Apps from "./pages/Apps";
 import AppsAdmin from "./pages/AppsAdmin";
 import Tools from "./pages/Tools";
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminHub />} />
                 <Route path="/admin/site" element={<SiteAdmin />} />
                 <Route path="/admin/blog" element={<BlogAdmin />} />
+                <Route path="/admin/blog/settings" element={<BlogSettings />} />
                 <Route path="/admin/apps" element={<AppsAdmin />} />
                 <Route path="/admin/tools" element={<ToolsAdmin />} />
                 <Route path="/admin/links" element={<LinksAdmin />} />

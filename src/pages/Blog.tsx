@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Calendar, Clock, Tag, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Tag, AlertCircle, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface BlogPost {
@@ -17,18 +17,46 @@ interface BlogPost {
   cover_image: string | null;
 }
 
+interface BlogTag {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  created_at: string;
+}
+
 const Blog = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTag = searchParams.get("tag");
+
   const { data: blogPosts, isLoading, error } = useQuery({
-    queryKey: ["blog-posts"],
+    queryKey: ["blog-posts", selectedTag],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("blog_posts")
         .select("id, title, slug, excerpt, tags, read_time, created_at, cover_image")
         .eq("published", true)
         .order("created_at", { ascending: false });
 
+      if (selectedTag) {
+        query = query.contains("tags", [selectedTag]);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as BlogPost[];
+    },
+  });
+
+  const { data: tags } = useQuery({
+    queryKey: ["blog-tags"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_tags")
+        .select("*")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data as BlogTag[];
     },
   });
 
@@ -98,22 +126,86 @@ const Blog = () => {
             </TerminalCard>
           )}
 
+          {/* Tag Filter */}
+          {tags && tags.length > 0 && (
+            <TerminalCard title="tag-filter" promptText="filter --by-tag">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-secondary" />
+                  <span className="text-sm text-secondary">Filter by tag:</span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setSearchParams({});
+                    }}
+                    className={`px-3 py-1 text-xs rounded-full border transition-all ${
+                      !selectedTag
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border/50 text-muted-foreground hover:border-primary hover:text-foreground"
+                    }`}
+                  >
+                    All Posts
+                  </button>
+                  
+                  {tags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => {
+                        setSearchParams(tag.name ? { tag: tag.name } : {});
+                      }}
+                      className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1 ${
+                        selectedTag === tag.name
+                          ? "border-primary text-primary"
+                          : "border-border/50 text-muted-foreground hover:border-primary hover:text-foreground"
+                      }`}
+                      style={{
+                        backgroundColor: selectedTag === tag.name ? tag.color + "20" : undefined,
+                        borderColor: selectedTag === tag.name ? tag.color : undefined,
+                        color: selectedTag === tag.name ? tag.color : undefined,
+                      }}
+                    >
+                      <Tag className="w-3 h-3" />
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+                
+                {selectedTag && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>Showing posts tagged with:</span>
+                    <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: tags.find(t => t.name === selectedTag)?.color + "20", color: tags.find(t => t.name === selectedTag)?.color }}>
+                      {selectedTag}
+                    </span>
+                    <button
+                      onClick={() => setSearchParams({})}
+                      className="text-primary hover:underline"
+                    >
+                      Clear filter
+                    </button>
+                  </div>
+                )}
+              </div>
+            </TerminalCard>
+          )}
+
           {/* Blog Posts */}
           {!isLoading && !error && blogPosts && blogPosts.length > 0 && (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogPosts.map((post, index) => (
                 <motion.div
                   key={post.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
                   <Link to={`/blog/${post.slug}`}>
-                    <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300" showPrompt={false}>
-                      <div className="space-y-3">
+                    <TerminalCard className="group cursor-pointer hover:border-primary transition-all duration-300 h-full flex flex-col" showPrompt={false}>
+                      <div className="space-y-3 flex-1 flex flex-col">
                         {/* Cover Image */}
                         {post.cover_image && (
-                          <div className="relative w-full h-48 overflow-hidden rounded-lg border border-border/50">
+                          <div className="relative w-full h-48 overflow-hidden rounded-lg border border-border/50 flex-shrink-0">
                             <img
                               src={post.cover_image}
                               alt={post.title}
@@ -135,27 +227,40 @@ const Blog = () => {
                           )}
                         </div>
 
-                        <h2 className="text-xl font-bold text-foreground group-hover:text-primary group-hover:neon-text transition-all">
+                        <h2 className="text-lg font-bold text-foreground group-hover:text-primary group-hover:neon-text transition-all line-clamp-2">
                           <span className="text-secondary">{">"}</span> {post.title}
                         </h2>
 
                         {post.excerpt && (
-                          <p className="text-muted-foreground text-sm">
+                          <p className="text-muted-foreground text-sm line-clamp-3 flex-grow">
                             {post.excerpt}
                           </p>
                         )}
 
                         {post.tags && post.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2">
-                            {post.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="flex items-center gap-1 text-xs px-2 py-1 border border-accent/30 text-accent"
-                              >
-                                <Tag className="w-3 h-3" />
-                                {tag}
+                            {post.tags.slice(0, 3).map((tagName) => {
+                              const tagConfig = tags?.find(t => t.name === tagName);
+                              return (
+                                <span
+                                  key={tagName}
+                                  className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105"
+                                  style={{
+                                    backgroundColor: tagConfig?.color + "20" || undefined,
+                                    borderColor: tagConfig?.color || undefined,
+                                    color: tagConfig?.color || undefined,
+                                  }}
+                                >
+                                  <Tag className="w-3 h-3" />
+                                  {tagName}
+                                </span>
+                              );
+                            })}
+                            {post.tags.length > 3 && (
+                              <span className="text-xs text-muted-foreground">
+                                +{post.tags.length - 3} more
                               </span>
-                            ))}
+                            )}
                           </div>
                         )}
                       </div>
