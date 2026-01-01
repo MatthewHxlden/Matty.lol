@@ -358,6 +358,25 @@
   }
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.marquee:hover {
+  animation-play-state: paused;
+}
+
 /* Grid background */
 .grid-bg {
   background-image: 

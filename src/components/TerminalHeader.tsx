@@ -33,6 +33,13 @@ const TerminalHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
 
+  const tickerMessages = [
+    "external conditions: loading weather...",
+    "github: checking latest activity...",
+    "reddit: fetching last post...",
+    "system: all signals green.",
+  ];
+
   // Check if user is admin
   const { data: isAdmin } = useQuery({
     queryKey: ["is-admin", user?.id],
@@ -220,6 +227,18 @@ const TerminalHeader = () => {
           transition={{ delay: 0.5, duration: 1 }}
           className="mt-4 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
         />
+
+        <div className="mt-3 border border-border/50 bg-card/20 overflow-hidden">
+          <div className="py-1 text-xs font-mono text-muted-foreground whitespace-nowrap">
+            <div className="marquee">
+              {[...tickerMessages, ...tickerMessages].map((msg, idx) => (
+                <span key={idx} className="px-4">
+                  <span className="text-secondary">$</span> {msg}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

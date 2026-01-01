@@ -26,7 +26,7 @@ const TerminalLayout = ({ children }: TerminalLayoutProps) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex-1 pt-32 pb-8 relative z-10"
+        className="flex-1 pt-40 pb-8 relative z-10"
       >
         {children}
       </motion.main>
