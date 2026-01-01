@@ -57,6 +57,8 @@ export const changelog: ChangelogEntry[] = [
       "Added tag creation with icon picker, color picker, and visual customization.",
       "Implemented clickable tag filtering system on blog page.",
       "Enhanced blog post cards with colored tags and hover effects.",
+      "Integrated tag management directly into /admin/blog page.",
+      "Fixed RLS policy permissions for blog tags table.",
     ],
     tags: ["trading", "ui", "data"],
   },

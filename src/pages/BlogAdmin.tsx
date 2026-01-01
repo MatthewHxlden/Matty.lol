@@ -8,10 +8,11 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Shield, Upload, Image, Tag as TagIcon, Palette, Filter } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -26,6 +27,14 @@ interface BlogPost {
   created_at: string;
 }
 
+interface BlogTag {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  created_at: string;
+}
+
 const BlogAdmin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +45,13 @@ const BlogAdmin = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showTagSettings, setShowTagSettings] = useState(false);
+  const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const [newTag, setNewTag] = useState({
+    name: "",
+    icon: "Tag",
+    color: "#3b82f6",
+  });
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -72,6 +88,20 @@ const BlogAdmin = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as BlogPost[];
+    },
+    enabled: isAdmin === true,
+  });
+
+  // Fetch tags
+  const { data: tags, isLoading: tagsLoading } = useQuery({
+    queryKey: ["blog-tags"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_tags")
+        .select("*")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data as BlogTag[];
     },
     enabled: isAdmin === true,
   });
@@ -180,6 +210,60 @@ const BlogAdmin = () => {
     },
   });
 
+  // Create tag mutation
+  const createTagMutation = useMutation({
+    mutationFn: async (tagData: typeof newTag) => {
+      const { data, error } = await supabase
+        .from("blog_tags")
+        .insert([tagData])
+        .select()
+        .single();
+      if (error) throw error;
+      return data as BlogTag;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blog-tags"] });
+      setNewTag({ name: "", icon: "Tag", color: "#3b82f6" });
+      setIsCreatingTag(false);
+      toast({
+        title: "TAG CREATED",
+        description: "Blog tag has been created successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "ERROR",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete tag mutation
+  const deleteTagMutation = useMutation({
+    mutationFn: async (tagId: string) => {
+      const { error } = await supabase
+        .from("blog_tags")
+        .delete()
+        .eq("id", tagId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blog-tags"] });
+      toast({
+        title: "TAG DELETED",
+        description: "Blog tag has been deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "ERROR",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -216,6 +300,35 @@ const BlogAdmin = () => {
       createMutation.mutate(formData);
     }
   };
+
+  const handleCreateTag = () => {
+    if (!newTag.name.trim()) {
+      toast({
+        title: "ERROR",
+        description: "Tag name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    createTagMutation.mutate(newTag);
+  };
+
+  const handleDeleteTag = (tagId: string) => {
+    if (window.confirm("Are you sure you want to delete this tag?")) {
+      deleteTagMutation.mutate(tagId);
+    }
+  };
+
+  // Icon options
+  const iconOptions = [
+    "Tag", "Hash", "Bookmark", "Star", "Heart", "ThumbsUp", "MessageSquare",
+    "Code", "Database", "Server", "Cloud", "Globe", "Link", "FileText",
+    "Image", "Video", "Music", "Headphones", "Camera", "Mic", "Monitor",
+    "Smartphone", "Tablet", "Watch", "Gamepad2", "Cpu", "Zap", "Battery",
+    "Wifi", "Bluetooth", "Navigation", "MapPin", "Calendar", "Clock",
+    "TrendingUp", "BarChart", "PieChart", "Activity", "Target", "Award",
+    "Trophy", "Medal", "Gem", "Sparkles", "Flame", "Sun", "Moon", "CloudRain"
+  ];
 
   const generateSlug = (title: string) => {
     return title
@@ -294,19 +407,159 @@ const BlogAdmin = () => {
               <h1 className="text-3xl md:text-4xl font-bold neon-text">
                 {">"} Blog Admin
               </h1>
-              <Button
-                onClick={() => {
-                  setIsCreating(true);
-                  setEditingPost(null);
-                  resetForm();
-                }}
-                className="flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                New Post
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowTagSettings(!showTagSettings)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <TagIcon className="w-4 h-4" />
+                  Tag Settings
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsCreating(true);
+                    setEditingPost(null);
+                    resetForm();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Post
+                </Button>
+              </div>
             </div>
           </div>
+
+          {/* Tag Settings */}
+          {showTagSettings && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* Create New Tag */}
+              <TerminalCard title="create-tag" promptText="nano new-tag.conf">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="tag-name">Tag Name</Label>
+                      <Input
+                        id="tag-name"
+                        value={newTag.name}
+                        onChange={(e) => setNewTag({ ...newTag, name: e.target.value })}
+                        placeholder="Enter tag name"
+                        className="mt-1"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="tag-icon">Icon</Label>
+                      <select
+                        id="tag-icon"
+                        value={newTag.icon}
+                        onChange={(e) => setNewTag({ ...newTag, icon: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 bg-background border border-border rounded-md text-foreground"
+                      >
+                        {iconOptions.map((icon) => (
+                          <option key={icon} value={icon}>
+                            {icon}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="tag-color">Color</Label>
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          id="tag-color"
+                          type="color"
+                          value={newTag.color}
+                          onChange={(e) => setNewTag({ ...newTag, color: e.target.value })}
+                          className="w-16 h-10"
+                        />
+                        <Input
+                          value={newTag.color}
+                          onChange={(e) => setNewTag({ ...newTag, color: e.target.value })}
+                          placeholder="#3b82f6"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleCreateTag}
+                      disabled={createTagMutation.isPending || !newTag.name.trim()}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create Tag
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setNewTag({ name: "", icon: "Tag", color: "#3b82f6" });
+                        setIsCreatingTag(false);
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </TerminalCard>
+
+              {/* Existing Tags */}
+              <TerminalCard title="manage-tags" promptText="ls ./tags/">
+                <div className="space-y-4">
+                  {tags && tags.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {tags.map((tag) => (
+                        <div
+                          key={tag.id}
+                          className="flex items-center justify-between p-4 border border-border/50 bg-muted/20 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-white"
+                              style={{ backgroundColor: tag.color }}
+                            >
+                              <TagIcon className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-foreground">{tag.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {tag.icon} • {tag.color}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteTag(tag.id)}
+                            disabled={deleteTagMutation.isPending}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      <TagIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No tags created yet</p>
+                      <p className="text-sm mt-2">Create your first tag above</p>
+                    </div>
+                  )}
+                </div>
+              </TerminalCard>
+            </motion.div>
+          )}
 
           {/* Editor Form */}
           {(isCreating || editingPost) && (
