@@ -62,6 +62,7 @@ type FearGreedResponse = {
 
 type JupiterPerpsPosition = {
   address: string;
+  ref?: string;
   side: string;
   leverage?: number;
   liquidationPrice?: number;
@@ -190,8 +191,9 @@ const Index = () => {
 
     const next: Record<string, number> = { ...prevMarkByMintRef.current };
     for (const pos of positions) {
+      const positionKey = pos.ref || pos.address;
       if (typeof pos.markPrice === "number") {
-        next[pos.address] = pos.markPrice;
+        next[positionKey] = pos.markPrice;
       }
     }
     prevMarkByMintRef.current = next;
@@ -201,30 +203,31 @@ const Index = () => {
     const events: JupiterActivityEntry[] = [];
 
     for (const pos of positions) {
-      nextSnapshot[pos.address] = {
+      const positionKey = pos.ref || pos.address;
+      nextSnapshot[positionKey] = {
         sizeValue: typeof pos.sizeValue === "number" ? pos.sizeValue : undefined,
         collateralValue: typeof pos.collateralValue === "number" ? pos.collateralValue : undefined,
       };
 
-      const prev = prevSnapshot[pos.address];
+      const prev = prevSnapshot[positionKey];
       if (!prev) continue;
 
       const symbol = tokenInfoSolana?.[pos.address]?.symbol || pos.address.slice(0, 4);
       const prevColl = prev.collateralValue;
-      const nextColl = nextSnapshot[pos.address].collateralValue;
+      const nextColl = nextSnapshot[positionKey].collateralValue;
       if (typeof prevColl === "number" && typeof nextColl === "number") {
         const delta = nextColl - prevColl;
         if (Math.abs(delta) >= 0.01) {
           const amt = `$${formatUsd(Math.abs(delta))}`;
           events.push({
             text: `${delta > 0 ? "Added" : "Removed"} ${amt} collateral ${delta > 0 ? "to" : "from"} the ${symbol} trade.`,
-            address: pos.address,
+            address: positionKey,
           });
         }
       }
 
       const prevSize = prev.sizeValue;
-      const nextSize = nextSnapshot[pos.address].sizeValue;
+      const nextSize = nextSnapshot[positionKey].sizeValue;
       if (typeof prevSize === "number" && typeof nextSize === "number") {
         const delta = nextSize - prevSize;
         if (Math.abs(delta) >= 0.01) {
@@ -232,12 +235,12 @@ const Index = () => {
             const pct = prevSize > 0 ? Math.min(100, (Math.abs(delta) / prevSize) * 100) : 0;
             events.push({
               text: `Closed ${pct.toFixed(0)}% of the ${symbol} position (~$${formatUsd(Math.abs(delta))}).`,
-              address: pos.address,
+              address: positionKey,
             });
           } else {
             events.push({
               text: `Increased the ${symbol} position by ~$${formatUsd(delta)}.`,
-              address: pos.address,
+              address: positionKey,
             });
           }
         }
@@ -248,11 +251,12 @@ const Index = () => {
     const nextKeys = new Set(Object.keys(nextSnapshot));
 
     for (const pos of positions) {
-      if (!prevKeys.has(pos.address)) {
+      const positionKey = pos.ref || pos.address;
+      if (!prevKeys.has(positionKey)) {
         const symbol = tokenInfoSolana?.[pos.address]?.symbol || pos.address.slice(0, 4);
         const side = (pos.side || "").toUpperCase();
         const size = typeof pos.sizeValue === "number" ? `$${formatUsd(pos.sizeValue)}` : "-";
-        events.push({ text: `Opened ${side} ${symbol} (~${size}).`, address: pos.address });
+        events.push({ text: `Opened ${side} ${symbol} (~${size}).`, address: positionKey });
       }
     }
 
@@ -442,7 +446,8 @@ const Index = () => {
                         const entry = typeof pos.entryPrice === "number" ? formatPrice(pos.entryPrice) : "-";
                         const markNum = typeof pos.markPrice === "number" ? pos.markPrice : undefined;
                         const mark = typeof markNum === "number" ? formatPrice(markNum) : "-";
-                        const prevMark = prevMarkByMintRef.current[pos.address];
+                        const positionKey = pos.ref || pos.address;
+                        const prevMark = prevMarkByMintRef.current[positionKey];
                         const markTrendClass =
                           typeof markNum === "number" && typeof prevMark === "number"
                             ? markNum > prevMark
@@ -489,7 +494,7 @@ const Index = () => {
                                 </div>
 
                                 <a
-                                  href={`https://solscan.io/token/${pos.address}`}
+                                  href={`https://solscan.io/account/${positionKey}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-muted-foreground hover:text-primary transition-colors"
@@ -539,7 +544,7 @@ const Index = () => {
                         <TypeWriter text={activeActivity.text} delay={35} className="text-foreground" />
                         {activeActivity.address && (
                           <a
-                            href={`https://solscan.io/token/${activeActivity.address}`}
+                            href={`https://solscan.io/account/${activeActivity.address}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-muted-foreground hover:text-primary transition-colors"
@@ -555,7 +560,7 @@ const Index = () => {
                         <span className="text-muted-foreground">{activityLog[0].text}</span>
                         {activityLog[0].address && (
                           <a
-                            href={`https://solscan.io/token/${activityLog[0].address}`}
+                            href={`https://solscan.io/account/${activityLog[0].address}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-muted-foreground hover:text-primary transition-colors"
@@ -581,7 +586,7 @@ const Index = () => {
                           <span className="truncate">{line.text}</span>
                           {line.address && (
                             <a
-                              href={`https://solscan.io/token/${line.address}`}
+                              href={`https://solscan.io/account/${line.address}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-muted-foreground hover:text-primary transition-colors"

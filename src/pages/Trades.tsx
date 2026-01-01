@@ -20,6 +20,7 @@ interface JupiterPortfolioPositionsResponse {
 
 type JupiterPerpsPosition = {
   address: string;
+  ref?: string;
   side: string;
   collateralValue?: number;
   sizeValue?: number;
@@ -118,7 +119,8 @@ const Trades = () => {
 
     const nextSnapshot: SessionSnapshot = {};
     for (const pos of positions) {
-      nextSnapshot[pos.address] = {
+      const positionKey = pos.ref || pos.address;
+      nextSnapshot[positionKey] = {
         sizeValue: typeof pos.sizeValue === "number" ? pos.sizeValue : undefined,
         collateralValue: typeof pos.collateralValue === "number" ? pos.collateralValue : undefined,
         side: pos.side,
@@ -145,16 +147,17 @@ const Trades = () => {
     for (const pos of positions) {
       const symbol = tokenInfoSolana?.[pos.address]?.symbol || pos.address.slice(0, 4);
       const side = (pos.side || "").toUpperCase();
-      const prev = prevSnapshot[pos.address];
+      const positionKey = pos.ref || pos.address;
+      const prev = prevSnapshot[positionKey];
 
       if (!prev) {
         const size = typeof pos.sizeValue === "number" ? pos.sizeValue : undefined;
         const msg = `Opened ${side} ${symbol}${typeof size === "number" ? ` (~$${formatUsd(size)})` : ""}.`;
         newEvents.push({
-          id: `${now}-open-${pos.address}`,
+          id: `${now}-open-${positionKey}`,
           ts: now,
           type: "open",
-          address: pos.address,
+          address: positionKey,
           symbol,
           side,
           deltaUsd: typeof size === "number" ? size : undefined,
@@ -164,16 +167,16 @@ const Trades = () => {
       }
 
       const prevSize = prev.sizeValue;
-      const nextSize = nextSnapshot[pos.address].sizeValue;
+      const nextSize = nextSnapshot[positionKey].sizeValue;
       if (typeof prevSize === "number" && typeof nextSize === "number") {
         const delta = nextSize - prevSize;
         if (Math.abs(delta) >= 0.01) {
           if (delta > 0) {
             newEvents.push({
-              id: `${now}-inc-${pos.address}`,
+              id: `${now}-inc-${positionKey}`,
               ts: now,
               type: "increase",
-              address: pos.address,
+              address: positionKey,
               symbol,
               side,
               deltaUsd: delta,
@@ -182,10 +185,10 @@ const Trades = () => {
           } else {
             const pct = prevSize > 0 ? Math.min(100, (Math.abs(delta) / prevSize) * 100) : 0;
             newEvents.push({
-              id: `${now}-dec-${pos.address}`,
+              id: `${now}-dec-${positionKey}`,
               ts: now,
               type: "decrease",
-              address: pos.address,
+              address: positionKey,
               symbol,
               side,
               deltaUsd: Math.abs(delta),
@@ -196,16 +199,16 @@ const Trades = () => {
       }
 
       const prevColl = prev.collateralValue;
-      const nextColl = nextSnapshot[pos.address].collateralValue;
+      const nextColl = nextSnapshot[positionKey].collateralValue;
       if (typeof prevColl === "number" && typeof nextColl === "number") {
         const delta = nextColl - prevColl;
         if (Math.abs(delta) >= 0.01) {
           const amt = `$${formatUsd(Math.abs(delta))}`;
           newEvents.push({
-            id: `${now}-coll-${pos.address}`,
+            id: `${now}-coll-${positionKey}`,
             ts: now,
             type: "collateral",
-            address: pos.address,
+            address: positionKey,
             symbol,
             side,
             deltaUsd: Math.abs(delta),
@@ -383,7 +386,7 @@ const Trades = () => {
 
                   {e.address && (
                     <a
-                      href={`https://solscan.io/token/${e.address}`}
+                      href={`https://solscan.io/account/${e.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
