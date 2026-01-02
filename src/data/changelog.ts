@@ -66,6 +66,7 @@ export const changelog: ChangelogEntry[] = [
       "Replaced text input with checkbox selector for blog post tags.",
       "Updated tag styling to only color text, icon, and border (dark background).",
       "Added Bitcoin and Coins icons for cryptocurrency-related tags.",
+      "Added Brain and BrainCircuit icons for AI-related content (perfect for Venice token).",
     ],
     tags: ["trading", "ui", "data"],
   },
