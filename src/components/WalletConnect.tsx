@@ -25,14 +25,16 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
   const [isOpen, setIsOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
 
-  // Detect available wallets
+  // Detect available wallets - comprehensive detection
   const availableWallets = {
     phantom: !!window.solana?.isPhantom,
     backpack: !!window.backpack,
     metamask: !!window.ethereum,
-    jupiter: !!window.jupiter || !!(window as any).solana?.isJupiter, // Try multiple Jupiter detection methods
+    jupiter: !!(window as any).jupiter || !!(window as any).solana?.isJupiter || !!(window as any).jupiterAg,
     glow: !!(window as any).glow,
     brave: !!window.brave,
+    // Try to detect any wallet that might be Jupiter
+    anySolana: !!window.solana,
   };
 
   // Log detected wallets for debugging
@@ -40,7 +42,12 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
   console.log("window.solana:", window.solana);
   console.log("window.backpack:", window.backpack);
   console.log("window.ethereum:", window.ethereum);
-  console.log("window.jupiter:", window.jupiter);
+  console.log("window.jupiter:", (window as any).jupiter);
+  console.log("window.jupiterAg:", (window as any).jupiterAg);
+  console.log("window.glow:", (window as any).glow);
+
+  // Check if any wallet is available
+  const hasAnyWallet = Object.values(availableWallets).some(Boolean);
 
   const wallets = [
     {
@@ -88,20 +95,28 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
     {
       name: "Jupiter",
       icon: "🪐",
-      description: availableWallets.jupiter ? "Click to connect" : "Not detected - install extension",
+      description: availableWallets.jupiter || availableWallets.anySolana ? "Click to connect" : "Not detected - install extension",
       connect: async () => {
         try {
           console.log("Attempting Jupiter connection...");
           
           // Method 1: Try window.jupiter directly
-          if (window.jupiter) {
+          if ((window as any).jupiter) {
             console.log("Found window.jupiter, connecting...");
-            const response = await window.jupiter.connect();
+            const response = await (window as any).jupiter.connect();
             console.log("Connected to Jupiter via window.jupiter:", response.publicKey.toString());
             return response.publicKey.toString();
           }
           
-          // Method 2: Try window.solana if it's Jupiter
+          // Method 2: Try window.jupiterAg (Jupiter Aggregator)
+          if ((window as any).jupiterAg) {
+            console.log("Found window.jupiterAg, connecting...");
+            const response = await (window as any).jupiterAg.connect();
+            console.log("Connected to Jupiter via window.jupiterAg:", response.publicKey.toString());
+            return response.publicKey.toString();
+          }
+          
+          // Method 3: Try window.solana if it's Jupiter
           if ((window as any).solana?.isJupiter) {
             console.log("Found Jupiter via window.solana.isJupiter, connecting...");
             const response = await (window as any).solana.connect();
@@ -109,7 +124,7 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
             return response.publicKey.toString();
           }
           
-          // Method 3: Try any available Solana wallet (Jupiter might be using standard adapter)
+          // Method 4: Try any available Solana wallet (Jupiter might be using standard adapter)
           if (window.solana) {
             console.log("Trying generic Solana connection for Jupiter...");
             const response = await window.solana.connect();
@@ -128,7 +143,7 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
           throw new Error(`Failed to connect to Jupiter: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       },
-      available: availableWallets.jupiter
+      available: availableWallets.jupiter || availableWallets.anySolana
     },
     {
       name: "Phantom",
@@ -273,6 +288,15 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
                   <X className="w-4 h-4" />
                 </button>
               </div>
+
+              {!hasAnyWallet && (
+                <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg mx-4 mt-4">
+                  <div className="flex items-center gap-2 text-sm text-yellow-600">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>No Solana wallets detected. Please install Phantom, Backpack, or Jupiter wallet.</span>
+                  </div>
+                </div>
+              )}
 
               <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
                 {wallets.map((wallet) => (
