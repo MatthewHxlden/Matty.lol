@@ -23,42 +23,78 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
   const [isOpen, setIsOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
 
+  // Detect available wallets
+  const availableWallets = {
+    phantom: !!window.solana?.isPhantom,
+    backpack: !!window.backpack,
+    metamask: !!window.ethereum,
+  };
+
   const wallets = [
     {
       name: "Phantom",
       icon: "👻",
-      description: "Most popular Solana wallet",
+      description: availableWallets.phantom ? "Click to connect" : "Not detected - install extension",
       connect: async () => {
-        if (!window.solana?.isPhantom) {
-          window.open("https://phantom.app/", "_blank");
-          throw new Error("Phantom wallet not installed");
+        try {
+          // Check if Phantom is installed
+          if (!window.solana?.isPhantom) {
+            window.open("https://phantom.app/", "_blank");
+            throw new Error("Phantom wallet not installed. Please install Phantom browser extension.");
+          }
+          
+          // Request connection to Phantom
+          console.log("Connecting to Phantom wallet...");
+          const response = await window.solana.connect();
+          console.log("Connected to Phantom:", response.publicKey.toString());
+          return response.publicKey.toString();
+        } catch (error) {
+          console.error("Phantom connection error:", error);
+          if (error instanceof Error && error.message.includes("not installed")) {
+            throw error;
+          }
+          throw new Error("Failed to connect to Phantom. Please make sure Phantom is unlocked and try again.");
         }
-        const response = await window.solana.connect();
-        return response.publicKey.toString();
-      }
+      },
+      available: availableWallets.phantom
     },
     {
       name: "Backpack",
       icon: "🎒",
-      description: "Advanced Solana wallet",
+      description: availableWallets.backpack ? "Click to connect" : "Not detected - install extension",
       connect: async () => {
-        if (!window.backpack) {
-          window.open("https://backpack.app/", "_blank");
-          throw new Error("Backpack wallet not installed");
+        try {
+          // Check if Backpack is installed
+          if (!window.backpack) {
+            window.open("https://backpack.app/", "_blank");
+            throw new Error("Backpack wallet not installed. Please install Backpack browser extension.");
+          }
+          
+          // Request connection to Backpack
+          console.log("Connecting to Backpack wallet...");
+          const response = await window.backpack.connect();
+          console.log("Connected to Backpack:", response.publicKey.toString());
+          return response.publicKey.toString();
+        } catch (error) {
+          console.error("Backpack connection error:", error);
+          if (error instanceof Error && error.message.includes("not installed")) {
+            throw error;
+          }
+          throw new Error("Failed to connect to Backpack. Please make sure Backpack is unlocked and try again.");
         }
-        const response = await window.backpack.connect();
-        return response.publicKey.toString();
-      }
+      },
+      available: availableWallets.backpack
     },
     {
       name: "MetaMask",
       icon: "🦊",
-      description: "EVM wallet with Solana support",
+      description: availableWallets.metamask ? "Click to connect" : "Not detected - install extension",
       connect: async () => {
         try {
+          // Check if MetaMask is installed
           if (!window.ethereum) {
             window.open("https://metamask.io/", "_blank");
-            throw new Error("MetaMask not installed");
+            throw new Error("MetaMask not installed. Please install MetaMask browser extension.");
           }
           
           const provider = window.ethereum;
@@ -129,9 +165,13 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
           throw new Error("MetaMask Solana support not detected. Please ensure you have the latest MetaMask with Solana support enabled in settings.");
         } catch (error) {
           console.error("MetaMask connection error:", error);
+          if (error instanceof Error && error.message.includes("not installed")) {
+            throw error;
+          }
           throw new Error("Failed to connect to MetaMask Solana. Please check your MetaMask settings and ensure Solana support is enabled.");
         }
-      }
+      },
+      available: availableWallets.metamask
     },
     {
       name: "Jupiter DEX",
@@ -141,7 +181,8 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
         // Jupiter is a DEX, not a wallet - open Jupiter with instructions
         window.open("https://jup.ag/", "_blank");
         throw new Error("Jupiter is a DEX aggregator. Please connect Phantom or Backpack wallet, then visit jup.ag to trade.");
-      }
+      },
+      available: true // Always available since it's just a website
     },
     {
       name: "Manual Address",
@@ -157,7 +198,8 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
         }
         
         return address;
-      }
+      },
+      available: true // Always available
     }
   ];
 
@@ -237,14 +279,29 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
                   <button
                     key={wallet.name}
                     onClick={() => handleConnect(wallet)}
-                    disabled={connecting}
-                    className="w-full p-3 border border-border/50 rounded-lg hover:border-primary hover:bg-muted/20 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={connecting || !wallet.available}
+                    className={`w-full p-3 border rounded-lg transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed ${
+                      wallet.available 
+                        ? 'border-border/50 hover:border-primary hover:bg-muted/20' 
+                        : 'border-border/20 bg-muted/10 cursor-not-allowed'
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="text-2xl">{wallet.icon}</div>
                       <div className="flex-1">
-                        <div className="font-medium text-foreground">{wallet.name}</div>
-                        <div className="text-sm text-muted-foreground">{wallet.description}</div>
+                        <div className="font-medium text-foreground flex items-center gap-2">
+                          {wallet.name}
+                          {wallet.available ? (
+                            <div className="w-2 h-2 bg-green-500 rounded-full" title="Available" />
+                          ) : (
+                            <div className="w-2 h-2 bg-red-500 rounded-full" title="Not installed" />
+                          )}
+                        </div>
+                        <div className={`text-sm ${
+                          wallet.available ? 'text-muted-foreground' : 'text-destructive'
+                        }`}>
+                          {wallet.description}
+                        </div>
                       </div>
                       {connecting && (
                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
