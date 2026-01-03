@@ -10,6 +10,8 @@ declare global {
     backpack?: any;
     ethereum?: any;
     jupiter?: any;
+    glow?: any;
+    brave?: any;
   }
 }
 
@@ -28,6 +30,8 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
     phantom: !!window.solana?.isPhantom,
     backpack: !!window.backpack,
     metamask: !!window.ethereum,
+    glow: !!(window as any).glow,
+    brave: !!window.brave,
   };
 
   const wallets = [
@@ -88,7 +92,7 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
     {
       name: "MetaMask",
       icon: "🦊",
-      description: availableWallets.metamask ? "Click to connect" : "Not detected - install extension",
+      description: availableWallets.metamask ? "Ethereum wallet only (no Solana)" : "Not detected - install extension",
       connect: async () => {
         try {
           // Check if MetaMask is installed
@@ -97,78 +101,15 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
             throw new Error("MetaMask not installed. Please install MetaMask browser extension.");
           }
           
-          const provider = window.ethereum;
-          
-          // Try MetaMask's new Solana support methods
-          try {
-            // Method 1: Try solana_requestAccounts (new MetaMask versions)
-            const solanaAccounts = await provider.request({
-              method: 'solana_requestAccounts'
-            });
-            
-            if (solanaAccounts && solanaAccounts.length > 0) {
-              console.log("Connected to MetaMask Solana:", solanaAccounts[0]);
-              return solanaAccounts[0];
-            }
-          } catch (solanaError) {
-            console.log("Solana method failed, trying wallet_switchEthereumChain");
-            
-            // Method 2: Try switching to Solana network first
-            try {
-              await provider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x539' }] // Solana devnet chain ID
-              });
-              
-              // Then try to get accounts
-              const accounts = await provider.request({
-                method: 'eth_requestAccounts'
-              });
-              
-              if (accounts && accounts.length > 0) {
-                console.log("Connected to MetaMask (Solana network):", accounts[0]);
-                return accounts[0];
-              }
-            } catch (switchError) {
-              // Method 3: Try adding Solana network
-              if (switchError.code === 4902) {
-                try {
-                  await provider.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                      chainId: '0x539',
-                      chainName: 'Solana',
-                      rpcUrls: ['https://api.mainnet-beta.solana.com'],
-                      nativeCurrency: {
-                        name: 'SOL',
-                        symbol: 'SOL',
-                        decimals: 9
-                      }
-                    }]
-                  });
-                  
-                  const accounts = await provider.request({
-                    method: 'eth_requestAccounts'
-                  });
-                  
-                  if (accounts && accounts.length > 0) {
-                    console.log("Connected to MetaMask (added Solana):", accounts[0]);
-                    return accounts[0];
-                  }
-                } catch (addError) {
-                  console.error("Failed to add Solana network:", addError);
-                }
-              }
-            }
-          }
-          
-          throw new Error("MetaMask Solana support not detected. Please ensure you have the latest MetaMask with Solana support enabled in settings.");
+          // MetaMask doesn't have Solana support yet - it's Ethereum only
+          // The user was mistaken about Solana support
+          throw new Error("MetaMask only supports Ethereum, not Solana. Please use Phantom, Backpack, or manual address entry for Solana wallets.");
         } catch (error) {
           console.error("MetaMask connection error:", error);
           if (error instanceof Error && error.message.includes("not installed")) {
             throw error;
           }
-          throw new Error("Failed to connect to MetaMask Solana. Please check your MetaMask settings and ensure Solana support is enabled.");
+          throw error;
         }
       },
       available: availableWallets.metamask
