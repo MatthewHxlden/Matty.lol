@@ -66,7 +66,7 @@ const TerminalHeader = () => {
     queryFn: async () => {
       const res = await fetch("/api/status/github");
       if (!res.ok) throw new Error(`github status error (${res.status})`);
-      return (await res.json()) as { ok?: boolean; message?: string };
+      return (await res.json()) as { ok?: boolean; message?: string; link?: string };
     },
     refetchInterval: 5 * 60 * 1000,
   });
@@ -82,10 +82,10 @@ const TerminalHeader = () => {
   });
 
   const tickerMessages = [
-    weatherStatus?.message || "external conditions: loading weather...",
-    githubStatus?.message || "github: checking latest activity...",
-    redditStatus?.message || "reddit: fetching last post...",
-    "system: all signals green.",
+    { message: weatherStatus?.message || "external conditions: loading weather...", link: null },
+    { message: githubStatus?.message || "github: checking latest activity...", link: githubStatus?.link || null },
+    { message: redditStatus?.message || "reddit: fetching last post...", link: redditStatus?.link || null },
+    { message: "system: all signals green.", link: null },
   ];
 
   // Check if user is admin
@@ -281,21 +281,33 @@ const TerminalHeader = () => {
         <div className="container mx-auto px-4">
           <div className="py-1 text-xs font-mono text-muted-foreground whitespace-nowrap">
             <div className="marquee">
-              {[...tickerMessages, ...tickerMessages].map((msg, idx) => (
+              {[...tickerMessages, ...tickerMessages].map((tickerItem, idx) => (
                 <span key={idx} className="px-4">
                   <span className="inline-flex items-center gap-2">
-                    {msg.startsWith("github:") ? (
+                    {tickerItem.message.startsWith("github:") ? (
                       <Github className="w-3.5 h-3.5 text-muted-foreground" />
-                    ) : msg.startsWith("reddit:") ? (
+                    ) : tickerItem.message.startsWith("reddit:") ? (
                       <Rss className="w-3.5 h-3.5 text-muted-foreground" />
-                    ) : msg.startsWith("external conditions:") ? (
+                    ) : tickerItem.message.startsWith("external conditions:") ? (
                       <CloudSun className="w-3.5 h-3.5 text-muted-foreground" />
-                    ) : msg.startsWith("system:") ? (
+                    ) : tickerItem.message.startsWith("system:") ? (
                       <Activity className="w-3.5 h-3.5 text-muted-foreground" />
                     ) : (
                       <Activity className="w-3.5 h-3.5 text-muted-foreground" />
                     )}
-                    <span>{msg}</span>
+                    {tickerItem.link ? (
+                      <a
+                        href={tickerItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary hover:underline transition-colors cursor-pointer"
+                        title={`Open ${tickerItem.message} in new tab`}
+                      >
+                        {tickerItem.message}
+                      </a>
+                    ) : (
+                      <span>{tickerItem.message}</span>
+                    )}
                   </span>
                 </span>
               ))}

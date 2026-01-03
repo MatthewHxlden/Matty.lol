@@ -30,10 +30,17 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
     phantom: !!window.solana?.isPhantom,
     backpack: !!window.backpack,
     metamask: !!window.ethereum,
-    jupiter: !!window.jupiter,
+    jupiter: !!window.jupiter || !!(window as any).solana?.isJupiter, // Try multiple Jupiter detection methods
     glow: !!(window as any).glow,
     brave: !!window.brave,
   };
+
+  // Log detected wallets for debugging
+  console.log("Detected wallets:", availableWallets);
+  console.log("window.solana:", window.solana);
+  console.log("window.backpack:", window.backpack);
+  console.log("window.ethereum:", window.ethereum);
+  console.log("window.jupiter:", window.jupiter);
 
   const wallets = [
     {
@@ -84,26 +91,44 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
       description: availableWallets.jupiter ? "Click to connect" : "Not detected - install extension",
       connect: async () => {
         try {
-          // Check if Jupiter wallet is installed
-          if (!window.jupiter) {
-            window.open("https://jup.ag/wallet", "_blank");
-            throw new Error("Jupiter wallet not installed. Please install Jupiter browser extension.");
+          console.log("Attempting Jupiter connection...");
+          
+          // Method 1: Try window.jupiter directly
+          if (window.jupiter) {
+            console.log("Found window.jupiter, connecting...");
+            const response = await window.jupiter.connect();
+            console.log("Connected to Jupiter via window.jupiter:", response.publicKey.toString());
+            return response.publicKey.toString();
           }
           
-          // Request connection to Jupiter wallet
-          console.log("Connecting to Jupiter wallet...");
-          const response = await window.jupiter.connect();
-          console.log("Connected to Jupiter:", response.publicKey.toString());
-          return response.publicKey.toString();
+          // Method 2: Try window.solana if it's Jupiter
+          if ((window as any).solana?.isJupiter) {
+            console.log("Found Jupiter via window.solana.isJupiter, connecting...");
+            const response = await (window as any).solana.connect();
+            console.log("Connected to Jupiter via window.solana:", response.publicKey.toString());
+            return response.publicKey.toString();
+          }
+          
+          // Method 3: Try any available Solana wallet (Jupiter might be using standard adapter)
+          if (window.solana) {
+            console.log("Trying generic Solana connection for Jupiter...");
+            const response = await window.solana.connect();
+            console.log("Connected to generic Solana wallet (might be Jupiter):", response.publicKey.toString());
+            return response.publicKey.toString();
+          }
+          
+          // No Jupiter wallet found
+          window.open("https://jup.ag/wallet", "_blank");
+          throw new Error("Jupiter wallet not detected. Please install Jupiter browser extension and refresh the page.");
         } catch (error) {
           console.error("Jupiter connection error:", error);
-          if (error instanceof Error && error.message.includes("not installed")) {
+          if (error instanceof Error && error.message.includes("not detected")) {
             throw error;
           }
-          throw new Error("Failed to connect to Jupiter. Please make sure Jupiter wallet is unlocked and try again.");
+          throw new Error(`Failed to connect to Jupiter: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       },
-      available: !!window.jupiter
+      available: availableWallets.jupiter
     },
     {
       name: "Phantom",

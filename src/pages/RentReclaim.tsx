@@ -47,6 +47,15 @@ const RentReclaim = () => {
       return;
     }
 
+    // Validate if it's a Solana address
+    try {
+      new PublicKey(walletAddress);
+    } catch (error) {
+      console.error("Invalid Solana address:", walletAddress);
+      alert("This appears to be an Ethereum address, not a Solana address. Please connect a Solana wallet (Phantom, Backpack, or Jupiter) or enter a Solana address manually.");
+      return;
+    }
+
     setScanning(true);
     try {
       console.log("Scanning accounts for:", walletAddress);
