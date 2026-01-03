@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRainTheme } from "@/hooks/useRainTheme";
 import SearchModal from "@/components/SearchModal";
 import TerminalCommand from "@/components/TerminalCommand";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn, LogOut, User, Settings, Shield, Search, CloudRain, Github, Rss, CloudSun, Activity } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -260,10 +261,16 @@ const TerminalHeader = () => {
               </Link>
             </motion.div>
 
-            {/* Theme toggle (farthest right) */}
-            <div className="ml-2 flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
-              <CloudRain className="w-4 h-4 text-primary" />
-              <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
+            {/* Theme controls (farthest right) */}
+            <div className="ml-2 flex items-center gap-2">
+              {/* Color theme switcher */}
+              <ThemeSwitcher />
+              
+              {/* Rain theme toggle */}
+              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
+                <CloudRain className="w-4 h-4 text-primary" />
+                <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
+              </div>
             </div>
           </div>
         </div>

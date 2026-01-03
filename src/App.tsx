@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RainThemeProvider } from "@/hooks/useRainTheme";
+import { ColorThemeProvider } from "@/hooks/useColorTheme";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -38,47 +39,49 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <RainThemeProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/admin" element={<AdminHub />} />
-                <Route path="/admin/site" element={<SiteAdmin />} />
-                <Route path="/admin/blog" element={<BlogAdmin />} />
-                <Route path="/admin/apps" element={<AppsAdmin />} />
-                <Route path="/admin/tools" element={<ToolsAdmin />} />
-                <Route path="/admin/links" element={<LinksAdmin />} />
-                <Route path="/admin/contact" element={<ContactAdmin />} />
-                <Route path="/admin/trades" element={<TradesAdmin />} />
-                <Route path="/admin/now" element={<NowAdmin />} />
-                <Route path="/admin/feed" element={<FeedAdmin />} />
-                <Route path="/admin/analytics" element={<Analytics />} />
-                <Route path="/apps" element={<Apps />} />
-                <Route path="/changelog" element={<Changelog />} />
-                <Route path="/feed" element={<Feed />} />
-                <Route path="/trades" element={<Trades />} />
-                <Route path="/tools" element={<Tools />} />
-                <Route path="/rent-reclaim" element={<RentReclaim />} />
-                <Route path="/links" element={<Links />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/now" element={<Now />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/rss" element={<RssFeed />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AnimatePresence>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </RainThemeProvider>
+    <ColorThemeProvider>
+      <RainThemeProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AnimatePresence mode="wait">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/admin" element={<AdminHub />} />
+                  <Route path="/admin/site" element={<SiteAdmin />} />
+                  <Route path="/admin/blog" element={<BlogAdmin />} />
+                  <Route path="/admin/apps" element={<AppsAdmin />} />
+                  <Route path="/admin/tools" element={<ToolsAdmin />} />
+                  <Route path="/admin/links" element={<LinksAdmin />} />
+                  <Route path="/admin/contact" element={<ContactAdmin />} />
+                  <Route path="/admin/trades" element={<TradesAdmin />} />
+                  <Route path="/admin/now" element={<NowAdmin />} />
+                  <Route path="/admin/feed" element={<FeedAdmin />} />
+                  <Route path="/admin/analytics" element={<Analytics />} />
+                  <Route path="/apps" element={<Apps />} />
+                  <Route path="/changelog" element={<Changelog />} />
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/trades" element={<Trades />} />
+                  <Route path="/tools" element={<Tools />} />
+                  <Route path="/rent-reclaim" element={<RentReclaim />} />
+                  <Route path="/links" element={<Links />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/now" element={<Now />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/rss" element={<RssFeed />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AnimatePresence>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </RainThemeProvider>
+    </ColorThemeProvider>
   </QueryClientProvider>
 );
 
