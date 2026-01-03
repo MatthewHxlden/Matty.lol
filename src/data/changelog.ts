@@ -7,6 +7,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-01-03",
+    title: "AI icons, trades pagination, and crypto watchlist",
+    items: [
+      "Added Brain and BrainCircuit icons for AI-related content (perfect for Venice token).",
+      "Added pagination to trades activity log (show 10 items with 'see more' button).",
+      "Added crypto watchlist section to trades page with CoinCap Pro API integration.",
+      "Implemented real-time price updates for Bitcoin, Ethereum, Solana, and Venice token.",
+      "Fixed CoinCap API authentication for live price data.",
+    ],
+    tags: ["ai", "trading", "ui"],
+  },
+  {
     date: "2026-01-01",
     title: "Perps UI, admin hub, and theme upgrades",
     items: [
@@ -66,10 +78,6 @@ export const changelog: ChangelogEntry[] = [
       "Replaced text input with checkbox selector for blog post tags.",
       "Updated tag styling to only color text, icon, and border (dark background).",
       "Added Bitcoin and Coins icons for cryptocurrency-related tags.",
-      "Added Brain and BrainCircuit icons for AI-related content (perfect for Venice token).",
-      "Added pagination to trades activity log (show 10 items with 'see more' button).",
-      "Added crypto watchlist section to trades page with CoinCap Pro API integration.",
-      "Implemented real-time price updates for Bitcoin, Ethereum, Solana, and Venice token.",
     ],
     tags: ["trading", "ui", "data"],
   },
