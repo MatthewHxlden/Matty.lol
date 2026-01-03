@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Connection, PublicKey, SystemProgram, LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Wallet, Trash2, AlertCircle, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
+import WalletConnect from "@/components/WalletConnect";
+import { Trash2, AlertCircle, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
 import TypeWriter from "@/components/TypeWriter";
 
 // Extend Window interface for Solana wallet
@@ -35,32 +36,9 @@ const RentReclaim = () => {
 
   const connection = new Connection("https://api.mainnet-beta.solana.com");
 
-  const connectWallet = async () => {
-    if (window.solana?.isPhantom) {
-      try {
-        const response = await window.solana.connect();
-        setWalletAddress(response.publicKey.toString());
-        setConnected(true);
-      } catch (err) {
-        console.error("Failed to connect wallet:", err);
-      }
-    } else {
-      // Fallback to manual address input with test option
-      const useTest = confirm("Use test wallet address for demo?");
-      let address;
-      
-      if (useTest) {
-        // Test wallet address (you can replace this with a real one)
-        address = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";
-      } else {
-        address = prompt("Enter your Solana wallet address:");
-      }
-      
-      if (address) {
-        setWalletAddress(address);
-        setConnected(true);
-      }
-    }
+  const handleWalletConnect = (address: string) => {
+    setWalletAddress(address);
+    setConnected(true);
   };
 
   const scanAccounts = async () => {
@@ -212,46 +190,27 @@ const RentReclaim = () => {
 
           <TerminalCard title="~/tools/rent-reclaim/wallet.log" promptText="connect wallet">
             <div className="space-y-4">
-              {!connected ? (
-                <div className="text-center py-8">
-                  <Wallet className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <button
-                    onClick={connectWallet}
-                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                  >
-                    Connect Wallet
-                  </button>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Supports Phantom, Jupiter, and other Solana wallets
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-border/50 bg-muted/20">
-                    <div>
-                      <div className="text-sm text-muted-foreground">Connected Wallet</div>
-                      <div className="font-mono text-foreground">
-                        {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
-                      </div>
+              <WalletConnect
+                onConnect={handleWalletConnect}
+                connected={connected}
+                walletAddress={walletAddress}
+              />
+              
+              {connected && (
+                <button
+                  onClick={scanAccounts}
+                  disabled={scanning}
+                  className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                >
+                  {scanning ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Scanning Accounts...
                     </div>
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  </div>
-                  
-                  <button
-                    onClick={scanAccounts}
-                    disabled={scanning}
-                    className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    {scanning ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Scanning Accounts...
-                      </div>
-                    ) : (
-                      "Scan for Reclaimable Accounts"
-                    )}
-                  </button>
-                </div>
+                  ) : (
+                    "Scan for Reclaimable Accounts"
+                  )}
+                </button>
               )}
             </div>
           </TerminalCard>
