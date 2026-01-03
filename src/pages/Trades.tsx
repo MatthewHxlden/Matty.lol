@@ -611,6 +611,63 @@ const Trades = () => {
             </div>
           </TerminalCard>
 
+          <TerminalCard title="~/trades/status.log" promptText="cat session.status" showPrompt={!isLoading}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="text-muted-foreground text-sm">
+                <span className="text-secondary">// </span>
+                tracked events: <span className="text-foreground">{events.length}</span>
+              </div>
+              {headerRight}
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="p-4 border border-border/50 bg-muted/20">
+                <div className="text-xs text-accent">open positions</div>
+                <div className="text-xl font-bold text-primary">{baseline.openCount}</div>
+              </div>
+              <div className="p-4 border border-border/50 bg-muted/20">
+                <div className="text-xs text-accent">open notional</div>
+                <div className="text-xl font-bold text-secondary">${formatUsd(baseline.openNotional)}</div>
+              </div>
+              <div className="p-4 border border-border/50 bg-muted/20">
+                <div className="text-xs text-accent">open collateral</div>
+                <div className="text-xl font-bold text-secondary">${formatUsd(baseline.openCollateral)}</div>
+              </div>
+              <div className="p-4 border border-border/50 bg-muted/20">
+                <div className="text-xs text-accent">session uptime</div>
+                <div className="text-xl font-bold text-primary">
+                  {sessionStartTs ? `${Math.max(0, Math.floor((Date.now() - sessionStartTs) / 60000))}m` : "-"}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              {([
+                { label: "trades (24h)", key: "24h" as const },
+                { label: "trades (7d)", key: "7d" as const },
+                { label: "trades (30d)", key: "30d" as const },
+                { label: "trades (all)", key: "all" as const },
+              ] as const).map((x) => (
+                <div key={x.key} className="p-4 border border-border/50 bg-muted/20">
+                  <div className="text-xs text-accent">{x.label}</div>
+                  <div className="text-xl font-bold text-primary">{metrics[x.key].count}</div>
+                </div>
+              ))}
+
+              {([
+                { label: "volume (24h)", key: "24h" as const },
+                { label: "volume (7d)", key: "7d" as const },
+                { label: "volume (30d)", key: "30d" as const },
+                { label: "volume (all)", key: "all" as const },
+              ] as const).map((x) => (
+                <div key={x.label} className="p-4 border border-border/50 bg-muted/20">
+                  <div className="text-xs text-accent">{x.label}</div>
+                  <div className="text-xl font-bold text-secondary">${formatUsd(metrics[x.key].volume)}</div>
+                </div>
+              ))}
+            </div>
+          </TerminalCard>
+
           <TerminalCard title="~/trades/watchlist.log" promptText="cat crypto.watchlist" showPrompt={!watchlistLoading}>
             <div className="space-y-4">
               {watchlistLoading ? (
@@ -695,63 +752,6 @@ const Trades = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          </TerminalCard>
-
-          <TerminalCard title="~/trades/status.log" promptText="cat session.status" showPrompt={!isLoading}>
-            <div className="flex items-start justify-between gap-4">
-              <div className="text-muted-foreground text-sm">
-                <span className="text-secondary">// </span>
-                tracked events: <span className="text-foreground">{events.length}</span>
-              </div>
-              {headerRight}
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div className="p-4 border border-border/50 bg-muted/20">
-                <div className="text-xs text-accent">open positions</div>
-                <div className="text-xl font-bold text-primary">{baseline.openCount}</div>
-              </div>
-              <div className="p-4 border border-border/50 bg-muted/20">
-                <div className="text-xs text-accent">open notional</div>
-                <div className="text-xl font-bold text-secondary">${formatUsd(baseline.openNotional)}</div>
-              </div>
-              <div className="p-4 border border-border/50 bg-muted/20">
-                <div className="text-xs text-accent">open collateral</div>
-                <div className="text-xl font-bold text-secondary">${formatUsd(baseline.openCollateral)}</div>
-              </div>
-              <div className="p-4 border border-border/50 bg-muted/20">
-                <div className="text-xs text-accent">session uptime</div>
-                <div className="text-xl font-bold text-primary">
-                  {sessionStartTs ? `${Math.max(0, Math.floor((Date.now() - sessionStartTs) / 60000))}m` : "-"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              {([
-                { label: "trades (24h)", key: "24h" as const },
-                { label: "trades (7d)", key: "7d" as const },
-                { label: "trades (30d)", key: "30d" as const },
-                { label: "trades (all)", key: "all" as const },
-              ] as const).map((x) => (
-                <div key={x.key} className="p-4 border border-border/50 bg-muted/20">
-                  <div className="text-xs text-accent">{x.label}</div>
-                  <div className="text-xl font-bold text-primary">{metrics[x.key].count}</div>
-                </div>
-              ))}
-
-              {([
-                { label: "volume (24h)", key: "24h" as const },
-                { label: "volume (7d)", key: "7d" as const },
-                { label: "volume (30d)", key: "30d" as const },
-                { label: "volume (all)", key: "all" as const },
-              ] as const).map((x) => (
-                <div key={x.label} className="p-4 border border-border/50 bg-muted/20">
-                  <div className="text-xs text-accent">{x.label}</div>
-                  <div className="text-xl font-bold text-secondary">${formatUsd(metrics[x.key].volume)}</div>
-                </div>
-              ))}
             </div>
           </TerminalCard>
 
