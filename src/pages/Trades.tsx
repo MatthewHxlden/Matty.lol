@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { ExternalLink, AlertCircle } from "lucide-react";
+import { ExternalLink, AlertCircle, ChevronDown } from "lucide-react";
 import TypeWriter from "@/components/TypeWriter";
 
 interface JupiterPortfolioElement {
@@ -47,6 +47,31 @@ type SessionEvent = {
   message: string;
 };
 
+interface CoinCapAsset {
+  id: string;
+  rank: string;
+  symbol: string;
+  name: string;
+  supply: string;
+  maxSupply: string | null;
+  marketCapUsd: string;
+  volumeUsd24Hr: string;
+  priceUsd: string;
+  changePercent24Hr: string;
+  vwap24Hr: string | null;
+  explorer: string;
+}
+
+interface CoinCapRate {
+  id: string;
+  symbol: string;
+  currencySymbol: string;
+  type: string;
+  rateUsd: string;
+}
+
+const COINCAP_API_KEY = "YOUR_COINCAP_PRO_API_KEY"; // Replace with your actual API key
+
 const STORAGE_KEYS = {
   startTs: "tradesSessionStartTs",
   snapshot: "tradesSessionSnapshot",
@@ -73,6 +98,36 @@ const Trades = () => {
   const [events, setEvents] = useState<SessionEvent[]>([]);
   const [activeActivity, setActiveActivity] = useState<{ text: string; address?: string } | null>(null);
   const [activityLog, setActivityLog] = useState<{ text: string; address?: string; ts: number }[]>([]);
+  const [activityLogLimit, setActivityLogLimit] = useState(10);
+  const [watchlist, setWatchlist] = useState<string[]>(["bitcoin", "ethereum", "solana", "venice-token"]);
+
+  // Default watchlist coins
+  const defaultWatchlist = ["bitcoin", "ethereum", "solana", "venice-token"];
+
+  const { data: watchlistData, isLoading: watchlistLoading } = useQuery({
+    queryKey: ["watchlist", watchlist],
+    queryFn: async () => {
+      const ids = watchlist.join(",");
+      const response = await fetch(
+        `https://api.coincap.io/v2/assets?ids=${ids}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${COINCAP_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch watchlist data');
+      }
+      
+      const data = await response.json();
+      return data.data as CoinCapAsset[];
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: watchlist.length > 0,
+  });
 
   const formatPrice = (n: number) =>
     n.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
@@ -507,7 +562,7 @@ const Trades = () => {
 
                 {activityLog.length > 1 && (
                   <div className="mt-3 space-y-1 text-xs text-muted-foreground font-mono">
-                    {activityLog.slice(1, 5).map((line, i) => (
+                    {activityLog.slice(1, activityLogLimit).map((line, i) => (
                       <div key={i} className="flex items-start gap-2">
                         <span className="text-muted-foreground">-</span>
                         <span className="truncate">{line.text}</span>
@@ -524,6 +579,15 @@ const Trades = () => {
                         )}
                       </div>
                     ))}
+                    {activityLog.length > activityLogLimit && (
+                      <button
+                        onClick={() => setActivityLogLimit(prev => prev + 10)}
+                        className="flex items-center gap-1 mt-2 text-primary hover:text-foreground transition-colors"
+                      >
+                        <ChevronDown className="w-3 h-3" />
+                        <span>show {Math.min(10, activityLog.length - activityLogLimit)} more</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -541,6 +605,93 @@ const Trades = () => {
                 <p className="mt-2 text-[11px] text-muted-foreground">
                   users get a 10% trading points bonus using my link.
                 </p>
+              </div>
+            </div>
+          </TerminalCard>
+
+          <TerminalCard title="~/trades/watchlist.log" promptText="cat crypto.watchlist" showPrompt={!watchlistLoading}>
+            <div className="space-y-4">
+              {watchlistLoading ? (
+                <div className="text-center text-muted-foreground py-8">
+                  <div className="text-sm">loading watchlist...</div>
+                </div>
+              ) : watchlistData && watchlistData.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {watchlistData.map((coin) => {
+                    const price = parseFloat(coin.priceUsd);
+                    const change24h = parseFloat(coin.changePercent24Hr);
+                    const changeClass = change24h >= 0 ? "text-primary" : "text-destructive";
+                    const changeSymbol = change24h >= 0 ? "+" : "";
+                    
+                    return (
+                      <div key={coin.id} className="p-4 border border-border/50 bg-muted/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="text-foreground font-medium">
+                              {coin.symbol.toUpperCase()}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              #{coin.rank}
+                            </div>
+                          </div>
+                          <div className={changeClass}>
+                            {changeSymbol}{change24h.toFixed(2)}%
+                          </div>
+                        </div>
+                        
+                        <div className="text-lg font-bold text-foreground mb-1">
+                          ${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">MCap: </span>
+                            <span className="text-foreground">
+                              ${(parseFloat(coin.marketCapUsd) / 1000000000).toFixed(2)}B
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Vol: </span>
+                            <span className="text-foreground">
+                              ${(parseFloat(coin.volumeUsd24Hr) / 1000000).toFixed(0)}M
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <div className="text-sm">no watchlist data available</div>
+                </div>
+              )}
+              
+              <div className="pt-2 border-t border-border/50">
+                <div className="text-xs text-muted-foreground mb-2">
+                  data via coincap.io pro api • refresh: 30s
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {defaultWatchlist.map((coinId) => (
+                    <button
+                      key={coinId}
+                      onClick={() => {
+                        setWatchlist(prev => 
+                          prev.includes(coinId) 
+                            ? prev.filter(id => id !== coinId)
+                            : [...prev, coinId]
+                        );
+                      }}
+                      className={`px-2 py-1 text-xs rounded transition-all ${
+                        watchlist.includes(coinId)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {coinId.replace('-', ' ').toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </TerminalCard>
