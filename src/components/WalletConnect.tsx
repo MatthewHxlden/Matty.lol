@@ -37,6 +37,75 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
 
   const wallets = [
     {
+      name: "MetaMask",
+      icon: "🦊",
+      description: availableWallets.metamask ? "Click to connect" : "Not detected - install extension",
+      connect: async () => {
+        try {
+          // Check if MetaMask is installed
+          if (!window.ethereum) {
+            window.open("https://metamask.io/", "_blank");
+            throw new Error("MetaMask not installed. Please install MetaMask browser extension.");
+          }
+          
+          const provider = window.ethereum;
+          
+          // Try to connect to MetaMask and get accounts
+          try {
+            const accounts = await provider.request({
+              method: 'eth_requestAccounts'
+            });
+            
+            if (accounts && accounts.length > 0) {
+              console.log("Connected to MetaMask:", accounts[0]);
+              // For now, return the Ethereum address as a placeholder
+              // In a real implementation, you'd need to handle Solana-specific MetaMask integration
+              return accounts[0];
+            }
+          } catch (error: any) {
+            console.error("MetaMask connection error:", error);
+            throw new Error(`MetaMask connection failed: ${error.message}`);
+          }
+          
+          throw new Error("No accounts found in MetaMask");
+        } catch (error) {
+          console.error("MetaMask connection error:", error);
+          if (error instanceof Error && error.message.includes("not installed")) {
+            throw error;
+          }
+          throw error;
+        }
+      },
+      available: availableWallets.metamask
+    },
+    {
+      name: "Jupiter",
+      icon: "🪐",
+      description: availableWallets.jupiter ? "Click to connect" : "Not detected - install extension",
+      connect: async () => {
+        try {
+          // Check if Jupiter wallet is installed
+          if (!window.jupiter) {
+            window.open("https://jup.ag/wallet", "_blank");
+            throw new Error("Jupiter wallet not installed. Please install Jupiter browser extension.");
+          }
+          
+          // Request connection to Jupiter wallet
+          console.log("Connecting to Jupiter wallet...");
+          const response = await window.jupiter.connect();
+          console.log("Connected to Jupiter:", response.publicKey.toString());
+          return response.publicKey.toString();
+        } catch (error) {
+          console.error("Jupiter connection error:", error);
+          if (error instanceof Error && error.message.includes("not installed")) {
+            throw error;
+          }
+          throw new Error("Failed to connect to Jupiter. Please make sure Jupiter wallet is unlocked and try again.");
+        }
+      },
+      available: !!window.jupiter
+    },
+    {
       name: "Phantom",
       icon: "👻",
       description: availableWallets.phantom ? "Click to connect" : "Not detected - install extension",
@@ -89,122 +158,6 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
         }
       },
       available: availableWallets.backpack
-    },
-    {
-      name: "MetaMask",
-      icon: "🦊",
-      description: availableWallets.metamask ? "Click to connect" : "Not detected - install extension",
-      connect: async () => {
-        try {
-          // Check if MetaMask is installed
-          if (!window.ethereum) {
-            window.open("https://metamask.io/", "_blank");
-            throw new Error("MetaMask not installed. Please install MetaMask browser extension.");
-          }
-          
-          const provider = window.ethereum;
-          
-          // Try MetaMask's Solana support using wallet_switchEthereumChain with Solana chain ID
-          try {
-            // Method 1: Try to switch to Solana network (chain ID 0x539 for Solana)
-            await provider.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x539' }]
-            });
-            
-            // If successful, get accounts
-            const accounts = await provider.request({
-              method: 'eth_requestAccounts'
-            });
-            
-            if (accounts && accounts.length > 0) {
-              console.log("Connected to MetaMask Solana:", accounts[0]);
-              return accounts[0];
-            }
-          } catch (switchError: any) {
-            // Method 2: If Solana chain not found, try to add it
-            if (switchError.code === 4902) {
-              try {
-                await provider.request({
-                  method: 'wallet_addEthereumChain',
-                  params: [{
-                    chainId: '0x539',
-                    chainName: 'Solana',
-                    rpcUrls: ['https://api.mainnet-beta.solana.com'],
-                    nativeCurrency: {
-                      name: 'SOL',
-                      symbol: 'SOL',
-                      decimals: 9
-                    }
-                  }]
-                });
-                
-                // Then get accounts
-                const accounts = await provider.request({
-                  method: 'eth_requestAccounts'
-                });
-                
-                if (accounts && accounts.length > 0) {
-                  console.log("Connected to MetaMask Solana (added chain):", accounts[0]);
-                  return accounts[0];
-                }
-              } catch (addError) {
-                console.error("Failed to add Solana chain:", addError);
-              }
-            }
-            
-            // Method 3: Try direct Solana method if available
-            try {
-              const solanaAccounts = await provider.request({
-                method: 'solana_requestAccounts'
-              });
-              
-              if (solanaAccounts && solanaAccounts.length > 0) {
-                console.log("Connected to MetaMask Solana (direct method):", solanaAccounts[0]);
-                return solanaAccounts[0];
-              }
-            } catch (solanaError) {
-              console.log("Direct Solana method not available");
-            }
-          }
-          
-          throw new Error("MetaMask Solana support not enabled. Please enable Solana support in MetaMask settings.");
-        } catch (error) {
-          console.error("MetaMask connection error:", error);
-          if (error instanceof Error && error.message.includes("not installed")) {
-            throw error;
-          }
-          throw error;
-        }
-      },
-      available: availableWallets.metamask
-    },
-    {
-      name: "Jupiter Wallet",
-      icon: "🪐",
-      description: availableWallets.jupiter ? "Click to connect" : "Not detected - install extension",
-      connect: async () => {
-        try {
-          // Check if Jupiter wallet is installed
-          if (!window.jupiter) {
-            window.open("https://jup.ag/wallet", "_blank");
-            throw new Error("Jupiter wallet not installed. Please install Jupiter browser extension.");
-          }
-          
-          // Request connection to Jupiter wallet
-          console.log("Connecting to Jupiter wallet...");
-          const response = await window.jupiter.connect();
-          console.log("Connected to Jupiter:", response.publicKey.toString());
-          return response.publicKey.toString();
-        } catch (error) {
-          console.error("Jupiter connection error:", error);
-          if (error instanceof Error && error.message.includes("not installed")) {
-            throw error;
-          }
-          throw new Error("Failed to connect to Jupiter. Please make sure Jupiter wallet is unlocked and try again.");
-        }
-      },
-      available: !!window.jupiter
     },
     {
       name: "Manual Address",
