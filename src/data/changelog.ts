@@ -8,7 +8,7 @@ export type ChangelogEntry = {
 export const changelog: ChangelogEntry[] = [
   {
     date: "2026-01-03",
-    title: "Enhanced theme system, social media integration, and favicon support",
+    title: "Enhanced theme system, AI icons, trades pagination, crypto watchlist, and social media integration",
     items: [
       "Expanded theme system from 2 to 6 color themes (Turquoise, Green, Red, Purple, Orange, Pink).",
       "Fixed green theme to use proper lime green (#9eff48) colors.",
@@ -24,13 +24,6 @@ export const changelog: ChangelogEntry[] = [
       "Created automated favicon resizing system using Sharp image processing.",
       "Updated site title to 'Matty.lol - Crypto Trader & Developer'.",
       "Added protocol-relative URLs for better domain compatibility.",
-    ],
-    tags: ["ui", "theme", "social", "seo", "pwa"],
-  },
-  {
-    date: "2026-01-03",
-    title: "AI icons, trades pagination, and crypto watchlist",
-    items: [
       "Added some more icons for AI-related content.",
       "Added pagination to trades activity log (show 10 items with 'see more' button).",
       "Added crypto watchlist section to trades page",
@@ -41,7 +34,7 @@ export const changelog: ChangelogEntry[] = [
       "Implemented account scanning for empty vs balance token accounts.",
       "Added batch reclaim functionality with terminal UI.",
     ],
-    tags: ["ai", "trading", "ui", "blockchain"],
+    tags: ["ui", "theme", "social", "seo", "pwa", "ai", "trading", "blockchain"],
   },
   {
     date: "2026-01-01",
