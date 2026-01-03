@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { Wallet, X, CheckCircle, AlertCircle } from "lucide-react";
 
 // Extend Window interface for wallet providers
@@ -137,68 +138,68 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
         Connect Wallet
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40"
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-              <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden">
-                <div className="flex items-center justify-between p-4 border-b border-border">
-                  <h3 className="text-lg font-bold text-foreground">Connect Wallet</h3>
+      {isOpen && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-[9999]"
+            onClick={() => setIsOpen(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden relative">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h3 className="text-lg font-bold text-foreground">Connect Wallet</h3>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 hover:bg-muted rounded transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                {wallets.map((wallet) => (
                   <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-1 hover:bg-muted rounded transition-colors"
+                    key={wallet.name}
+                    onClick={() => handleConnect(wallet)}
+                    disabled={connecting}
+                    className="w-full p-3 border border-border/50 rounded-lg hover:border-primary hover:bg-muted/20 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
-                  {wallets.map((wallet) => (
-                    <button
-                      key={wallet.name}
-                      onClick={() => handleConnect(wallet)}
-                      disabled={connecting}
-                      className="w-full p-3 border border-border/50 rounded-lg hover:border-primary hover:bg-muted/20 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">{wallet.icon}</div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">{wallet.name}</div>
-                          <div className="text-sm text-muted-foreground">{wallet.description}</div>
-                        </div>
-                        {connecting && (
-                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl">{wallet.icon}</div>
+                      <div className="flex-1">
+                        <div className="font-medium text-foreground">{wallet.name}</div>
+                        <div className="text-sm text-muted-foreground">{wallet.description}</div>
                       </div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="p-4 border-t border-border">
-                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                    <div>
-                      Make sure your wallet is installed and unlocked. Some wallets may need to be connected to Solana mainnet.
+                      {connecting && (
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      )}
                     </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-4 border-t border-border">
+                <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    Make sure your wallet is installed and unlocked. Some wallets may need to be connected to Solana mainnet.
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            </div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };
