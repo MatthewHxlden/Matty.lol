@@ -70,7 +70,7 @@ interface CoinCapRate {
   rateUsd: string;
 }
 
-const COINCAP_API_KEY = "YOUR_COINCAP_PRO_API_KEY"; // Replace with your actual API key
+const COINCAP_API_KEY = "d0584836d1b0c2d94cf6d220fd56311dc6eca3ea3736a7b2ad4f78f816987715";
 
 const STORAGE_KEYS = {
   startTs: "tradesSessionStartTs",
