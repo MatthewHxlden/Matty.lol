@@ -10,9 +10,9 @@ export const changelog: ChangelogEntry[] = [
     date: "2026-01-03",
     title: "AI icons, trades pagination, and crypto watchlist",
     items: [
-      "Added Brain and BrainCircuit icons for AI-related content (perfect for Venice token).",
+      "Added some more icons for AI-related content.",
       "Added pagination to trades activity log (show 10 items with 'see more' button).",
-      "Added crypto watchlist section to trades page with CoinCap Pro API integration.",
+      "Added crypto watchlist section to trades page",
       "Implemented real-time price updates for Bitcoin, Ethereum, Solana, and Venice token.",
       "Fixed CoinCap API authentication for live price data.",
     ],
