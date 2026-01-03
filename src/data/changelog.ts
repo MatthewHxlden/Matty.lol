@@ -15,8 +15,12 @@ export const changelog: ChangelogEntry[] = [
       "Added crypto watchlist section to trades page",
       "Implemented real-time price updates for Bitcoin, Ethereum, Solana, and Venice token.",
       "Fixed CoinCap API authentication for live price data.",
+      "Built Solana rent reclaim tool with wallet connections.",
+      "Added 15% fee collection for rent reclaims to 9NuiHh5wgRPx69BFGP1ZR8kHiBENGoJrXs5GpZzKAyn8.",
+      "Implemented account scanning for empty vs balance token accounts.",
+      "Added batch reclaim functionality with terminal UI.",
     ],
-    tags: ["ai", "trading", "ui"],
+    tags: ["ai", "trading", "ui", "blockchain"],
   },
   {
     date: "2026-01-01",

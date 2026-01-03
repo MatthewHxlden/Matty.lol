@@ -31,6 +31,7 @@ import Analytics from "./pages/Analytics";
 import RssFeed from "./pages/RssFeed";
 import Trades from "./pages/Trades";
 import Changelog from "./pages/Changelog";
+import RentReclaim from "./pages/RentReclaim";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/trades" element={<Trades />} />
                 <Route path="/tools" element={<Tools />} />
+                <Route path="/rent-reclaim" element={<RentReclaim />} />
                 <Route path="/links" element={<Links />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/now" element={<Now />} />
