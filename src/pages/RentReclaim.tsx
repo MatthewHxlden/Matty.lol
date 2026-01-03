@@ -45,8 +45,17 @@ const RentReclaim = () => {
         console.error("Failed to connect wallet:", err);
       }
     } else {
-      // Fallback to manual address input
-      const address = prompt("Enter your Solana wallet address:");
+      // Fallback to manual address input with test option
+      const useTest = confirm("Use test wallet address for demo?");
+      let address;
+      
+      if (useTest) {
+        // Test wallet address (you can replace this with a real one)
+        address = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";
+      } else {
+        address = prompt("Enter your Solana wallet address:");
+      }
+      
       if (address) {
         setWalletAddress(address);
         setConnected(true);
@@ -55,51 +64,75 @@ const RentReclaim = () => {
   };
 
   const scanAccounts = async () => {
-    if (!walletAddress) return;
+    if (!walletAddress) {
+      console.error("No wallet address provided");
+      return;
+    }
 
     setScanning(true);
     try {
+      console.log("Scanning accounts for:", walletAddress);
       const publicKey = new PublicKey(walletAddress);
+      
+      // Get all token accounts for the wallet
       const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
         programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
       });
+
+      console.log("Found token accounts:", tokenAccounts.value.length);
 
       const accountInfos: AccountInfo[] = [];
       let reclaimableTotal = 0;
 
       for (const account of tokenAccounts.value) {
-        const parsedInfo = account.account.data.parsed;
-        const info = parsedInfo.info;
-        
-        const isReclaimable = 
-          !parsedInfo.info.tokenAmount.uiAmount || 
-          parsedInfo.info.tokenAmount.uiAmount === 0;
-        
-        const hasBalance = 
-          parsedInfo.info.tokenAmount.uiAmount && 
-          parsedInfo.info.tokenAmount.uiAmount > 0;
+        try {
+          const parsedInfo = account.account.data.parsed;
+          const info = parsedInfo.info;
+          
+          // Check if account has tokens
+          const tokenAmount = parsedInfo.info.tokenAmount?.uiAmount || 0;
+          const isReclaimable = tokenAmount === 0;
+          const hasBalance = tokenAmount > 0;
 
-        const rentAmount = isReclaimable ? 0.00203928 : 0; // Approximate rent for token accounts
+          const rentAmount = isReclaimable ? 0.00203928 : 0; // Approximate rent for token accounts
 
-        accountInfos.push({
-          pubkey: account.pubkey.toString(),
-          lamports: account.account.lamports,
-          owner: account.account.owner.toString(),
-          executable: account.account.executable,
-          rentEpoch: account.account.rentEpoch,
-          isReclaimable,
-          hasBalance,
-        });
+          accountInfos.push({
+            pubkey: account.pubkey.toString(),
+            lamports: account.account.lamports,
+            owner: account.account.owner.toString(),
+            executable: account.account.executable,
+            rentEpoch: account.account.rentEpoch,
+            isReclaimable,
+            hasBalance,
+          });
 
-        if (isReclaimable) {
-          reclaimableTotal += rentAmount;
+          if (isReclaimable) {
+            reclaimableTotal += rentAmount;
+          }
+
+          console.log(`Account ${account.pubkey.toString()}:`, {
+            tokenAmount,
+            isReclaimable,
+            hasBalance,
+            rentAmount
+          });
+        } catch (accountError) {
+          console.error("Error processing account:", account.pubkey.toString(), accountError);
         }
       }
+
+      console.log("Final results:", {
+        totalAccounts: accountInfos.length,
+        reclaimableAccounts: accountInfos.filter(acc => acc.isReclaimable).length,
+        totalReclaimable: reclaimableTotal
+      });
 
       setAccounts(accountInfos);
       setTotalReclaimable(reclaimableTotal);
     } catch (error) {
       console.error("Error scanning accounts:", error);
+      // Show user-friendly error
+      alert("Failed to scan accounts. Please check your wallet address and try again.");
     } finally {
       setScanning(false);
     }
