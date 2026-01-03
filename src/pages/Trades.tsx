@@ -112,17 +112,19 @@ const Trades = () => {
         `https://api.coincap.io/v2/assets?ids=${ids}`,
         {
           headers: {
-            'Authorization': `Bearer ${COINCAP_API_KEY}`,
+            'Authorization': COINCAP_API_KEY,
             'Content-Type': 'application/json',
           },
         }
       );
       
       if (!response.ok) {
+        console.error('CoinCap API Error:', response.status, response.statusText);
         throw new Error('Failed to fetch watchlist data');
       }
       
       const data = await response.json();
+      console.log('CoinCap API Response:', data);
       return data.data as CoinCapAsset[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
