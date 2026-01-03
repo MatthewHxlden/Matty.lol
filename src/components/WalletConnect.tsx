@@ -9,6 +9,7 @@ declare global {
     solana?: any;
     backpack?: any;
     ethereum?: any;
+    jupiter?: any;
   }
 }
 
@@ -37,20 +38,6 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
       }
     },
     {
-      name: "Jupiter",
-      icon: "🪐",
-      description: "Jupiter aggregator wallet",
-      connect: async () => {
-        // Jupiter uses standard wallet adapter
-        if (!window.solana) {
-          window.open("https://jup.ag/", "_blank");
-          throw new Error("Jupiter wallet not available");
-        }
-        const response = await window.solana.connect();
-        return response.publicKey.toString();
-      }
-    },
-    {
       name: "Backpack",
       icon: "🎒",
       description: "Advanced Solana wallet",
@@ -66,14 +53,94 @@ const WalletConnect = ({ onConnect, connected, walletAddress }: WalletConnectPro
     {
       name: "MetaMask",
       icon: "🦊",
-      description: "EVM wallet (via Solana snap)",
+      description: "EVM wallet with Solana support",
       connect: async () => {
-        if (!window.ethereum) {
-          window.open("https://metamask.io/", "_blank");
-          throw new Error("MetaMask not installed");
+        try {
+          if (!window.ethereum) {
+            window.open("https://metamask.io/", "_blank");
+            throw new Error("MetaMask not installed");
+          }
+          
+          const provider = window.ethereum;
+          
+          // Try MetaMask's new Solana support methods
+          try {
+            // Method 1: Try solana_requestAccounts (new MetaMask versions)
+            const solanaAccounts = await provider.request({
+              method: 'solana_requestAccounts'
+            });
+            
+            if (solanaAccounts && solanaAccounts.length > 0) {
+              console.log("Connected to MetaMask Solana:", solanaAccounts[0]);
+              return solanaAccounts[0];
+            }
+          } catch (solanaError) {
+            console.log("Solana method failed, trying wallet_switchEthereumChain");
+            
+            // Method 2: Try switching to Solana network first
+            try {
+              await provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x539' }] // Solana devnet chain ID
+              });
+              
+              // Then try to get accounts
+              const accounts = await provider.request({
+                method: 'eth_requestAccounts'
+              });
+              
+              if (accounts && accounts.length > 0) {
+                console.log("Connected to MetaMask (Solana network):", accounts[0]);
+                return accounts[0];
+              }
+            } catch (switchError) {
+              // Method 3: Try adding Solana network
+              if (switchError.code === 4902) {
+                try {
+                  await provider.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                      chainId: '0x539',
+                      chainName: 'Solana',
+                      rpcUrls: ['https://api.mainnet-beta.solana.com'],
+                      nativeCurrency: {
+                        name: 'SOL',
+                        symbol: 'SOL',
+                        decimals: 9
+                      }
+                    }]
+                  });
+                  
+                  const accounts = await provider.request({
+                    method: 'eth_requestAccounts'
+                  });
+                  
+                  if (accounts && accounts.length > 0) {
+                    console.log("Connected to MetaMask (added Solana):", accounts[0]);
+                    return accounts[0];
+                  }
+                } catch (addError) {
+                  console.error("Failed to add Solana network:", addError);
+                }
+              }
+            }
+          }
+          
+          throw new Error("MetaMask Solana support not detected. Please ensure you have the latest MetaMask with Solana support enabled in settings.");
+        } catch (error) {
+          console.error("MetaMask connection error:", error);
+          throw new Error("Failed to connect to MetaMask Solana. Please check your MetaMask settings and ensure Solana support is enabled.");
         }
-        // MetaMask Solana integration would need additional setup
-        throw new Error("MetaMask Solana support coming soon");
+      }
+    },
+    {
+      name: "Jupiter DEX",
+      icon: "🪐",
+      description: "Use with Phantom/Backpack on jup.ag",
+      connect: async () => {
+        // Jupiter is a DEX, not a wallet - open Jupiter with instructions
+        window.open("https://jup.ag/", "_blank");
+        throw new Error("Jupiter is a DEX aggregator. Please connect Phantom or Backpack wallet, then visit jup.ag to trade.");
       }
     },
     {
