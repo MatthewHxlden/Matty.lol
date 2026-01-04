@@ -1,0 +1,8 @@
+# Blog post routing - serve HTML files for clean URLs
+/blog/:slug /blog/:slug.html 200
+
+# Handle trailing slashes
+/blog/:slug/ /blog/:slug.html 200
+
+# Fallback to index.html for React Router
+/* /index.html 200
