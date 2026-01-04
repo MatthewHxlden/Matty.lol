@@ -1,12 +1,15 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Calendar, Clock, Tag, ArrowLeft, AlertCircle, Hash, Bookmark, Star, Heart, ThumbsUp, MessageSquare, Code, Database, Server, Cloud, Globe, Link as LinkIcon, FileText, Video, Music, Headphones, Camera, Mic, Monitor, Smartphone, Tablet, Watch, Gamepad2, Cpu, Zap, Battery, Wifi, Bluetooth, Navigation, MapPin, Calendar as CalendarIcon, Clock as ClockIcon, TrendingUp, BarChart, PieChart, Activity, Target, Award, Trophy, Medal, Gem, Sparkles, Flame, Sun, Moon, CloudRain, Bitcoin, Coins, Brain, BrainCircuit } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { updateBlogMetaTags, resetMetaTags } from "@/utils/metaTags";
+import BlogShare from "@/components/BlogShare";
 
 interface BlogPostWithAuthor {
   id: string;
@@ -134,6 +137,27 @@ const BlogPost = () => {
       return data as BlogTag[];
     },
   });
+
+  // Update meta tags when post data is loaded
+  useEffect(() => {
+    if (post) {
+      updateBlogMetaTags({
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        cover_image: post.cover_image,
+        author_name: post.profiles?.display_name || post.profiles?.username || 'Matty (JaeSwift)',
+        created_at: post.created_at,
+        tags: post.tags
+      });
+    }
+
+    // Reset meta tags when component unmounts
+    return () => {
+      resetMetaTags();
+    };
+  }, [post]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -288,6 +312,14 @@ const BlogPost = () => {
                   )}
                 </div>
               </TerminalCard>
+
+              {/* Share section */}
+              <BlogShare 
+                title={post.title}
+                excerpt={post.excerpt}
+                url={`https://matty.lol/blog/${post.slug}`}
+                coverImage={post.cover_image}
+              />
 
               {/* Author section */}
               {post.profiles && (
