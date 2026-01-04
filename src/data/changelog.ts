@@ -7,6 +7,23 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-01-04",
+    title: "Dynamic blog post social sharing and meta tags",
+    items: [
+      "Implemented dynamic Open Graph and Twitter Card meta tags for blog posts.",
+      "Added real-time meta tag updates when navigating between blog posts.",
+      "Created BlogShare component with Twitter, LinkedIn, Discord, and copy link options.",
+      "Added share preview component showing how posts will look when shared.",
+      "Implemented auto-generated excerpts from blog content when not provided.",
+      "Added fallback to site banner for posts without cover images.",
+      "Created meta tag cleanup system to reset defaults when leaving blog posts.",
+      "Added blog post titles, descriptions, images, and URLs to social media shares.",
+      "Integrated share buttons with terminal-style design and hover effects.",
+      "Enhanced SEO with article-specific tags, author info, and publication dates.",
+    ],
+    tags: ["blog", "social", "seo", "ui", "meta"],
+  },
+  {
     date: "2026-01-03",
     title: "Enhanced theme system, AI icons, trades pagination, crypto watchlist, and social media integration",
     items: [
