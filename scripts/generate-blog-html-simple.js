@@ -132,18 +132,18 @@ const generateExcerpt = (content, maxLength = 160) => {
 };
 
 const fetchBlogPosts = async () => {
-  // For now, let's create a simple example blog post
+  // For now, let's create the specific blog post you mentioned
   // You can replace this with actual Supabase API calls later
   return [
     {
       id: '1',
-      title: 'Example Blog Post',
-      slug: 'example-blog-post',
-      excerpt: 'This is an example blog post for testing social media sharing.',
-      content: 'This is the full content of the example blog post. It contains more text that would be used to generate an excerpt if one wasn\'t provided manually.',
+      title: 'Forget Jailbreaks, Venice Exists',
+      slug: 'forget-jailbreaks-venice-exists',
+      excerpt: 'Venice AI is revolutionizing the way we interact with artificial intelligence, making jailbreaks unnecessary.',
+      content: 'Venice AI provides uncensored access to powerful language models without the need for complex jailbreaking techniques. This platform offers a straightforward approach to AI interaction that bypasses traditional restrictions.',
       cover_image: null,
       created_at: new Date().toISOString(),
-      tags: ['example', 'blog', 'test'],
+      tags: ['ai', 'venice', 'technology', 'uncensored'],
       published: true
     }
   ];
