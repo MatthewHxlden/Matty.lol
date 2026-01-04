@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Wrench, ExternalLink, Sparkles, AlertCircle, Trash2 } from "lucide-react";
+import { Wrench, ExternalLink, Sparkles, AlertCircle, Trash2, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
@@ -147,6 +147,38 @@ const Tools = () => {
 
                       <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
                         blockchain
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+
+              {/* Paper Trading Tool */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: (tools.length + 1) * 0.05 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <Link to="/paper-trading">
+                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                            Paper Trading Simulator
+                          </h3>
+                        </div>
+                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        Practice Solana DEX trading with real Jupiter prices and $10,000 virtual USD
+                      </p>
+
+                      <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
+                        trading
                       </span>
                     </div>
                   </div>

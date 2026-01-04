@@ -8,6 +8,30 @@ export type ChangelogEntry = {
 export const changelog: ChangelogEntry[] = [
   {
     date: "2026-01-04",
+    title: "Complete paper trading system with Jupiter API integration",
+    items: [
+      "Built comprehensive paper trading engine with real Jupiter API integration.",
+      "Added support for 6 major Solana trading pairs (SOL, BTC, ETH, RAY, JUP, RNDR vs USDC).",
+      "Implemented long/short positions with up to 100x leverage support.",
+      "Created terminal-style UI with portfolio overview and position management.",
+      "Added real-time P&L calculations with 2-second price updates.",
+      "Implemented stop loss and take profit functionality with automatic execution.",
+      "Added slippage simulation and realistic Jupiter-style fee calculations.",
+      "Created trade execution system with balance validation and risk management.",
+      "Built portfolio statistics tracking (win rate, total P&L, trade count).",
+      "Added paper trading page to main navigation and quick links.",
+      "Integrated Jupiter API key authentication with fallback to mock prices.",
+      "Created comprehensive data models and React hooks for state management.",
+      "Added paper trading tool to Tools page with proper categorization.",
+      "Implemented automatic stop loss/take profit monitoring every 5 seconds.",
+      "Added market price ticker showing live prices for all supported pairs.",
+      "Created trade history tracking and closed positions management.",
+      "Built form validation system for trade execution with error handling.",
+    ],
+    tags: ["trading", "jupiter", "solana", "paper-trading", "api", "ui", "defi"],
+  },
+  {
+    date: "2026-01-04",
     title: "Dynamic blog post social sharing and meta tags",
     items: [
       "Implemented dynamic Open Graph and Twitter Card meta tags for blog posts.",
