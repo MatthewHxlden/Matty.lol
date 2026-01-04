@@ -141,7 +141,7 @@ const fetchBlogPosts = async () => {
       slug: 'forget-jailbreaks-venice-exists',
       excerpt: 'Venice AI is revolutionizing the way we interact with artificial intelligence, making jailbreaks unnecessary.',
       content: 'Venice AI provides uncensored access to powerful language models without the need for complex jailbreaking techniques. This platform offers a straightforward approach to AI interaction that bypasses traditional restrictions.',
-      cover_image: null,
+      cover_image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&h=630&fit=crop', // Venice AI themed image
       created_at: new Date().toISOString(),
       tags: ['ai', 'venice', 'technology', 'uncensored'],
       published: true
