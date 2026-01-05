@@ -31,7 +31,7 @@ const Changelog = () => {
                 const canExpand = entry.items.length > defaultVisibleCount;
 
                 return (
-                  <div key={key} className="p-4 border border-border/50 bg-muted/20">
+                  <div key={key} className="p-4 border border-border/50 bg-background/60">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                       <div className="text-foreground font-mono text-sm md:text-base">{entry.title}</div>
                       <div className="text-xs text-muted-foreground font-mono">{entry.date}</div>
