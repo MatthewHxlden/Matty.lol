@@ -151,7 +151,7 @@ const PaperTrading = () => {
                     <select
                       value={formData.pair}
                       onChange={(e) => updateForm('pair', e.target.value)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
                     >
                       <option value="SOL-USDC">SOL/USDC</option>
                       <option value="BTC-USDC">BTC/USDC</option>
@@ -166,7 +166,7 @@ const PaperTrading = () => {
                     <select
                       value={formData.type}
                       onChange={(e) => updateForm('type', e.target.value)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
                     >
                       <option value="long">LONG</option>
                       <option value="short">SHORT</option>
@@ -181,9 +181,10 @@ const PaperTrading = () => {
                       type="number"
                       value={formData.size}
                       onChange={(e) => updateForm('size', parseFloat(e.target.value) || 0)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
+                      placeholder="0"
                       min="1"
-                      step="10"
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -192,7 +193,7 @@ const PaperTrading = () => {
                       type="number"
                       value={formData.leverage}
                       onChange={(e) => updateForm('leverage', parseFloat(e.target.value) || 1)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
                       min="1"
                       max="100"
                       step="1"
@@ -207,7 +208,7 @@ const PaperTrading = () => {
                       type="number"
                       value={formData.stopLoss || ''}
                       onChange={(e) => updateForm('stopLoss', e.target.value ? parseFloat(e.target.value) : undefined)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
                       min="0"
                       step="0.01"
                       placeholder="Optional"
@@ -219,7 +220,7 @@ const PaperTrading = () => {
                       type="number"
                       value={formData.takeProfit || ''}
                       onChange={(e) => updateForm('takeProfit', e.target.value ? parseFloat(e.target.value) : undefined)}
-                      className="terminal-input w-full"
+                      className="terminal-input w-full bg-background/80 border border-border/60 text-foreground px-3 py-2 rounded-none focus:border-primary focus:outline-none"
                       min="0"
                       step="0.01"
                       placeholder="Optional"
