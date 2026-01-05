@@ -1,9 +1,18 @@
 import { JupiterPrice, JupiterQuote, TradingPair } from '@/types/paperTrading';
 
-const JUPITER_API_BASE = 'https://price.jup.ag/v6';
-const JUPITER_QUOTE_API = 'https://quote.jup.ag/v6';
-const JUPITER_TOKEN_LIST = 'https://token.jup.ag/all';
-const JUPITER_API_KEY = '73825dd1-1e66-4466-a2e9-ad4276bb0168';
+// CoinGecko API for accurate prices
+const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+
+// CoinGecko IDs for our tokens
+const COINGECKO_IDS = {
+  SOL: 'solana',
+  BTC: 'bitcoin', 
+  ETH: 'ethereum',
+  RAY: 'raydium',
+  JUP: 'jupiter-aggregator',
+  RNDR: 'render-token',
+  USDC: 'usd-coin'
+};
 
 // Solana token mints for common pairs
 const TOKEN_MINTS = {
@@ -33,106 +42,141 @@ export class JupiterAPI {
     return data;
   }
 
-  async getPrices(tokenIds: string[]): Promise<JupiterPrice[]> {
+  async getPrices(tokenSymbols: string[]): Promise<JupiterPrice[]> {
     return this.getCachedData(
-      `prices_${tokenIds.join(',')}`,
+      `prices_${tokenSymbols.join(',')}`,
       async () => {
         try {
-          console.log('Fetching Jupiter prices for tokens:', tokenIds);
+          console.log('Fetching CoinGecko prices for tokens:', tokenSymbols);
           
-          // Try multiple authentication methods
-          const headers: Record<string, string> = {
-            'Content-Type': 'application/json'
-          };
+          // Convert token symbols to CoinGecko IDs
+          const coinGeckoIds = tokenSymbols.map(symbol => {
+            const upperSymbol = symbol.toUpperCase();
+            return COINGECKO_IDS[upperSymbol as keyof typeof COINGECKO_IDS];
+          }).filter(Boolean);
           
-          // Method 1: Bearer token
-          headers['Authorization'] = `Bearer ${JUPITER_API_KEY}`;
+          if (coinGeckoIds.length === 0) {
+            console.warn('No valid CoinGecko IDs found for tokens:', tokenSymbols);
+            return this.getFallbackPrices(tokenSymbols);
+          }
           
-          const response = await fetch(`${JUPITER_API_BASE}/price?ids=${tokenIds.join(',')}`, {
-            headers
-          });
+          const response = await fetch(
+            `${COINGECKO_API_BASE}/simple/price?ids=${coinGeckoIds.join(',')}&vs_currencies=usd&include_24hr_change=true`
+          );
           
-          console.log('Jupiter API response status:', response.status);
+          console.log('CoinGecko API response status:', response.status);
           
           if (!response.ok) {
-            // Try without API key (public endpoint)
-            console.log('Trying without API key...');
-            const publicResponse = await fetch(`${JUPITER_API_BASE}/price?ids=${tokenIds.join(',')}`);
-            
-            if (publicResponse.ok) {
-              const data = await publicResponse.json();
-              console.log('Jupiter public API response data:', data);
-              return data.data || [];
-            }
-            
             const errorText = await response.text();
-            console.error('Jupiter API error response:', errorText);
-            throw new Error(`Jupiter API failed: ${response.status} - ${errorText}`);
+            console.error('CoinGecko API error response:', errorText);
+            throw new Error(`CoinGecko API failed: ${response.status} - ${errorText}`);
           }
           
           const data = await response.json();
-          console.log('Jupiter API response data:', data);
+          console.log('CoinGecko API response data:', data);
           
-          if (!data.data || data.data.length === 0) {
-            console.warn('Jupiter API returned no price data');
-            throw new Error('No price data returned from Jupiter API');
-          }
+          // Convert CoinGecko response to JupiterPrice format
+          const prices: JupiterPrice[] = tokenSymbols.map(symbol => {
+            const upperSymbol = symbol.toUpperCase();
+            const coinGeckoId = COINGECKO_IDS[upperSymbol as keyof typeof COINGECKO_IDS];
+            const coinData = coinGeckoId ? data[coinGeckoId] : null;
+            
+            return {
+              id: symbol,
+              price: coinData?.usd?.toString() || '0',
+              priceChange24h: coinData?.usd_24h_change?.toString() || '0'
+            };
+          });
           
-          return data.data;
+          return prices;
         } catch (error) {
-          console.error('Jupiter API failed, using fallback prices:', error);
-          // Fallback to mock prices if API fails
-          return this.getFallbackPrices(tokenIds);
+          console.error('CoinGecko API failed, using fallback prices:', error);
+          return this.getFallbackPrices(tokenSymbols);
         }
       }
     );
   }
 
-  private getFallbackPrices(tokenIds: string[]): JupiterPrice[] {
+  private getFallbackPrices(tokenSymbols: string[]): JupiterPrice[] {
     // Fallback mock prices updated to current market values (January 2025)
     const mockPrices: Record<string, number> = {
-      'So11111111111111111111111111111111111111112': 238.45, // SOL (current ~$240)
-      '9n4nbM75f5Ui33ZbPYxnHN37iepbEBhC2DyiVzjRGbbQ': 102450, // BTC (current ~$102k)
-      '2FPyTwcZLUg1MDYws8Xx2KTNW8HdpfKhpCrygTrAkLfR': 3480, // ETH (current ~$3.5k)
-      '4k3Dyjzvzp8eM4UXycqet7gQgTmGxULTYbQFiqAu1gTH': 4.82, // RAY (current ~$4.8)
-      'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedKNsDwJDT': 1.25, // JUP (current ~$1.25)
-      '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM': 7.35, // RNDR (current ~$7.3)
+      'SOL': 238.45,     // SOL (current ~$240)
+      'BTC': 102450,     // BTC (current ~$102k)
+      'ETH': 3480,       // ETH (current ~$3.5k)
+      'RAY': 4.82,       // RAY (current ~$4.8)
+      'JUP': 1.25,       // JUP (current ~$1.25)
+      'RNDR': 7.35,      // RNDR (current ~$7.3)
+      'USDC': 1.00       // USDC (stablecoin)
     };
 
-    console.log('Using fallback prices for tokens:', tokenIds);
+    console.log('Using fallback prices for tokens:', tokenSymbols);
     
-    return tokenIds.map(id => ({
-      id,
-      price: mockPrices[id]?.toString() || '0',
+    return tokenSymbols.map(symbol => ({
+      id: symbol,
+      price: mockPrices[symbol]?.toString() || '0',
       priceChange24h: ((Math.random() - 0.5) * 8).toString() // Random -4% to +4%
     }));
   }
 
-  async getPrice(tokenId: string): Promise<number> {
-    const prices = await this.getPrices([tokenId]);
-    const price = prices.find(p => p.id === tokenId);
+  async getPrice(tokenSymbol: string): Promise<number> {
+    const prices = await this.getPrices([tokenSymbol]);
+    const price = prices.find(p => p.id === tokenSymbol);
     return price ? parseFloat(price.price) : 0;
   }
 
-  async getQuote(inputMint: string, outputMint: string, amount: number): Promise<JupiterQuote> {
-    const inputAmount = Math.floor(amount * 1_000_000); // Convert to smallest unit (USDC has 6 decimals)
-    
+  async getQuote(inputSymbol: string, outputSymbol: string, amount: number): Promise<JupiterQuote> {
     return this.getCachedData(
-      `quote_${inputMint}_${outputMint}_${inputAmount}`,
+      `quote_${inputSymbol}_${outputSymbol}_${amount}`,
       async () => {
-        const response = await fetch(
-          `${JUPITER_QUOTE_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${inputAmount}&slippageBps=100`,
-          {
-            headers: {
-              'Authorization': `Bearer ${JUPITER_API_KEY}`,
-              'Content-Type': 'application/json'
-            }
+        try {
+          // Get prices for both tokens
+          const prices = await this.getPrices([inputSymbol, outputSymbol]);
+          const inputPrice = prices.find(p => p.id === inputSymbol);
+          const outputPrice = prices.find(p => p.id === outputSymbol);
+          
+          if (!inputPrice || !outputPrice || parseFloat(inputPrice.price) === 0 || parseFloat(outputPrice.price) === 0) {
+            throw new Error('Unable to get prices for quote calculation');
           }
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch Jupiter quote');
+          
+          const inputPriceNum = parseFloat(inputPrice.price);
+          const outputPriceNum = parseFloat(outputPrice.price);
+          
+          // Calculate exchange rate
+          const exchangeRate = inputPriceNum / outputPriceNum;
+          const outputAmount = amount * exchangeRate;
+          
+          // Add slippage (1% = 100 bps)
+          const slippageBps = 100;
+          const slippageFactor = (10000 - slippageBps) / 10000;
+          const outputAmountWithSlippage = outputAmount * slippageFactor;
+          
+          // Add fee (0.1% typical for DEX)
+          const feeAmount = outputAmount * 0.001;
+          
+          return {
+            inputMint: inputSymbol,
+            outputMint: outputSymbol,
+            inputAmount: amount.toString(),
+            outputAmount: outputAmountWithSlippage.toString(),
+            priceImpactPct: '0.1', // Small price impact for estimation
+            slippageBps: slippageBps.toString(),
+            routePlan: [{
+              swapInfo: {
+                ammKey: 'coingecko-simulation',
+                label: `${inputSymbol}/${outputSymbol}`,
+                inputMint: inputSymbol,
+                outputMint: outputSymbol,
+                inAmount: amount.toString(),
+                outAmount: outputAmountWithSlippage.toString(),
+                feeAmount: feeAmount.toString(),
+                feeMint: outputSymbol
+              }
+            }]
+          };
+        } catch (error) {
+          console.error('Failed to calculate quote:', error);
+          throw new Error('Failed to calculate quote');
         }
-        return response.json();
       }
     );
   }
@@ -208,11 +252,12 @@ export class JupiterAPI {
     ];
 
     // Update with current prices
-    const tokenIds = pairs.map(pair => pair.baseMint);
-    const prices = await this.getPrices(tokenIds);
+    const tokenSymbols = pairs.map(pair => pair.id.split('-')[0]); // Extract base token symbol
+    const prices = await this.getPrices(tokenSymbols);
     
     return pairs.map(pair => {
-      const price = prices.find(p => p.id === pair.baseMint);
+      const baseSymbol = pair.id.split('-')[0];
+      const price = prices.find(p => p.id === baseSymbol);
       return {
         ...pair,
         currentPrice: price ? parseFloat(price.price) : 0,
