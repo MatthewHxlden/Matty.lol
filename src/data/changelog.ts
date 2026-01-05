@@ -7,6 +7,23 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-01-05",
+    title: "Paper trading system deployment and tools integration",
+    items: [
+      "Successfully deployed complete paper trading system to production.",
+      "Added paper trading tool to Tools page with proper categorization and navigation.",
+      "Integrated real Jupiter API key for live Solana DEX price data.",
+      "Implemented fallback system for API failures with mock price data.",
+      "Added comprehensive changelog documentation with today's date.",
+      "Created multiple access points: homepage, tools page, direct URL.",
+      "Verified all trading pairs working with real Jupiter price feeds.",
+      "Tested leverage trading, stop loss, and take profit functionality.",
+      "Confirmed real-time P&L updates and portfolio statistics.",
+      "Added paper trading to site navigation and quick links.",
+    ],
+    tags: ["deployment", "paper-trading", "jupiter", "tools", "navigation", "production"],
+  },
+  {
     date: "2026-01-04",
     title: "Complete paper trading system with Jupiter API integration",
     items: [
