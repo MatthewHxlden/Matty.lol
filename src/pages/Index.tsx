@@ -159,6 +159,7 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [outputStep, setOutputStep] = useState(0);
   const [blogLoadingStep, setBlogLoadingStep] = useState(0);
+  const [loadingText, setLoadingText] = useState("initialising blog");
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -250,6 +251,31 @@ const Index = () => {
 
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
+
+  // Animated ellipsis for loading states
+  useEffect(() => {
+    if (blogLoadingStep === 2) {
+      const interval = setInterval(() => {
+        setLoadingText(prev => {
+          if (prev.endsWith("...")) {
+            return prev.slice(0, -3);
+          } else {
+            return prev + ".";
+          }
+        });
+      }, 300);
+
+      // Move to blog title after 3 seconds of animated loading
+      const timeout = setTimeout(() => {
+        setBlogLoadingStep(3);
+      }, 3000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [blogLoadingStep]);
 
   const {
     data: jupiterPositions,
@@ -580,10 +606,6 @@ const Index = () => {
                 {/* blog.html output */}
                 {currentStep >= 5 && (
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-secondary shrink-0">$</span>
-                      <span className="text-foreground">blog.html</span>
-                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -594,30 +616,32 @@ const Index = () => {
                           text="initialising blog..." 
                           delay={70} 
                           className="text-muted-foreground"
-                          onComplete={() => setBlogLoadingStep(1)}
+                          onComplete={() => {
+                            setTimeout(() => {
+                              setBlogLoadingStep(1);
+                              setLoadingText("connecting to database");
+                            }, 500);
+                          }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 1 ? (
                         <TypeWriter 
                           text="connecting to database..." 
                           delay={70} 
                           className="text-muted-foreground"
-                          onComplete={() => setBlogLoadingStep(2)}
+                          onComplete={() => {
+                            setTimeout(() => {
+                              setBlogLoadingStep(2);
+                              setLoadingText("searching for latest blog post");
+                            }, 500);
+                          }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 2 ? (
                         <TypeWriter 
-                          text="searching for latest blog post..." 
+                          text={loadingText}
                           delay={70} 
                           className="text-muted-foreground"
-                          onComplete={() => setBlogLoadingStep(3)}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 3 ? (
-                        <TypeWriter 
-                          text="retrieving content..." 
-                          delay={70} 
-                          className="text-muted-foreground"
-                          onComplete={() => setBlogLoadingStep(4)}
-                        />
-                      ) : currentStep === 5 && blogLoadingStep === 4 ? (
                         <>
                           {latestBlogPost ? (
                             <Link 
@@ -630,6 +654,7 @@ const Index = () => {
                                 className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                                 onComplete={() => {
                                   setBlogLoadingStep(0);
+                                  setLoadingText("initialising blog");
                                   setCurrentStep(6);
                                 }}
                               />
@@ -641,6 +666,7 @@ const Index = () => {
                               className="text-muted-foreground"
                               onComplete={() => {
                                 setBlogLoadingStep(0);
+                                setLoadingText("initialising blog");
                                 setCurrentStep(6);
                               }}
                             />
