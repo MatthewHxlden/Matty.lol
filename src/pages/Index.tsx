@@ -451,25 +451,25 @@ const Index = () => {
             <TerminalCard title="~/welcome.sh" delay={0.3} promptText="">
               <div className="space-y-4 text-sm md:text-base">
                 {/* whoami command */}
-                {currentStep === 0 && (
+                {currentStep >= 0 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
-                    <TypeWriter
-                      text="whoami"
-                      delay={100}
-                      className="text-foreground"
-                      onComplete={() => setCurrentStep(1)}
-                    />
+                    {currentStep === 0 ? (
+                      <TypeWriter
+                        text="whoami"
+                        delay={100}
+                        className="text-foreground"
+                        onComplete={() => setCurrentStep(1)}
+                      />
+                    ) : (
+                      <span className="text-foreground">whoami</span>
+                    )}
                   </div>
                 )}
 
                 {/* whoami output */}
-                {currentStep === 1 && (
+                {currentStep >= 1 && (
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-secondary shrink-0">$</span>
-                      <span className="text-foreground">whoami</span>
-                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -477,21 +477,33 @@ const Index = () => {
                     >
                       <p className="text-muted-foreground">
                         <span className="text-accent">name:</span>{" "}
-                        <TypeWriter text={name} delay={50} className="text-foreground" />
+                        {currentStep === 1 ? (
+                          <TypeWriter text={name} delay={50} className="text-foreground" />
+                        ) : (
+                          <span className="text-foreground">{name}</span>
+                        )}
                       </p>
                       <p className="text-muted-foreground">
                         <span className="text-accent">role:</span>{" "}
-                        <TypeWriter text={role} delay={50} className="text-foreground" />
+                        {currentStep === 1 ? (
+                          <TypeWriter text={role} delay={50} className="text-foreground" />
+                        ) : (
+                          <span className="text-foreground">{role}</span>
+                        )}
                       </p>
                       <p className="text-muted-foreground">
                         <span className="text-accent">status:</span>{" "}
                         <span className="text-secondary">
-                          <TypeWriter 
-                            text={status} 
-                            delay={50} 
-                            className="text-secondary"
-                            onComplete={() => setCurrentStep(2)}
-                          />
+                          {currentStep === 1 ? (
+                            <TypeWriter 
+                              text={status} 
+                              delay={50} 
+                              className="text-secondary"
+                              onComplete={() => setCurrentStep(2)}
+                            />
+                          ) : (
+                            <span className="text-secondary">{status}</span>
+                          )}
                         </span>
                       </p>
                     </motion.div>
@@ -499,60 +511,64 @@ const Index = () => {
                 )}
 
                 {/* cat mission.txt command */}
-                {currentStep === 2 && (
+                {currentStep >= 2 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
-                    <TypeWriter
-                      text="cat mission.txt"
-                      delay={100}
-                      className="text-foreground"
-                      onComplete={() => setCurrentStep(3)}
-                    />
+                    {currentStep === 2 ? (
+                      <TypeWriter
+                        text="cat mission.txt"
+                        delay={100}
+                        className="text-foreground"
+                        onComplete={() => setCurrentStep(3)}
+                      />
+                    ) : (
+                      <span className="text-foreground">cat mission.txt</span>
+                    )}
                   </div>
                 )}
 
                 {/* mission.txt output */}
-                {currentStep === 3 && (
+                {currentStep >= 3 && (
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-secondary shrink-0">$</span>
-                      <span className="text-foreground">cat mission.txt</span>
-                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      <TypeWriter 
-                        text={missionText} 
-                        delay={30} 
-                        className="text-muted-foreground"
-                        onComplete={() => setCurrentStep(4)}
-                      />
+                      {currentStep === 3 ? (
+                        <TypeWriter 
+                          text={missionText} 
+                          delay={30} 
+                          className="text-muted-foreground"
+                          onComplete={() => setCurrentStep(4)}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">{missionText}</span>
+                      )}
                     </motion.div>
                   </div>
                 )}
 
                 {/* blog.html command */}
-                {currentStep === 4 && (
+                {currentStep >= 4 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
-                    <TypeWriter
-                      text="blog.html"
-                      delay={100}
-                      className="text-foreground"
-                      onComplete={() => setCurrentStep(5)}
-                    />
+                    {currentStep === 4 ? (
+                      <TypeWriter
+                        text="blog.html"
+                        delay={100}
+                        className="text-foreground"
+                        onComplete={() => setCurrentStep(5)}
+                      />
+                    ) : (
+                      <span className="text-foreground">blog.html</span>
+                    )}
                   </div>
                 )}
 
                 {/* blog.html output */}
-                {currentStep === 5 && (
+                {currentStep >= 5 && (
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-secondary shrink-0">$</span>
-                      <span className="text-foreground">blog.html</span>
-                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -563,45 +579,55 @@ const Index = () => {
                           to={`/blog/${latestBlogPost.slug}`}
                           className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                         >
-                          <TypeWriter 
-                            text={latestBlogPost.title}
-                            delay={50}
-                            className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                            onComplete={() => setCurrentStep(6)}
-                          />
+                          {currentStep === 5 ? (
+                            <TypeWriter 
+                              text={latestBlogPost.title}
+                              delay={50}
+                              className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                              onComplete={() => setCurrentStep(6)}
+                            />
+                          ) : (
+                            <span className="text-accent hover:text-primary transition-colors underline cursor-pointer">
+                              {latestBlogPost.title}
+                            </span>
+                          )}
                         </Link>
                       ) : (
-                        <TypeWriter 
-                          text="No blog posts yet..." 
-                          delay={50} 
-                          className="text-muted-foreground"
-                          onComplete={() => setCurrentStep(6)}
-                        />
+                        currentStep === 5 ? (
+                          <TypeWriter 
+                            text="No blog posts yet..." 
+                            delay={50} 
+                            className="text-muted-foreground"
+                            onComplete={() => setCurrentStep(6)}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">No blog posts yet...</span>
+                        )
                       )}
                     </motion.div>
                   </div>
                 )}
 
                 {/* changelog.txt command */}
-                {currentStep === 6 && (
+                {currentStep >= 6 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
-                    <TypeWriter
-                      text="changelog.txt"
-                      delay={100}
-                      className="text-foreground"
-                      onComplete={() => setCurrentStep(7)}
-                    />
+                    {currentStep === 6 ? (
+                      <TypeWriter
+                        text="changelog.txt"
+                        delay={100}
+                        className="text-foreground"
+                        onComplete={() => setCurrentStep(7)}
+                      />
+                    ) : (
+                      <span className="text-foreground">changelog.txt</span>
+                    )}
                   </div>
                 )}
 
                 {/* changelog.txt output */}
-                {currentStep === 7 && (
+                {currentStep >= 7 && (
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-secondary shrink-0">$</span>
-                      <span className="text-foreground">changelog.txt</span>
-                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -612,18 +638,28 @@ const Index = () => {
                           to="/changelog"
                           className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                         >
-                          <TypeWriter 
-                            text={latestChangelog.date}
-                            delay={50}
-                            className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                          />
+                          {currentStep === 7 ? (
+                            <TypeWriter 
+                              text={latestChangelog.date}
+                              delay={50}
+                              className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                            />
+                          ) : (
+                            <span className="text-accent hover:text-primary transition-colors underline cursor-pointer">
+                              {latestChangelog.date}
+                            </span>
+                          )}
                         </Link>
                       ) : (
-                        <TypeWriter 
-                          text="No changelog entries yet..." 
-                          delay={50} 
-                          className="text-muted-foreground"
-                        />
+                        currentStep === 7 ? (
+                          <TypeWriter 
+                            text="No changelog entries yet..." 
+                            delay={50} 
+                            className="text-muted-foreground"
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">No changelog entries yet...</span>
+                        )
                       )}
                     </motion.div>
                   </div>
