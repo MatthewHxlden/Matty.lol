@@ -10,67 +10,87 @@ interface BlogPostMeta {
 }
 
 export const updateBlogMetaTags = (post: BlogPostMeta) => {
-  const baseUrl = 'https://matty.lol';
+  const baseUrl = "https://matty.lol";
   const blogUrl = `${baseUrl}/blog/${post.slug}`;
-  
+  const titleWithSite = `Matty.lol - ${post.title}`;
+
   // Generate excerpt if not provided
-  const excerpt = post.excerpt || generateExcerpt(post.content || '');
-  
+  const excerpt = post.excerpt || generateExcerpt(post.content || "");
+
   // Update page title
-  document.title = `${post.title} | Matty.lol - Crypto Trader & Developer`;
-  
-  // Update or create meta tags
-  setMetaTag('og:title', post.title);
-  setMetaTag('og:description', excerpt);
-  setMetaTag('og:image', post.cover_image || `${baseUrl}/og-banner.png`);
-  setMetaTag('og:image:alt', post.title);
-  setMetaTag('og:image:width', '1200');
-  setMetaTag('og:image:height', '630');
-  setMetaTag('og:url', blogUrl);
-  setMetaTag('og:type', 'article');
-  setMetaTag('og:site_name', 'Matty.lol');
-  setMetaTag('og:locale', 'en_US');
-  
-  // Twitter Card tags
-  setMetaTag('twitter:title', post.title);
-  setMetaTag('twitter:description', excerpt);
-  setMetaTag('twitter:image', post.cover_image || `${baseUrl}/og-banner.png`);
-  setMetaTag('twitter:image:alt', post.title);
-  setMetaTag('twitter:card', 'summary_large_image');
-  setMetaTag('twitter:site', '@matty');
-  setMetaTag('twitter:creator', '@matty');
-  setMetaTag('twitter:domain', 'matty.lol');
-  
+  document.title = titleWithSite;
+
+  const fallbackImage = `${baseUrl}/og-banner.png`;
+  const imageUrl = post.cover_image || fallbackImage;
+
+  // Open Graph
+  setMetaTag("og:title", titleWithSite);
+  setMetaTag("og:description", excerpt);
+  setMetaTag("og:image", imageUrl);
+  setMetaTag("og:image:alt", post.title);
+  setMetaTag("og:image:width", "1200");
+  setMetaTag("og:image:height", "630");
+  setMetaTag("og:url", blogUrl);
+  setMetaTag("og:type", "article");
+  setMetaTag("og:site_name", "Matty.lol");
+  setMetaTag("og:locale", "en_GB");
+
+  // Twitter Card
+  setMetaTag("twitter:title", titleWithSite, "name");
+  setMetaTag("twitter:description", excerpt, "name");
+  setMetaTag("twitter:image", imageUrl, "name");
+  setMetaTag("twitter:image:alt", post.title, "name");
+  setMetaTag("twitter:card", "summary_large_image", "name");
+  setMetaTag("twitter:site", "@matty", "name");
+  setMetaTag("twitter:creator", "@matty", "name");
+  setMetaTag("twitter:domain", "matty.lol", "name");
+
   // Article specific tags
-  setMetaTag('article:author', post.author_name || 'Matty (JaeSwift)');
-  setMetaTag('article:published_time', post.created_at);
-  setMetaTag('article:modified_time', new Date().toISOString());
-  setMetaTag('article:section', 'Technology');
+  setMetaTag("article:author", post.author_name || "Matty (JaeSwift)");
+  setMetaTag("article:published_time", post.created_at);
+  setMetaTag("article:modified_time", new Date().toISOString());
+  setMetaTag("article:section", "Technology");
   if (post.tags.length > 0) {
-    setMetaTag('article:tag', post.tags.join(','));
+    setMetaTag("article:tag", post.tags.join(","));
   }
-  
+
   // Additional SEO tags
-  setMetaTag('description', excerpt);
-  setMetaTag('keywords', `${post.tags.join(', ')}, cryptocurrency, trading, web development, Matty, JaeSwift, blog, ${post.title}`);
-  setMetaTag('author', post.author_name || 'Matty (JaeSwift)');
-  
-  // Canonical URL
-  setMetaTag('canonical', blogUrl, 'rel');
+  setMetaTag("description", excerpt, "name");
+  setMetaTag(
+    "keywords",
+    `${post.tags.join(", ")}, cryptocurrency, trading, web development, Matty, JaeSwift, blog, ${post.title}`,
+    "name"
+  );
+  setMetaTag("author", post.author_name || "Matty (JaeSwift)", "name");
+
+  // Canonical link
+  setLinkTag("canonical", blogUrl);
 };
 
-const setMetaTag = (property: string, content: string, attribute: string = 'property') => {
-  // Try to find existing tag
-  let tag = document.querySelector(`meta[${attribute}="${property}"]`) ||
-           document.querySelector(`meta[name="${property}"]`);
-  
+const setMetaTag = (key: string, content: string, attribute: "property" | "name" = "property") => {
+  if (!content) return;
+  let tag =
+    document.querySelector(`meta[${attribute}="${key}"]`) ||
+    document.querySelector(`meta[name="${key}"]`);
+
   if (!tag) {
-    tag = document.createElement('meta');
-    tag.setAttribute(attribute, property);
+    tag = document.createElement("meta");
+    tag.setAttribute(attribute, key);
     document.head.appendChild(tag);
   }
-  
-  tag.setAttribute('content', content);
+
+  tag.setAttribute("content", content);
+};
+
+const setLinkTag = (rel: string, href: string) => {
+  if (!href) return;
+  let link = document.querySelector(`link[rel="${rel}"]`);
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", rel);
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", href);
 };
 
 const generateExcerpt = (content: string, maxLength: number = 160): string => {

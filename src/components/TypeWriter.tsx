@@ -13,6 +13,13 @@ const TypeWriter = ({ text, delay = 50, className = "", onComplete }: TypeWriter
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
+  // Reset when text changes so animations restart cleanly
+  useEffect(() => {
+    setDisplayedText("");
+    setCurrentIndex(0);
+    setIsComplete(false);
+  }, [text]);
+
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {

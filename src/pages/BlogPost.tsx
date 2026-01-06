@@ -273,18 +273,21 @@ const BlogPost = () => {
                     {post.tags.map((tagName) => {
                       const tagConfig = tags?.find(t => t.name === tagName);
                       const IconComponent = tagConfig ? (iconMap[tagConfig.icon] || Tag) : Tag;
+                      const tagColour = tagConfig?.color;
                       return (
-                        <span
+                        <Link
                           key={tagName}
-                          className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105 bg-background"
+                          to={`/blog?tag=${encodeURIComponent(tagName)}`}
+                          className="flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-all hover:scale-105 border bg-background"
                           style={{
-                            borderColor: tagConfig?.color || undefined,
-                            color: tagConfig?.color || undefined,
+                            borderColor: tagColour || undefined,
+                            color: tagColour || undefined,
+                            backgroundColor: tagColour ? `${tagColour}15` : undefined,
                           }}
                         >
-                          <IconComponent className="w-3 h-3" style={{ color: tagConfig?.color || undefined }} />
+                          <IconComponent className="w-3 h-3" style={{ color: tagColour || undefined }} />
                           {tagName}
-                        </span>
+                        </Link>
                       );
                     })}
                   </div>

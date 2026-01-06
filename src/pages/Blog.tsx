@@ -299,18 +299,21 @@ const Blog = () => {
                             {post.tags.slice(0, 3).map((tagName) => {
                               const tagConfig = tags?.find(t => t.name === tagName);
                               const IconComponent = tagConfig ? (iconMap[tagConfig.icon] || Tag) : Tag;
+                              const tagColour = tagConfig?.color;
                               return (
-                                <span
+                                <Link
                                   key={tagName}
+                                  to={`/blog?tag=${encodeURIComponent(tagName)}`}
                                   className="flex items-center gap-1 text-xs px-2 py-1 border rounded-full transition-all hover:scale-105 bg-background"
                                   style={{
-                                    borderColor: tagConfig?.color || undefined,
-                                    color: tagConfig?.color || undefined,
+                                    borderColor: tagColour || undefined,
+                                    color: tagColour || undefined,
+                                    backgroundColor: tagColour ? `${tagColour}15` : undefined,
                                   }}
                                 >
-                                  <IconComponent className="w-3 h-3" style={{ color: tagConfig?.color || undefined }} />
+                                  <IconComponent className="w-3 h-3" style={{ color: tagColour || undefined }} />
                                   {tagName}
-                                </span>
+                                </Link>
                               );
                             })}
                             {post.tags.length > 3 && (

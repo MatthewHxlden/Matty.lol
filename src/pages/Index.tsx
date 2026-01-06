@@ -252,6 +252,37 @@ const Index = () => {
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
 
+  // Safety timeout to ensure blog loading steps always advance
+  useEffect(() => {
+    if (currentStep !== 5) {
+      if (blogLoadingStep !== 0) setBlogLoadingStep(0);
+      return;
+    }
+
+    const timers: number[] = [];
+    const schedule = (fn: () => void, delay = 1200) => {
+      const id = window.setTimeout(fn, delay);
+      timers.push(id);
+    };
+
+    if (blogLoadingStep === 0) {
+      schedule(() => setBlogLoadingStep(1));
+    } else if (blogLoadingStep === 1) {
+      schedule(() => setBlogLoadingStep(2));
+    } else if (blogLoadingStep === 2) {
+      schedule(() => setBlogLoadingStep(3));
+    } else if (blogLoadingStep === 3) {
+      schedule(() => {
+        setBlogLoadingStep(0);
+        setCurrentStep(6);
+      });
+    }
+
+    return () => {
+      timers.forEach((id) => window.clearTimeout(id));
+    };
+  }, [currentStep, blogLoadingStep]);
+
   const {
     data: jupiterPositions,
     isLoading: jupiterPositionsLoading,
