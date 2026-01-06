@@ -252,32 +252,6 @@ const Index = () => {
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
 
-  // Animated ellipsis for loading states
-  useEffect(() => {
-    if (blogLoadingStep === 1) {
-      const interval = setInterval(() => {
-        setLoadingText(prev => {
-          if (prev.endsWith("...")) {
-            return prev.slice(0, -3);
-          } else {
-            return prev + ".";
-          }
-        });
-      }, 300);
-
-      // Move to next step after 2 seconds of animated loading
-      const timeout = setTimeout(() => {
-        setBlogLoadingStep(2);
-        setLoadingText("found blog post");
-      }, 2000);
-
-      return () => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
-    }
-  }, [blogLoadingStep]);
-
   const {
     data: jupiterPositions,
     isLoading: jupiterPositionsLoading,
@@ -618,17 +592,17 @@ const Index = () => {
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
-                            setTimeout(() => {
-                              setBlogLoadingStep(1);
-                              setLoadingText("searching blog posts");
-                            }, 800);
+                            setTimeout(() => setBlogLoadingStep(1), 1000);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 1 ? (
                         <TypeWriter 
-                          text={loadingText}
+                          text="searching blog posts..." 
                           delay={70} 
                           className="text-muted-foreground"
+                          onComplete={() => {
+                            setTimeout(() => setBlogLoadingStep(2), 1000);
+                          }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 2 ? (
                         <TypeWriter 
@@ -636,9 +610,7 @@ const Index = () => {
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
-                            setTimeout(() => {
-                              setBlogLoadingStep(3);
-                            }, 800);
+                            setTimeout(() => setBlogLoadingStep(3), 1000);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 3 ? (
@@ -654,7 +626,6 @@ const Index = () => {
                                 className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                                 onComplete={() => {
                                   setBlogLoadingStep(0);
-                                  setLoadingText("initialising blog");
                                   setCurrentStep(6);
                                 }}
                               />
@@ -666,7 +637,6 @@ const Index = () => {
                               className="text-muted-foreground"
                               onComplete={() => {
                                 setBlogLoadingStep(0);
-                                setLoadingText("initialising blog");
                                 setCurrentStep(6);
                               }}
                             />
