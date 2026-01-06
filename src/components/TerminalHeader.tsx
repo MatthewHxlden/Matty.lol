@@ -138,7 +138,11 @@ const TerminalHeader = () => {
             {/* Logo */}
             <Link to="/" className="group">
               <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2">
-                <span className="text-secondary">$</span>
+                <img 
+                  src="/logo.png" 
+                  alt="matty.lol" 
+                  className="h-8 w-auto"
+                />
                 <span className="glitch text-2xl font-bold neon-text" data-text="matty.lol">
                   matty.lol
                 </span>
