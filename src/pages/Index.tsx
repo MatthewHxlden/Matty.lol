@@ -157,6 +157,9 @@ const getIconByName = (iconName: string): LucideIcon => {
 };
 
 const Index = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showOutput, setShowOutput] = useState(false);
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -248,6 +251,54 @@ const Index = () => {
 
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
+
+  // Sequential execution logic
+  const steps = [
+    { step: 0, delay: 500, outputDelay: 3000 },   // whoami command
+    { step: 1, delay: 100, outputDelay: 2000 },   // whoami output
+    { step: 2, delay: 100, outputDelay: 2000 },   // cat mission.txt command  
+    { step: 3, delay: 100, outputDelay: 3000 },   // mission.txt output
+    { step: 4, delay: 100, outputDelay: 2000 },   // blog.html command
+    { step: 5, delay: 100, outputDelay: 2000 },   // blog.html output
+    { step: 6, delay: 100, outputDelay: 2000 },   // changelog.txt command
+    { step: 7, delay: 100, outputDelay: 2000 },   // changelog.txt output
+  ];
+
+  useEffect(() => {
+    if (currentStep < steps.length) {
+      const timer = setTimeout(() => {
+        const stepData = steps[currentStep];
+        
+        // For output steps, show loading first
+        if (stepData.step % 2 === 1) {
+          setIsLoading(true);
+          setShowOutput(false);
+          
+          const loadingTimer = setTimeout(() => {
+            setIsLoading(false);
+            setShowOutput(true);
+            
+            const nextTimer = setTimeout(() => {
+              setCurrentStep(prev => prev + 1);
+            }, stepData.outputDelay);
+            
+            return () => clearTimeout(nextTimer);
+          }, 1500); // Loading duration
+          
+          return () => clearTimeout(loadingTimer);
+        } else {
+          // For command steps, just move to next step after typing
+          const nextTimer = setTimeout(() => {
+            setCurrentStep(prev => prev + 1);
+          }, stepData.outputDelay);
+          
+          return () => clearTimeout(nextTimer);
+        }
+      }, steps[currentStep].delay);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
 
   const {
     data: jupiterPositions,
@@ -445,129 +496,164 @@ const Index = () => {
             </div>
 
             {/* Terminal prompt intro */}
-            <TerminalCard title="~/welcome.sh" delay={0.3} promptText="whoami">
+            <TerminalCard title="~/welcome.sh" delay={0.3} promptText="">
               <div className="space-y-4 text-sm md:text-base">
+                {/* whoami command */}
                 <div className="flex items-start gap-2">
                   <span className="text-secondary shrink-0">$</span>
-                  <TypeWriter
-                    text="whoami"
-                    delay={80}
-                    className="text-foreground"
-                  />
+                  {currentStep >= 0 && (
+                    <TypeWriter
+                      text="whoami"
+                      delay={120}
+                      className="text-foreground"
+                    />
+                  )}
                 </div>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.2 }}
-                  className="pl-4 border-l-2 border-primary/30 space-y-2"
-                >
-                  <p className="text-muted-foreground">
-                    <span className="text-accent">name:</span>{" "}
-                    <TypeWriter text={name} delay={30} className="text-foreground" />
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="text-accent">role:</span>{" "}
-                    <TypeWriter text={role} delay={30} className="text-foreground" />
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="text-accent">status:</span>{" "}
-                    <span className="text-secondary">
-                      <TypeWriter text={status} delay={30} className="text-secondary" />
-                    </span>
-                  </p>
-                </motion.div>
+                {/* whoami output */}
+                {currentStep > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="pl-4 border-l-2 border-primary/30 space-y-2"
+                  >
+                    {isLoading && currentStep === 1 ? (
+                      <div className="text-muted-foreground">
+                        <TypeWriter text="Loading user profile..." delay={50} className="text-muted-foreground" />
+                      </div>
+                    ) : showOutput && currentStep === 1 ? (
+                      <>
+                        <p className="text-muted-foreground">
+                          <span className="text-accent">name:</span>{" "}
+                          <TypeWriter text={name} delay={50} className="text-foreground" />
+                        </p>
+                        <p className="text-muted-foreground">
+                          <span className="text-accent">role:</span>{" "}
+                          <TypeWriter text={role} delay={50} className="text-foreground" />
+                        </p>
+                        <p className="text-muted-foreground">
+                          <span className="text-accent">status:</span>{" "}
+                          <span className="text-secondary">
+                            <TypeWriter text={status} delay={50} className="text-secondary" />
+                          </span>
+                        </p>
+                      </>
+                    ) : null}
+                  </motion.div>
+                )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.8 }}
-                  className="flex items-start gap-2"
-                >
-                  <span className="text-secondary shrink-0">$</span>
-                  <span className="text-foreground">cat mission.txt</span>
-                </motion.div>
+                {/* cat mission.txt command */}
+                {currentStep > 1 && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-secondary shrink-0">$</span>
+                    <TypeWriter
+                      text="cat mission.txt"
+                      delay={120}
+                      className="text-foreground"
+                    />
+                  </div>
+                )}
 
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 2.2 }}
-                  className="text-muted-foreground pl-4"
-                >
-                  <TypeWriter text={missionText} delay={20} className="text-muted-foreground" />
-                </motion.p>
+                {/* mission.txt output */}
+                {currentStep > 2 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="pl-4 border-l-2 border-primary/30"
+                  >
+                    {isLoading && currentStep === 3 ? (
+                      <div className="text-muted-foreground">
+                        <TypeWriter text="Reading mission file..." delay={50} className="text-muted-foreground" />
+                      </div>
+                    ) : showOutput && currentStep === 3 ? (
+                      <TypeWriter text={missionText} delay={30} className="text-muted-foreground" />
+                    ) : null}
+                  </motion.div>
+                )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 2.6 }}
-                  className="flex items-start gap-2"
-                >
-                  <span className="text-secondary shrink-0">$</span>
-                  <TypeWriter
-                    text="blog.html"
-                    delay={80}
-                    className="text-foreground"
-                  />
-                </motion.div>
+                {/* blog.html command */}
+                {currentStep > 3 && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-secondary shrink-0">$</span>
+                    <TypeWriter
+                      text="blog.html"
+                      delay={120}
+                      className="text-foreground"
+                    />
+                  </div>
+                )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 3.2 }}
-                  className="pl-4 border-l-2 border-primary/30"
-                >
-                  {latestBlogPost ? (
-                    <Link 
-                      to={`/blog/${latestBlogPost.slug}`}
-                      className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                    >
-                      <TypeWriter 
-                        text={latestBlogPost.title}
-                        delay={30}
-                        className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                      />
-                    </Link>
-                  ) : (
-                    <TypeWriter text="No blog posts yet..." delay={30} className="text-muted-foreground" />
-                  )}
-                </motion.div>
+                {/* blog.html output */}
+                {currentStep > 4 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="pl-4 border-l-2 border-primary/30"
+                  >
+                    {isLoading && currentStep === 5 ? (
+                      <div className="text-muted-foreground">
+                        <TypeWriter text="Fetching latest blog post..." delay={50} className="text-muted-foreground" />
+                      </div>
+                    ) : showOutput && currentStep === 5 ? (
+                      latestBlogPost ? (
+                        <Link 
+                          to={`/blog/${latestBlogPost.slug}`}
+                          className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                        >
+                          <TypeWriter 
+                            text={latestBlogPost.title}
+                            delay={50}
+                            className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                          />
+                        </Link>
+                      ) : (
+                        <TypeWriter text="No blog posts yet..." delay={50} className="text-muted-foreground" />
+                      )
+                    ) : null}
+                  </motion.div>
+                )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 3.8 }}
-                  className="flex items-start gap-2"
-                >
-                  <span className="text-secondary shrink-0">$</span>
-                  <TypeWriter
-                    text="changelog.txt"
-                    delay={80}
-                    className="text-foreground"
-                  />
-                </motion.div>
+                {/* changelog.txt command */}
+                {currentStep > 5 && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-secondary shrink-0">$</span>
+                    <TypeWriter
+                      text="changelog.txt"
+                      delay={120}
+                      className="text-foreground"
+                    />
+                  </div>
+                )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 4.4 }}
-                  className="pl-4 border-l-2 border-primary/30"
-                >
-                  {latestChangelog ? (
-                    <Link 
-                      to="/changelog"
-                      className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                    >
-                      <TypeWriter 
-                        text={latestChangelog.date}
-                        delay={30}
-                        className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                      />
-                    </Link>
-                  ) : (
-                    <TypeWriter text="No changelog entries yet..." delay={30} className="text-muted-foreground" />
-                  )}
-                </motion.div>
+                {/* changelog.txt output */}
+                {currentStep > 6 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="pl-4 border-l-2 border-primary/30"
+                  >
+                    {isLoading && currentStep === 7 ? (
+                      <div className="text-muted-foreground">
+                        <TypeWriter text="Loading changelog..." delay={50} className="text-muted-foreground" />
+                      </div>
+                    ) : showOutput && currentStep === 7 ? (
+                      latestChangelog ? (
+                        <Link 
+                          to="/changelog"
+                          className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                        >
+                          <TypeWriter 
+                            text={latestChangelog.date}
+                            delay={50}
+                            className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                          />
+                        </Link>
+                      ) : (
+                        <TypeWriter text="No changelog entries yet..." delay={50} className="text-muted-foreground" />
+                      )
+                    ) : null}
+                  </motion.div>
+                )}
               </div>
             </TerminalCard>
           </motion.div>
