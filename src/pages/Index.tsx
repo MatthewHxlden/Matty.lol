@@ -158,6 +158,7 @@ const getIconByName = (iconName: string): LucideIcon => {
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [outputStep, setOutputStep] = useState(0);
+  const [blogLoadingStep, setBlogLoadingStep] = useState(0);
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -579,41 +580,88 @@ const Index = () => {
                 {/* blog.html output */}
                 {currentStep >= 5 && (
                   <div className="space-y-4">
+                    <div className="flex items-start gap-2">
+                      <span className="text-secondary shrink-0">$</span>
+                      <span className="text-foreground">blog.html</span>
+                    </div>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      {latestBlogPost ? (
-                        <Link 
-                          to={`/blog/${latestBlogPost.slug}`}
-                          className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                        >
-                          {currentStep === 5 ? (
-                            <TypeWriter 
-                              text={latestBlogPost.title}
-                              delay={70} // 40% slower than 50ms
+                      {currentStep === 5 && blogLoadingStep === 0 ? (
+                        <TypeWriter 
+                          text="initialising blog..." 
+                          delay={70} 
+                          className="text-muted-foreground"
+                          onComplete={() => setBlogLoadingStep(1)}
+                        />
+                      ) : currentStep === 5 && blogLoadingStep === 1 ? (
+                        <TypeWriter 
+                          text="connecting to database..." 
+                          delay={70} 
+                          className="text-muted-foreground"
+                          onComplete={() => setBlogLoadingStep(2)}
+                        />
+                      ) : currentStep === 5 && blogLoadingStep === 2 ? (
+                        <TypeWriter 
+                          text="searching for latest blog post..." 
+                          delay={70} 
+                          className="text-muted-foreground"
+                          onComplete={() => setBlogLoadingStep(3)}
+                        />
+                      ) : currentStep === 5 && blogLoadingStep === 3 ? (
+                        <TypeWriter 
+                          text="retrieving content..." 
+                          delay={70} 
+                          className="text-muted-foreground"
+                          onComplete={() => setBlogLoadingStep(4)}
+                        />
+                      ) : currentStep === 5 && blogLoadingStep === 4 ? (
+                        <>
+                          {latestBlogPost ? (
+                            <Link 
+                              to={`/blog/${latestBlogPost.slug}`}
                               className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                              onComplete={() => setCurrentStep(6)}
-                            />
+                            >
+                              <TypeWriter 
+                                text={latestBlogPost.title}
+                                delay={70}
+                                className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                                onComplete={() => {
+                                  setBlogLoadingStep(0);
+                                  setCurrentStep(6);
+                                }}
+                              />
+                            </Link>
                           ) : (
-                            <span className="text-accent hover:text-primary transition-colors underline cursor-pointer">
-                              {latestBlogPost.title}
-                            </span>
+                            <TypeWriter 
+                              text="No blog posts found..." 
+                              delay={70} 
+                              className="text-muted-foreground"
+                              onComplete={() => {
+                                setBlogLoadingStep(0);
+                                setCurrentStep(6);
+                              }}
+                            />
                           )}
-                        </Link>
-                      ) : (
-                        currentStep === 5 ? (
-                          <TypeWriter 
-                            text="No blog posts yet..." 
-                            delay={70} // 40% slower than 50ms
-                            className="text-muted-foreground"
-                            onComplete={() => setCurrentStep(6)}
-                          />
-                        ) : (
-                          <span className="text-muted-foreground">No blog posts yet...</span>
-                        )
-                      )}
+                        </>
+                      ) : currentStep >= 5 ? (
+                        <>
+                          {latestBlogPost ? (
+                            <Link 
+                              to={`/blog/${latestBlogPost.slug}`}
+                              className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                            >
+                              <span className="text-accent hover:text-primary transition-colors underline cursor-pointer">
+                                {latestBlogPost.title}
+                              </span>
+                            </Link>
+                          ) : (
+                            <span className="text-muted-foreground">No blog posts found...</span>
+                          )}
+                        </>
+                      ) : null}
                     </motion.div>
                   </div>
                 )}
