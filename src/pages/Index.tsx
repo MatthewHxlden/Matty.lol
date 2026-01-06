@@ -455,7 +455,7 @@ const Index = () => {
                     {currentStep === 0 ? (
                       <TypeWriter
                         text="whoami"
-                        delay={140} // 40% slower than 100ms
+                        delay={300} // Really slow for command titles
                         className="text-foreground"
                         onComplete={() => setCurrentStep(1)}
                       />
@@ -497,8 +497,6 @@ const Index = () => {
                           />
                         ) : currentStep >= 1 && outputStep >= 1 ? (
                           <span className="text-foreground">{role}</span>
-                        ) : currentStep >= 1 ? (
-                          <span className="text-foreground">{role}</span>
                         ) : null}
                       </p>
                       <p className="text-muted-foreground">
@@ -516,8 +514,6 @@ const Index = () => {
                             />
                           ) : currentStep >= 1 && outputStep >= 2 ? (
                             <span className="text-secondary">{status}</span>
-                          ) : currentStep >= 1 ? (
-                            <span className="text-secondary">{status}</span>
                           ) : null}
                         </span>
                       </p>
@@ -532,7 +528,7 @@ const Index = () => {
                     {currentStep === 2 ? (
                       <TypeWriter
                         text="cat mission.txt"
-                        delay={140} // 40% slower than 100ms
+                        delay={300} // Really slow for command titles
                         className="text-foreground"
                         onComplete={() => setCurrentStep(3)}
                       />
@@ -571,7 +567,7 @@ const Index = () => {
                     {currentStep === 4 ? (
                       <TypeWriter
                         text="blog.html"
-                        delay={140} // 40% slower than 100ms
+                        delay={300} // Really slow for command titles
                         className="text-foreground"
                         onComplete={() => setCurrentStep(5)}
                       />
@@ -630,7 +626,7 @@ const Index = () => {
                     {currentStep === 6 ? (
                       <TypeWriter
                         text="changelog.txt"
-                        delay={140} // 40% slower than 100ms
+                        delay={300} // Really slow for command titles
                         className="text-foreground"
                         onComplete={() => setCurrentStep(7)}
                       />
