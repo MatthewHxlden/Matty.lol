@@ -17,7 +17,6 @@ const quickLinks = [
   { name: "apps", path: "/apps", icon: Code, desc: "things i've built" },
   { name: "tools", path: "/tools", icon: Zap, desc: "useful utilities" },
   { name: "trades", path: "/trades", icon: ChartLine, desc: "perps session tracker" },
-  { name: "paper-trading", path: "/paper-trading", icon: TrendingUp, desc: "practice trading simulator" },
   { name: "now", path: "/now", icon: Coffee, desc: "what i'm up to" },
   { name: "links", path: "/links", icon: Binary, desc: "my corner of the web" },
 ];
@@ -510,18 +509,18 @@ const Index = () => {
                   )}
                 </div>
 
-                {/* whoami output */}
-                {currentStep > 0 && (
+                {/* whoami output - always visible once executed */}
+                {currentStep >= 1 && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="pl-4 border-l-2 border-primary/30 space-y-2"
                   >
-                    {isLoading && currentStep === 1 ? (
+                    {currentStep === 1 && isLoading ? (
                       <div className="text-muted-foreground">
                         <TypeWriter text="Loading user profile..." delay={50} className="text-muted-foreground" />
                       </div>
-                    ) : showOutput && currentStep === 1 ? (
+                    ) : currentStep >= 1 && showOutput ? (
                       <>
                         <p className="text-muted-foreground">
                           <span className="text-accent">name:</span>{" "}
@@ -543,7 +542,7 @@ const Index = () => {
                 )}
 
                 {/* cat mission.txt command */}
-                {currentStep > 1 && (
+                {currentStep >= 2 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
@@ -554,25 +553,25 @@ const Index = () => {
                   </div>
                 )}
 
-                {/* mission.txt output */}
-                {currentStep > 2 && (
+                {/* mission.txt output - always visible once executed */}
+                {currentStep >= 3 && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="pl-4 border-l-2 border-primary/30"
                   >
-                    {isLoading && currentStep === 3 ? (
+                    {currentStep === 3 && isLoading ? (
                       <div className="text-muted-foreground">
                         <TypeWriter text="Reading mission file..." delay={50} className="text-muted-foreground" />
                       </div>
-                    ) : showOutput && currentStep === 3 ? (
+                    ) : currentStep >= 3 && showOutput ? (
                       <TypeWriter text={missionText} delay={30} className="text-muted-foreground" />
                     ) : null}
                   </motion.div>
                 )}
 
                 {/* blog.html command */}
-                {currentStep > 3 && (
+                {currentStep >= 4 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
@@ -583,18 +582,18 @@ const Index = () => {
                   </div>
                 )}
 
-                {/* blog.html output */}
-                {currentStep > 4 && (
+                {/* blog.html output - always visible once executed */}
+                {currentStep >= 5 && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="pl-4 border-l-2 border-primary/30"
                   >
-                    {isLoading && currentStep === 5 ? (
+                    {currentStep === 5 && isLoading ? (
                       <div className="text-muted-foreground">
                         <TypeWriter text="Fetching latest blog post..." delay={50} className="text-muted-foreground" />
                       </div>
-                    ) : showOutput && currentStep === 5 ? (
+                    ) : currentStep >= 5 && showOutput ? (
                       latestBlogPost ? (
                         <Link 
                           to={`/blog/${latestBlogPost.slug}`}
@@ -614,7 +613,7 @@ const Index = () => {
                 )}
 
                 {/* changelog.txt command */}
-                {currentStep > 5 && (
+                {currentStep >= 6 && (
                   <div className="flex items-start gap-2">
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
@@ -625,18 +624,18 @@ const Index = () => {
                   </div>
                 )}
 
-                {/* changelog.txt output */}
-                {currentStep > 6 && (
+                {/* changelog.txt output - always visible once executed */}
+                {currentStep >= 7 && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="pl-4 border-l-2 border-primary/30"
                   >
-                    {isLoading && currentStep === 7 ? (
+                    {currentStep === 7 && isLoading ? (
                       <div className="text-muted-foreground">
                         <TypeWriter text="Loading changelog..." delay={50} className="text-muted-foreground" />
                       </div>
-                    ) : showOutput && currentStep === 7 ? (
+                    ) : currentStep >= 7 && showOutput ? (
                       latestChangelog ? (
                         <Link 
                           to="/changelog"
