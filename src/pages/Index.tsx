@@ -157,9 +157,7 @@ const getIconByName = (iconName: string): LucideIcon => {
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showOutput, setShowOutput] = useState(false);
-  const [commandComplete, setCommandComplete] = useState(false);
+  const [outputStep, setOutputStep] = useState(0);
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -457,7 +455,7 @@ const Index = () => {
                     {currentStep === 0 ? (
                       <TypeWriter
                         text="whoami"
-                        delay={100}
+                        delay={140} // 40% slower than 100ms
                         className="text-foreground"
                         onComplete={() => setCurrentStep(1)}
                       />
@@ -477,33 +475,46 @@ const Index = () => {
                     >
                       <p className="text-muted-foreground">
                         <span className="text-accent">name:</span>{" "}
-                        {currentStep === 1 ? (
-                          <TypeWriter text={name} delay={50} className="text-foreground" />
+                        {currentStep === 1 && outputStep === 0 ? (
+                          <TypeWriter 
+                            text={name} 
+                            delay={70} // 40% slower than 50ms
+                            className="text-foreground"
+                            onComplete={() => setOutputStep(1)}
+                          />
                         ) : (
                           <span className="text-foreground">{name}</span>
                         )}
                       </p>
                       <p className="text-muted-foreground">
                         <span className="text-accent">role:</span>{" "}
-                        {currentStep === 1 ? (
-                          <TypeWriter text={role} delay={50} className="text-foreground" />
-                        ) : (
+                        {currentStep === 1 && outputStep === 1 ? (
+                          <TypeWriter 
+                            text={role} 
+                            delay={70} // 40% slower than 50ms
+                            className="text-foreground"
+                            onComplete={() => setOutputStep(2)}
+                          />
+                        ) : currentStep >= 1 && outputStep >= 1 ? (
                           <span className="text-foreground">{role}</span>
-                        )}
+                        ) : null}
                       </p>
                       <p className="text-muted-foreground">
                         <span className="text-accent">status:</span>{" "}
                         <span className="text-secondary">
-                          {currentStep === 1 ? (
+                          {currentStep === 1 && outputStep === 2 ? (
                             <TypeWriter 
                               text={status} 
-                              delay={50} 
+                              delay={70} // 40% slower than 50ms
                               className="text-secondary"
-                              onComplete={() => setCurrentStep(2)}
+                              onComplete={() => {
+                                setOutputStep(0);
+                                setCurrentStep(2);
+                              }}
                             />
-                          ) : (
+                          ) : currentStep >= 1 && outputStep >= 2 ? (
                             <span className="text-secondary">{status}</span>
-                          )}
+                          ) : null}
                         </span>
                       </p>
                     </motion.div>
@@ -517,7 +528,7 @@ const Index = () => {
                     {currentStep === 2 ? (
                       <TypeWriter
                         text="cat mission.txt"
-                        delay={100}
+                        delay={140} // 40% slower than 100ms
                         className="text-foreground"
                         onComplete={() => setCurrentStep(3)}
                       />
@@ -538,7 +549,7 @@ const Index = () => {
                       {currentStep === 3 ? (
                         <TypeWriter 
                           text={missionText} 
-                          delay={30} 
+                          delay={42} // 40% slower than 30ms
                           className="text-muted-foreground"
                           onComplete={() => setCurrentStep(4)}
                         />
@@ -556,7 +567,7 @@ const Index = () => {
                     {currentStep === 4 ? (
                       <TypeWriter
                         text="blog.html"
-                        delay={100}
+                        delay={140} // 40% slower than 100ms
                         className="text-foreground"
                         onComplete={() => setCurrentStep(5)}
                       />
@@ -582,7 +593,7 @@ const Index = () => {
                           {currentStep === 5 ? (
                             <TypeWriter 
                               text={latestBlogPost.title}
-                              delay={50}
+                              delay={70} // 40% slower than 50ms
                               className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                               onComplete={() => setCurrentStep(6)}
                             />
@@ -596,7 +607,7 @@ const Index = () => {
                         currentStep === 5 ? (
                           <TypeWriter 
                             text="No blog posts yet..." 
-                            delay={50} 
+                            delay={70} // 40% slower than 50ms
                             className="text-muted-foreground"
                             onComplete={() => setCurrentStep(6)}
                           />
@@ -615,7 +626,7 @@ const Index = () => {
                     {currentStep === 6 ? (
                       <TypeWriter
                         text="changelog.txt"
-                        delay={100}
+                        delay={140} // 40% slower than 100ms
                         className="text-foreground"
                         onComplete={() => setCurrentStep(7)}
                       />
@@ -641,7 +652,7 @@ const Index = () => {
                           {currentStep === 7 ? (
                             <TypeWriter 
                               text={latestChangelog.date}
-                              delay={50}
+                              delay={70} // 40% slower than 50ms
                               className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                             />
                           ) : (
@@ -654,7 +665,7 @@ const Index = () => {
                         currentStep === 7 ? (
                           <TypeWriter 
                             text="No changelog entries yet..." 
-                            delay={50} 
+                            delay={70} // 40% slower than 50ms
                             className="text-muted-foreground"
                           />
                         ) : (
