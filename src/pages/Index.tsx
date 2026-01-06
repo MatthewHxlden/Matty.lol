@@ -463,15 +463,17 @@ const Index = () => {
                   className="pl-4 border-l-2 border-primary/30 space-y-2"
                 >
                   <p className="text-muted-foreground">
-                    <span className="text-accent">name:</span> {name}
+                    <span className="text-accent">name:</span>{" "}
+                    <TypeWriter text={name} delay={30} className="text-foreground" />
                   </p>
                   <p className="text-muted-foreground">
-                    <span className="text-accent">role:</span> {role}
+                    <span className="text-accent">role:</span>{" "}
+                    <TypeWriter text={role} delay={30} className="text-foreground" />
                   </p>
                   <p className="text-muted-foreground">
                     <span className="text-accent">status:</span>{" "}
                     <span className="text-secondary">
-                      {status}
+                      <TypeWriter text={status} delay={30} className="text-secondary" />
                     </span>
                   </p>
                 </motion.div>
@@ -492,7 +494,7 @@ const Index = () => {
                   transition={{ delay: 2.2 }}
                   className="text-muted-foreground pl-4"
                 >
-                  {missionText}
+                  <TypeWriter text={missionText} delay={20} className="text-muted-foreground" />
                 </motion.p>
 
                 <motion.div
@@ -518,12 +520,16 @@ const Index = () => {
                   {latestBlogPost ? (
                     <Link 
                       to={`/blog/${latestBlogPost.slug}`}
-                      className="text-accent hover:text-primary transition-colors underline"
+                      className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                     >
-                      {latestBlogPost.title}
+                      <TypeWriter 
+                        text={latestBlogPost.title}
+                        delay={30}
+                        className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                      />
                     </Link>
                   ) : (
-                    <span className="text-muted-foreground">No blog posts yet...</span>
+                    <TypeWriter text="No blog posts yet..." delay={30} className="text-muted-foreground" />
                   )}
                 </motion.div>
 
@@ -550,12 +556,16 @@ const Index = () => {
                   {latestChangelog ? (
                     <Link 
                       to="/changelog"
-                      className="text-accent hover:text-primary transition-colors underline"
+                      className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                     >
-                      {latestChangelog.date}
+                      <TypeWriter 
+                        text={latestChangelog.date}
+                        delay={30}
+                        className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                      />
                     </Link>
                   ) : (
-                    <span className="text-muted-foreground">No changelog entries yet...</span>
+                    <TypeWriter text="No changelog entries yet..." delay={30} className="text-muted-foreground" />
                   )}
                 </motion.div>
               </div>
