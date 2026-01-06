@@ -508,7 +508,6 @@ const Index = () => {
                               delay={70} // 40% slower than 50ms
                               className="text-secondary"
                               onComplete={() => {
-                                setOutputStep(0);
                                 setCurrentStep(2);
                               }}
                             />
