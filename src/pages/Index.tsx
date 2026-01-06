@@ -592,7 +592,8 @@ const Index = () => {
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
-                            setTimeout(() => setBlogLoadingStep(1), 1000);
+                            console.log('Blog loading step 0 completed');
+                            setBlogLoadingStep(1);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 1 ? (
@@ -601,7 +602,8 @@ const Index = () => {
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
-                            setTimeout(() => setBlogLoadingStep(2), 1000);
+                            console.log('Blog loading step 1 completed');
+                            setBlogLoadingStep(2);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 2 ? (
@@ -610,7 +612,8 @@ const Index = () => {
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
-                            setTimeout(() => setBlogLoadingStep(3), 1000);
+                            console.log('Blog loading step 2 completed');
+                            setBlogLoadingStep(3);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 3 ? (
@@ -625,6 +628,7 @@ const Index = () => {
                                 delay={70}
                                 className="text-accent hover:text-primary transition-colors underline cursor-pointer"
                                 onComplete={() => {
+                                  console.log('Blog title completed');
                                   setBlogLoadingStep(0);
                                   setCurrentStep(6);
                                 }}
@@ -636,6 +640,7 @@ const Index = () => {
                               delay={70} 
                               className="text-muted-foreground"
                               onComplete={() => {
+                                console.log('No blog posts completed');
                                 setBlogLoadingStep(0);
                                 setCurrentStep(6);
                               }}

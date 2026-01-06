@@ -25,7 +25,7 @@ const TypeWriter = ({ text, delay = 50, className = "", onComplete }: TypeWriter
       setIsComplete(true);
       onComplete?.();
     }
-  }, [currentIndex, delay, text, isComplete, onComplete]);
+  }, [currentIndex, delay, text, isComplete]);
 
   return (
     <span className={className}>
