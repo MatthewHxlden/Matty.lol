@@ -254,7 +254,7 @@ const Index = () => {
 
   // Animated ellipsis for loading states
   useEffect(() => {
-    if (blogLoadingStep === 2) {
+    if (blogLoadingStep === 1) {
       const interval = setInterval(() => {
         setLoadingText(prev => {
           if (prev.endsWith("...")) {
@@ -265,10 +265,11 @@ const Index = () => {
         });
       }, 300);
 
-      // Move to blog title after 3 seconds of animated loading
+      // Move to next step after 2 seconds of animated loading
       const timeout = setTimeout(() => {
-        setBlogLoadingStep(3);
-      }, 3000);
+        setBlogLoadingStep(2);
+        setLoadingText("found blog post");
+      }, 2000);
 
       return () => {
         clearInterval(interval);
@@ -619,27 +620,26 @@ const Index = () => {
                           onComplete={() => {
                             setTimeout(() => {
                               setBlogLoadingStep(1);
-                              setLoadingText("connecting to database");
-                            }, 500);
+                              setLoadingText("searching blog posts");
+                            }, 800);
                           }}
                         />
                       ) : currentStep === 5 && blogLoadingStep === 1 ? (
                         <TypeWriter 
-                          text="connecting to database..." 
+                          text={loadingText}
+                          delay={70} 
+                          className="text-muted-foreground"
+                        />
+                      ) : currentStep === 5 && blogLoadingStep === 2 ? (
+                        <TypeWriter 
+                          text="found blog post..." 
                           delay={70} 
                           className="text-muted-foreground"
                           onComplete={() => {
                             setTimeout(() => {
-                              setBlogLoadingStep(2);
-                              setLoadingText("searching for latest blog post");
-                            }, 500);
+                              setBlogLoadingStep(3);
+                            }, 800);
                           }}
-                        />
-                      ) : currentStep === 5 && blogLoadingStep === 2 ? (
-                        <TypeWriter 
-                          text={loadingText}
-                          delay={70} 
-                          className="text-muted-foreground"
                         />
                       ) : currentStep === 5 && blogLoadingStep === 3 ? (
                         <>
