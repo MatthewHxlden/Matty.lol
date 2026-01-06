@@ -159,6 +159,7 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
+  const [commandComplete, setCommandComplete] = useState(false);
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -251,52 +252,15 @@ const Index = () => {
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
 
-  // Sequential execution logic
-  const steps = [
-    { step: 0, delay: 500, outputDelay: 3000 },   // whoami command
-    { step: 1, delay: 100, outputDelay: 2000 },   // whoami output
-    { step: 2, delay: 100, outputDelay: 2000 },   // cat mission.txt command  
-    { step: 3, delay: 100, outputDelay: 3000 },   // mission.txt output
-    { step: 4, delay: 100, outputDelay: 2000 },   // blog.html command
-    { step: 5, delay: 100, outputDelay: 2000 },   // blog.html output
-    { step: 6, delay: 100, outputDelay: 2000 },   // changelog.txt command
-    { step: 7, delay: 100, outputDelay: 2000 },   // changelog.txt output
-  ];
-
+  // Simplified sequential execution
   useEffect(() => {
-    if (currentStep < steps.length) {
-      const timer = setTimeout(() => {
-        const stepData = steps[currentStep];
-        
-        // For output steps, show loading first
-        if (stepData.step % 2 === 1) {
-          setIsLoading(true);
-          setShowOutput(false);
-          
-          const loadingTimer = setTimeout(() => {
-            setIsLoading(false);
-            setShowOutput(true);
-            
-            const nextTimer = setTimeout(() => {
-              setCurrentStep(prev => prev + 1);
-            }, stepData.outputDelay);
-            
-            return () => clearTimeout(nextTimer);
-          }, 1500); // Loading duration
-          
-          return () => clearTimeout(loadingTimer);
-        } else {
-          // For command steps, just move to next step after typing
-          const nextTimer = setTimeout(() => {
-            setCurrentStep(prev => prev + 1);
-          }, stepData.outputDelay);
-          
-          return () => clearTimeout(nextTimer);
-        }
-      }, steps[currentStep].delay);
-      
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      if (currentStep < 8) {
+        setCurrentStep(prev => prev + 1);
+      }
+    }, 3000); // Fixed 3 second intervals
+
+    return () => clearTimeout(timer);
   }, [currentStep]);
 
   const {
@@ -503,8 +467,9 @@ const Index = () => {
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
                       text="whoami"
-                      delay={120}
+                      delay={100}
                       className="text-foreground"
+                      onComplete={() => setTimeout(() => setCurrentStep(1), 1000)}
                     />
                   </div>
                 )}
@@ -521,28 +486,20 @@ const Index = () => {
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30 space-y-2"
                     >
-                      {isLoading ? (
-                        <div className="text-muted-foreground">
-                          <TypeWriter text="Loading user profile..." delay={50} className="text-muted-foreground" />
-                        </div>
-                      ) : showOutput ? (
-                        <>
-                          <p className="text-muted-foreground">
-                            <span className="text-accent">name:</span>{" "}
-                            <TypeWriter text={name} delay={50} className="text-foreground" />
-                          </p>
-                          <p className="text-muted-foreground">
-                            <span className="text-accent">role:</span>{" "}
-                            <TypeWriter text={role} delay={50} className="text-foreground" />
-                          </p>
-                          <p className="text-muted-foreground">
-                            <span className="text-accent">status:</span>{" "}
-                            <span className="text-secondary">
-                              <TypeWriter text={status} delay={50} className="text-secondary" />
-                            </span>
-                          </p>
-                        </>
-                      ) : null}
+                      <p className="text-muted-foreground">
+                        <span className="text-accent">name:</span>{" "}
+                        <TypeWriter text={name} delay={50} className="text-foreground" />
+                      </p>
+                      <p className="text-muted-foreground">
+                        <span className="text-accent">role:</span>{" "}
+                        <TypeWriter text={role} delay={50} className="text-foreground" />
+                      </p>
+                      <p className="text-muted-foreground">
+                        <span className="text-accent">status:</span>{" "}
+                        <span className="text-secondary">
+                          <TypeWriter text={status} delay={50} className="text-secondary" />
+                        </span>
+                      </p>
                     </motion.div>
                   </div>
                 )}
@@ -553,8 +510,9 @@ const Index = () => {
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
                       text="cat mission.txt"
-                      delay={120}
+                      delay={100}
                       className="text-foreground"
+                      onComplete={() => setTimeout(() => setCurrentStep(3), 1000)}
                     />
                   </div>
                 )}
@@ -571,13 +529,7 @@ const Index = () => {
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      {isLoading ? (
-                        <div className="text-muted-foreground">
-                          <TypeWriter text="Reading mission file..." delay={50} className="text-muted-foreground" />
-                        </div>
-                      ) : showOutput ? (
-                        <TypeWriter text={missionText} delay={30} className="text-muted-foreground" />
-                      ) : null}
+                      <TypeWriter text={missionText} delay={30} className="text-muted-foreground" />
                     </motion.div>
                   </div>
                 )}
@@ -588,8 +540,9 @@ const Index = () => {
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
                       text="blog.html"
-                      delay={120}
+                      delay={100}
                       className="text-foreground"
+                      onComplete={() => setTimeout(() => setCurrentStep(5), 1000)}
                     />
                   </div>
                 )}
@@ -606,26 +559,20 @@ const Index = () => {
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      {isLoading ? (
-                        <div className="text-muted-foreground">
-                          <TypeWriter text="Fetching latest blog post..." delay={50} className="text-muted-foreground" />
-                        </div>
-                      ) : showOutput ? (
-                        latestBlogPost ? (
-                          <Link 
-                            to={`/blog/${latestBlogPost.slug}`}
+                      {latestBlogPost ? (
+                        <Link 
+                          to={`/blog/${latestBlogPost.slug}`}
+                          className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                        >
+                          <TypeWriter 
+                            text={latestBlogPost.title}
+                            delay={50}
                             className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                          >
-                            <TypeWriter 
-                              text={latestBlogPost.title}
-                              delay={50}
-                              className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                            />
-                          </Link>
-                        ) : (
-                          <TypeWriter text="No blog posts yet..." delay={50} className="text-muted-foreground" />
-                        )
-                      ) : null}
+                          />
+                        </Link>
+                      ) : (
+                        <TypeWriter text="No blog posts yet..." delay={50} className="text-muted-foreground" />
+                      )}
                     </motion.div>
                   </div>
                 )}
@@ -636,8 +583,9 @@ const Index = () => {
                     <span className="text-secondary shrink-0">$</span>
                     <TypeWriter
                       text="changelog.txt"
-                      delay={120}
+                      delay={100}
                       className="text-foreground"
+                      onComplete={() => setTimeout(() => setCurrentStep(7), 1000)}
                     />
                   </div>
                 )}
@@ -654,26 +602,20 @@ const Index = () => {
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      {isLoading ? (
-                        <div className="text-muted-foreground">
-                          <TypeWriter text="Loading changelog..." delay={50} className="text-muted-foreground" />
-                        </div>
-                      ) : showOutput ? (
-                        latestChangelog ? (
-                          <Link 
-                            to="/changelog"
+                      {latestChangelog ? (
+                        <Link 
+                          to="/changelog"
+                          className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                        >
+                          <TypeWriter 
+                            text={latestChangelog.date}
+                            delay={50}
                             className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                          >
-                            <TypeWriter 
-                              text={latestChangelog.date}
-                              delay={50}
-                              className="text-accent hover:text-primary transition-colors underline cursor-pointer"
-                            />
-                          </Link>
-                        ) : (
-                          <TypeWriter text="No changelog entries yet..." delay={50} className="text-muted-foreground" />
-                        )
-                      ) : null}
+                          />
+                        </Link>
+                      ) : (
+                        <TypeWriter text="No changelog entries yet..." delay={50} className="text-muted-foreground" />
+                      )}
                     </motion.div>
                   </div>
                 )}
