@@ -497,6 +497,8 @@ const Index = () => {
                           />
                         ) : currentStep >= 1 && outputStep >= 1 ? (
                           <span className="text-foreground">{role}</span>
+                        ) : currentStep >= 1 ? (
+                          <span className="text-foreground">{role}</span>
                         ) : null}
                       </p>
                       <p className="text-muted-foreground">
@@ -513,6 +515,8 @@ const Index = () => {
                               }}
                             />
                           ) : currentStep >= 1 && outputStep >= 2 ? (
+                            <span className="text-secondary">{status}</span>
+                          ) : currentStep >= 1 ? (
                             <span className="text-secondary">{status}</span>
                           ) : null}
                         </span>

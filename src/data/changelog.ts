@@ -7,11 +7,30 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
-    date: "2026-01-05",
+    date: "06 January 2026",
+    title: "Terminal experience overhaul and homepage enhancements",
+    items: [
+      "Added logo.png to public folder and integrated into site header top-left position.",
+      "Implemented dynamic homepage terminal with sequential command execution.",
+      "Added blog.html and changelog.txt commands with latest content fetching.",
+      "Created realistic typewriter effects for entire terminal block letter-by-letter.",
+      "Enhanced terminal with loading states between commands and outputs.",
+      "Fixed crypto prices API error handling to reduce console spam in production.",
+      "Removed paper-trading from quick links as it's properly organised under tools page.",
+      "Implemented one-by-one command execution with proper timing and persistence.",
+      "Fixed terminal text disappearing issues with cumulative display logic.",
+      "Added sequential line-by-line typing for whoami output (name → role → status).",
+      "Slowed down typewriter animation by 40% for better readability and realism.",
+      "Enhanced terminal authenticity with proper command-to-output flow and transitions.",
+    ],
+    tags: ["terminal", "homepage", "typewriter", "ui", "logo", "navigation", "performance", "user-experience"],
+  },
+  {
+    date: "05 January 2026",
     title: "Paper trading system deployment and tools integration",
     items: [
       "Successfully deployed complete paper trading system to production.",
-      "Added paper trading tool to Tools page with proper categorization and navigation.",
+      "Added paper trading tool to Tools page with proper categorisation and navigation.",
       "Integrated real Jupiter API key for live Solana DEX price data.",
       "Implemented fallback system for API failures with mock price data.",
       "Added comprehensive changelog documentation with today's date.",
