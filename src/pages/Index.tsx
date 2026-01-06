@@ -252,17 +252,6 @@ const Index = () => {
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
 
-  // Simplified sequential execution
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (currentStep < 8) {
-        setCurrentStep(prev => prev + 1);
-      }
-    }, 3000); // Fixed 3 second intervals
-
-    return () => clearTimeout(timer);
-  }, [currentStep]);
-
   const {
     data: jupiterPositions,
     isLoading: jupiterPositionsLoading,
@@ -469,7 +458,7 @@ const Index = () => {
                       text="whoami"
                       delay={100}
                       className="text-foreground"
-                      onComplete={() => setTimeout(() => setCurrentStep(1), 1000)}
+                      onComplete={() => setCurrentStep(1)}
                     />
                   </div>
                 )}
@@ -497,7 +486,12 @@ const Index = () => {
                       <p className="text-muted-foreground">
                         <span className="text-accent">status:</span>{" "}
                         <span className="text-secondary">
-                          <TypeWriter text={status} delay={50} className="text-secondary" />
+                          <TypeWriter 
+                            text={status} 
+                            delay={50} 
+                            className="text-secondary"
+                            onComplete={() => setCurrentStep(2)}
+                          />
                         </span>
                       </p>
                     </motion.div>
@@ -512,7 +506,7 @@ const Index = () => {
                       text="cat mission.txt"
                       delay={100}
                       className="text-foreground"
-                      onComplete={() => setTimeout(() => setCurrentStep(3), 1000)}
+                      onComplete={() => setCurrentStep(3)}
                     />
                   </div>
                 )}
@@ -529,7 +523,12 @@ const Index = () => {
                       animate={{ opacity: 1 }}
                       className="pl-4 border-l-2 border-primary/30"
                     >
-                      <TypeWriter text={missionText} delay={30} className="text-muted-foreground" />
+                      <TypeWriter 
+                        text={missionText} 
+                        delay={30} 
+                        className="text-muted-foreground"
+                        onComplete={() => setCurrentStep(4)}
+                      />
                     </motion.div>
                   </div>
                 )}
@@ -542,7 +541,7 @@ const Index = () => {
                       text="blog.html"
                       delay={100}
                       className="text-foreground"
-                      onComplete={() => setTimeout(() => setCurrentStep(5), 1000)}
+                      onComplete={() => setCurrentStep(5)}
                     />
                   </div>
                 )}
@@ -568,10 +567,16 @@ const Index = () => {
                             text={latestBlogPost.title}
                             delay={50}
                             className="text-accent hover:text-primary transition-colors underline cursor-pointer"
+                            onComplete={() => setCurrentStep(6)}
                           />
                         </Link>
                       ) : (
-                        <TypeWriter text="No blog posts yet..." delay={50} className="text-muted-foreground" />
+                        <TypeWriter 
+                          text="No blog posts yet..." 
+                          delay={50} 
+                          className="text-muted-foreground"
+                          onComplete={() => setCurrentStep(6)}
+                        />
                       )}
                     </motion.div>
                   </div>
@@ -585,7 +590,7 @@ const Index = () => {
                       text="changelog.txt"
                       delay={100}
                       className="text-foreground"
-                      onComplete={() => setTimeout(() => setCurrentStep(7), 1000)}
+                      onComplete={() => setCurrentStep(7)}
                     />
                   </div>
                 )}
@@ -614,7 +619,11 @@ const Index = () => {
                           />
                         </Link>
                       ) : (
-                        <TypeWriter text="No changelog entries yet..." delay={50} className="text-muted-foreground" />
+                        <TypeWriter 
+                          text="No changelog entries yet..." 
+                          delay={50} 
+                          className="text-muted-foreground"
+                        />
                       )}
                     </motion.div>
                   </div>
