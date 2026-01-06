@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, LucideIcon, ChartLine, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as LucideIcons from "lucide-react";
+import { changelog } from "@/data/changelog";
 
 const quickLinks = [
   { name: "blog", path: "/blog", icon: Terminal, desc: "thoughts & tutorials" },
@@ -229,6 +230,24 @@ const Index = () => {
       return data as HomeLayoutRow | null;
     },
   });
+
+  const { data: latestBlogPost } = useQuery({
+    queryKey: ["latest-blog-post"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("title, slug, created_at")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (error && error.code !== "PGRST116") throw error;
+      return data as { title: string; slug: string; created_at: string } | null;
+    },
+  });
+
+  // Get latest changelog from imported data
+  const latestChangelog = changelog.length > 0 ? changelog[0] : null;
 
   const {
     data: jupiterPositions,
@@ -475,6 +494,70 @@ const Index = () => {
                 >
                   {missionText}
                 </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 2.6 }}
+                  className="flex items-start gap-2"
+                >
+                  <span className="text-secondary shrink-0">$</span>
+                  <TypeWriter
+                    text="blog.html"
+                    delay={80}
+                    className="text-foreground"
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 3.2 }}
+                  className="pl-4 border-l-2 border-primary/30"
+                >
+                  {latestBlogPost ? (
+                    <Link 
+                      to={`/blog/${latestBlogPost.slug}`}
+                      className="text-accent hover:text-primary transition-colors underline"
+                    >
+                      {latestBlogPost.title}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">No blog posts yet...</span>
+                  )}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 3.8 }}
+                  className="flex items-start gap-2"
+                >
+                  <span className="text-secondary shrink-0">$</span>
+                  <TypeWriter
+                    text="changelog.txt"
+                    delay={80}
+                    className="text-foreground"
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 4.4 }}
+                  className="pl-4 border-l-2 border-primary/30"
+                >
+                  {latestChangelog ? (
+                    <Link 
+                      to="/changelog"
+                      className="text-accent hover:text-primary transition-colors underline"
+                    >
+                      {latestChangelog.date}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">No changelog entries yet...</span>
+                  )}
+                </motion.div>
               </div>
             </TerminalCard>
           </motion.div>
