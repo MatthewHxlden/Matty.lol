@@ -34,7 +34,7 @@ export const useCryptoPrices = () => {
         );
         
         if (!response.ok) {
-          throw new Error('Failed to fetch crypto prices');
+          throw new Error(`Failed to fetch crypto prices: ${response.status} ${response.statusText}`);
         }
         
         const data: CoinGeckoResponse = await response.json();
@@ -52,13 +52,19 @@ export const useCryptoPrices = () => {
         
         return formattedPrices;
       } catch (error) {
-        console.error('Error fetching crypto prices:', error);
+        // Only log error in development to avoid spamming production console
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching crypto prices:', error);
+        }
+        // Return empty array on error to prevent breaking the UI
         return [];
       }
     },
     refetchInterval: 30000, // Refresh every 30 seconds
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 2, // Reduce retry attempts to avoid spamming
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Reduce max delay
+    staleTime: 25000, // Consider data stale after 25 seconds
+    gcTime: 300000, // Keep data in cache for 5 minutes (was cacheTime)
   });
 
   const formatPrice = (price: number) => {
