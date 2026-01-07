@@ -196,18 +196,20 @@ const TerminalHeader = () => {
                     className={`group relative px-3 py-1 text-sm transition-all duration-300 ${
                       location.pathname === link.path
                         ? "text-primary neon-text"
-                        : "text-muted-foreground hover-glow"
+                        : "text-muted-foreground hover:shine-text"
                     }`}
                   >
                     <span className="text-secondary opacity-50 group-hover:opacity-100 transition-opacity">./</span>
-                    {link.name}
-                    {location.pathname === link.path && (
-                      <motion.span
-                        layoutId="activeTab"
-                        className="absolute inset-0 border border-primary/50 -z-10"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
+                    <span className="relative">
+                      {link.name}
+                      {location.pathname === link.path && (
+                        <motion.span
+                          layoutId="activeTab"
+                          className="absolute inset-0 border border-primary/50 -z-10"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                    </span>
                   </Link>
                 </motion.div>
               ))}
@@ -241,7 +243,7 @@ const TerminalHeader = () => {
             >
               {user ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1 text-sm text-accent hover:text-primary transition-all hover-glow">
+                  <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1 text-sm text-accent hover:text-primary transition-all hover:shine-text">
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">account</span>
                   </DropdownMenuTrigger>
@@ -273,7 +275,7 @@ const TerminalHeader = () => {
                   className={`flex items-center gap-1 px-3 py-1 text-sm transition-all ${
                     location.pathname === "/auth"
                       ? "text-primary neon-text"
-                      : "text-secondary hover:text-primary hover-glow"
+                      : "text-secondary hover:text-primary hover:shine-text"
                   }`}
                 >
                   <LogIn className="w-4 h-4" />
@@ -299,26 +301,40 @@ const TerminalHeader = () => {
 
             {/* Theme controls (farthest right) */}
             <div className="ml-2 flex items-center gap-2">
-              {/* Color theme switcher */}
-              <ThemeSwitcher />
-              
-              {/* Rain theme toggle */}
-              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
-                <CloudRain className="w-4 h-4 text-primary" />
-                <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
-              </div>
-
-              {/* Ambient background toggle */}
-              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
-                <Grid className="w-4 h-4 text-primary" />
-                <Switch checked={ambientEnabled} onCheckedChange={setAmbientEnabled} />
-              </div>
-
-              {/* Pulse toggle */}
-              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <Switch checked={pulseEnabled} onCheckedChange={setPulseEnabled} />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="inline-flex items-center gap-2 px-3 py-1 text-sm border border-border/60 bg-card/40 hover:bg-card/60 transition-all">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="hidden sm:inline">effects</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 bg-background border border-border/70 shadow-xl">
+                  <div className="px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">visual toggles</div>
+                  <DropdownMenuItem className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-foreground">Theme</span>
+                    <ThemeSwitcher />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <CloudRain className="w-4 h-4 text-primary" />
+                      <span>Rain</span>
+                    </div>
+                    <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <Grid className="w-4 h-4 text-primary" />
+                      <span>Ambient grid</span>
+                    </div>
+                    <Switch checked={ambientEnabled} onCheckedChange={setAmbientEnabled} />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span>Pulse glow</span>
+                    </div>
+                    <Switch checked={pulseEnabled} onCheckedChange={setPulseEnabled} />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

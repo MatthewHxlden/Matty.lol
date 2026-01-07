@@ -309,6 +309,25 @@
     0 0 20px hsl(var(--primary));
 }
 
+/* Shine text hover (subtle, no glow) */
+.shine-text {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  background: linear-gradient(120deg, hsl(var(--muted-foreground)), hsl(var(--foreground)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: background-position 0.4s ease, color 0.2s ease, opacity 0.2s ease;
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+}
+
+.shine-text:hover {
+  background-position: 100% 50%;
+  color: hsl(var(--foreground));
+}
 /* Pulse mode */
 .pulse-enabled .hover-glow:hover {
   box-shadow:

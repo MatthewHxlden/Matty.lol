@@ -98,15 +98,15 @@ const RainCanvas = ({
       const dt = lastTsRef.current ? Math.min(0.05, (ts - lastTsRef.current) / 1000) : 0.016;
       lastTsRef.current = ts;
 
-      // Fade with slight persistence for motion blur
-      ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+      // Fade with slight persistence for motion blur (keep very light to avoid darkening UI)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.02)";
       ctx.fillRect(0, 0, w, h);
 
       // Mist / haze
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, "rgba(0, 0, 0, 0.0)");
-      g.addColorStop(0.65, "rgba(0, 0, 0, 0.05)");
-      g.addColorStop(1, "rgba(0, 0, 0, 0.14)");
+      g.addColorStop(0, "rgba(0, 0, 0, 0)");
+      g.addColorStop(0.65, "rgba(0, 0, 0, 0.02)");
+      g.addColorStop(1, "rgba(0, 0, 0, 0.05)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
 
@@ -123,7 +123,7 @@ const RainCanvas = ({
         const dx = tilt * d.len;
         const dy = d.len;
 
-        ctx.strokeStyle = `rgba(80, 255, 220, ${d.alpha})`;
+        ctx.strokeStyle = `rgba(158, 255, 71, ${d.alpha * 0.65})`;
         ctx.lineWidth = d.thickness;
         ctx.beginPath();
         ctx.moveTo(x, y);
@@ -152,9 +152,8 @@ const RainCanvas = ({
     resize();
     window.addEventListener("resize", resize);
 
-    // Start with a dark clear so it reads as rain, not nothing
-    ctx.fillStyle = "rgba(0, 0, 0, 1)";
-    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    // Start transparent to avoid initial flash/black screen
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     rafRef.current = window.requestAnimationFrame(draw);
 
@@ -169,10 +168,10 @@ const RainCanvas = ({
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 opacity-[0.55]"
+        className="absolute inset-0 opacity-[0.25]"
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/25" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/10" />
     </div>
   );
 };

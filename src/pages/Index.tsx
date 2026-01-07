@@ -161,6 +161,7 @@ const Index = () => {
   const [outputStep, setOutputStep] = useState(0);
   const [blogLoadingStep, setBlogLoadingStep] = useState(0);
   const [loadingText, setLoadingText] = useState("initialising blog");
+  const [latestBlogTitle, setLatestBlogTitle] = useState("");
   const prevMarkByMintRef = useRef<Record<string, number>>({});
   const prevSignalByKeyRef = useRef<Record<string, number>>({});
   const prevPerpsSnapshotRef = useRef<Record<string, { sizeValue?: number; collateralValue?: number }>>({});
@@ -204,6 +205,16 @@ const Index = () => {
       return data as SiteProfile | null;
     },
   });
+
+  // Fallback: ensure terminal sequence starts even if a callback stalls
+  useEffect(() => {
+    if (currentStep === 0) {
+      const timer = window.setTimeout(() => {
+        setCurrentStep((prev) => (prev === 0 ? 1 : prev));
+      }, 1200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [currentStep]);
 
   const missionText =
     siteProfile?.mission ||
