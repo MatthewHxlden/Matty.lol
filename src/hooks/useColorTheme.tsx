@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 
-type ColorTheme = 'turquoise' | 'green' | 'red' | 'purple' | 'orange' | 'pink';
+type ColorTheme = 'green' | 'red' | 'purple' | 'orange' | 'pink';
 
 interface ColorThemeContextValue {
   colorTheme: ColorTheme;
@@ -13,12 +13,14 @@ const ColorThemeContext = createContext<ColorThemeContextValue | null>(null);
 const STORAGE_KEY = "colorTheme";
 
 export const ColorThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [colorTheme, setColorThemeState] = useState<ColorTheme>('turquoise');
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>('green');
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw === 'green' || raw === 'red' || raw === 'purple' || raw === 'orange' || raw === 'pink') {
       setColorThemeState(raw);
+    } else {
+      setColorThemeState('green');
     }
   }, []);
 
@@ -31,21 +33,21 @@ export const ColorThemeProvider = ({ children }: { children: ReactNode }) => {
     
     switch (theme) {
       case 'green':
-        // Lime green #9eff48 = 142° 100% 64%
-        root.style.setProperty('--primary', '142 100% 64%');
+        // Logo green #9eff47 ≈ 90° 100% 64%
+        root.style.setProperty('--primary', '90 100% 64%');
         root.style.setProperty('--primary-foreground', '220 20% 4%');
-        root.style.setProperty('--card-foreground', '142 100% 64%');
-        root.style.setProperty('--popover-foreground', '142 100% 64%');
-        root.style.setProperty('--ring', '142 100% 64%');
-        root.style.setProperty('--sidebar-foreground', '142 100% 64%');
-        root.style.setProperty('--sidebar-primary', '142 100% 64%');
+        root.style.setProperty('--card-foreground', '90 100% 64%');
+        root.style.setProperty('--popover-foreground', '90 100% 64%');
+        root.style.setProperty('--ring', '90 100% 64%');
+        root.style.setProperty('--sidebar-foreground', '90 100% 64%');
+        root.style.setProperty('--sidebar-primary', '90 100% 64%');
         root.style.setProperty('--sidebar-primary-foreground', '220 20% 4%');
-        root.style.setProperty('--sidebar-accent-foreground', '142 100% 64%');
-        root.style.setProperty('--sidebar-ring', '142 100% 64%');
-        root.style.setProperty('--muted-foreground', '142 50% 40%');
-        root.style.setProperty('--border', '142 100% 25%');
-        root.style.setProperty('--terminal-glow', '0 0 10px hsl(142 100% 64% / 0.5), 0 0 20px hsl(142 100% 64% / 0.3), 0 0 40px hsl(142 100% 64% / 0.1)');
-        root.style.setProperty('--neon-cyan', '142 100% 64%');
+        root.style.setProperty('--sidebar-accent-foreground', '90 100% 64%');
+        root.style.setProperty('--sidebar-ring', '90 100% 64%');
+        root.style.setProperty('--muted-foreground', '90 50% 46%');
+        root.style.setProperty('--border', '90 100% 32%');
+        root.style.setProperty('--terminal-glow', '0 0 10px hsl(90 100% 64% / 0.5), 0 0 20px hsl(90 100% 64% / 0.3), 0 0 40px hsl(90 100% 64% / 0.1)');
+        root.style.setProperty('--neon-cyan', '90 100% 64%');
         break;
         
       case 'red':
@@ -120,23 +122,22 @@ export const ColorThemeProvider = ({ children }: { children: ReactNode }) => {
         root.style.setProperty('--neon-cyan', '330 100% 64%');
         break;
         
-      case 'turquoise':
       default:
-        // Reset to turquoise (180°)
-        root.style.setProperty('--primary', '180 100% 50%');
+        // Default to logo green
+        root.style.setProperty('--primary', '90 100% 64%');
         root.style.setProperty('--primary-foreground', '220 20% 4%');
-        root.style.setProperty('--card-foreground', '180 100% 50%');
-        root.style.setProperty('--popover-foreground', '180 100% 50%');
-        root.style.setProperty('--ring', '180 100% 50%');
-        root.style.setProperty('--sidebar-foreground', '180 100% 50%');
-        root.style.setProperty('--sidebar-primary', '180 100% 50%');
+        root.style.setProperty('--card-foreground', '90 100% 64%');
+        root.style.setProperty('--popover-foreground', '90 100% 64%');
+        root.style.setProperty('--ring', '90 100% 64%');
+        root.style.setProperty('--sidebar-foreground', '90 100% 64%');
+        root.style.setProperty('--sidebar-primary', '90 100% 64%');
         root.style.setProperty('--sidebar-primary-foreground', '220 20% 4%');
-        root.style.setProperty('--sidebar-accent-foreground', '180 100% 50%');
-        root.style.setProperty('--sidebar-ring', '180 100% 50%');
-        root.style.setProperty('--muted-foreground', '180 50% 40%');
-        root.style.setProperty('--border', '180 100% 25%');
-        root.style.setProperty('--terminal-glow', '0 0 10px hsl(180 100% 50% / 0.5), 0 0 20px hsl(180 100% 50% / 0.3), 0 0 40px hsl(180 100% 50% / 0.1)');
-        root.style.setProperty('--neon-cyan', '180 100% 50%');
+        root.style.setProperty('--sidebar-accent-foreground', '90 100% 64%');
+        root.style.setProperty('--sidebar-ring', '90 100% 64%');
+        root.style.setProperty('--muted-foreground', '90 50% 46%');
+        root.style.setProperty('--border', '90 100% 32%');
+        root.style.setProperty('--terminal-glow', '0 0 10px hsl(90 100% 64% / 0.5), 0 0 20px hsl(90 100% 64% / 0.3), 0 0 40px hsl(90 100% 64% / 0.1)');
+        root.style.setProperty('--neon-cyan', '90 100% 64%');
         break;
     }
   };
@@ -146,7 +147,7 @@ export const ColorThemeProvider = ({ children }: { children: ReactNode }) => {
   }, [colorTheme]);
 
   const toggleColorTheme = () => {
-    const themes: ColorTheme[] = ['turquoise', 'green', 'red', 'purple', 'orange', 'pink'];
+    const themes: ColorTheme[] = ['green', 'red', 'purple', 'orange', 'pink'];
     const currentIndex = themes.indexOf(colorTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setColorTheme(themes[nextIndex]);
