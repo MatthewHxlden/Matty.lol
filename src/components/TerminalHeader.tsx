@@ -306,19 +306,29 @@ const TerminalHeader = () => {
                     ) : (
                       <Activity className="w-3.5 h-3.5 text-muted-foreground" />
                     )}
-                    {tickerItem.link ? (
-                      <a
-                        href={tickerItem.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-primary hover:underline transition-colors cursor-pointer"
-                        title={`Open ${tickerItem.message} in new tab`}
-                      >
-                        {tickerItem.message}
-                      </a>
-                    ) : (
-                      <span>{tickerItem.message}</span>
-                    )}
+                    {(() => {
+                      const [prefix, ...rest] = tickerItem.message.split(":");
+                      const body = rest.join(":").trim();
+                      const content = (
+                        <>
+                          <span className="text-muted-foreground">{prefix}:</span>{" "}
+                          <span className="text-primary font-semibold">{body}</span>
+                        </>
+                      );
+                      return tickerItem.link ? (
+                        <a
+                          href={tickerItem.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary hover:underline transition-colors cursor-pointer"
+                          title={`Open ${tickerItem.message} in new tab`}
+                        >
+                          {content}
+                        </a>
+                      ) : (
+                        <span>{content}</span>
+                      );
+                    })()}
                   </span>
                 </span>
               ))}
