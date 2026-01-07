@@ -3,19 +3,22 @@ import { motion } from "framer-motion";
 import TerminalHeader from "./TerminalHeader";
 import TerminalFooter from "./TerminalFooter";
 import RainBackground from "@/components/RainBackground";
+import { useAmbientTheme } from "@/hooks/useAmbientTheme";
 
 interface TerminalLayoutProps {
   children: ReactNode;
 }
 
 const TerminalLayout = ({ children }: TerminalLayoutProps) => {
+  const { ambientEnabled } = useAmbientTheme();
+
   return (
     <div className="min-h-screen flex flex-col matrix-bg crt-flicker">
       {/* Scanlines overlay */}
-      <div className="scanlines" />
+      {!ambientEnabled ? null : <div className="scanlines" />}
       
       {/* Grid background */}
-      <div className="fixed inset-0 grid-bg opacity-30 pointer-events-none" />
+      {!ambientEnabled ? null : <div className="fixed inset-0 grid-bg opacity-30 pointer-events-none" />}
 
       <RainBackground />
 

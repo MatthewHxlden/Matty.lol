@@ -309,6 +309,45 @@
     0 0 20px hsl(var(--primary));
 }
 
+/* Pulse mode */
+.pulse-enabled .hover-glow:hover {
+  box-shadow:
+    0 0 0 2px hsla(var(--primary) / 0.2),
+    0 0 20px 4px hsla(var(--primary) / 0.25),
+    0 0 40px 10px hsla(var(--primary) / 0.12);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transform: translateY(-1px);
+}
+
+.pulse-enabled .shine-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.pulse-enabled .shine-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 30%, hsla(var(--primary) / 0.18) 50%, transparent 70%);
+  transform: skewX(-15deg);
+  animation: shine 2.4s infinite;
+}
+
+@keyframes shine {
+  0% { left: -150%; }
+  60% { left: 150%; }
+  100% { left: 150%; }
+}
+
+/* Ambient off helper */
+.ambient-off .scanlines,
+.ambient-off .grid-bg {
+  display: none !important;
+}
+
 /* Pulse animation */
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;

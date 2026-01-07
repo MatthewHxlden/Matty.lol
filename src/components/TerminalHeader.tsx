@@ -4,11 +4,27 @@ import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useRainTheme } from "@/hooks/useRainTheme";
+import { useAmbientTheme } from "@/hooks/useAmbientTheme";
+import { usePulseTheme } from "@/hooks/usePulseTheme";
 import SearchModal from "@/components/SearchModal";
 import TerminalCommand from "@/components/TerminalCommand";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, LogOut, User, Settings, Shield, Search, CloudRain, Github, Rss, CloudSun, Activity } from "lucide-react";
+import {
+  LogIn,
+  LogOut,
+  User,
+  Settings,
+  Shield,
+  Search,
+  CloudRain,
+  Github,
+  Rss,
+  CloudSun,
+  Activity,
+  Sparkles,
+  Grid,
+} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -31,10 +47,14 @@ const TerminalHeader = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { rainEnabled, setRainEnabled } = useRainTheme();
+  const { ambientEnabled, setAmbientEnabled } = useAmbientTheme();
+  const { pulseEnabled, setPulseEnabled } = usePulseTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const tickerPanelRef = useRef<HTMLDivElement | null>(null);
+  const [activeTicker, setActiveTicker] = useState<{ message: string; link: string | null } | null>(null);
 
   useEffect(() => {
     if (!headerRef.current) return;
@@ -51,6 +71,18 @@ const TerminalHeader = () => {
       window.removeEventListener("resize", read);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tickerPanelRef.current && !tickerPanelRef.current.contains(e.target as Node)) {
+        setActiveTicker(null);
+      }
+    };
+    if (activeTicker) {
+      window.addEventListener("mousedown", handleClickOutside);
+      return () => window.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [activeTicker]);
 
   const { data: weatherStatus } = useQuery({
     queryKey: ["status", "weather"],
@@ -275,6 +307,18 @@ const TerminalHeader = () => {
                 <CloudRain className="w-4 h-4 text-primary" />
                 <Switch checked={rainEnabled} onCheckedChange={setRainEnabled} />
               </div>
+
+              {/* Ambient background toggle */}
+              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
+                <Grid className="w-4 h-4 text-primary" />
+                <Switch checked={ambientEnabled} onCheckedChange={setAmbientEnabled} />
+              </div>
+
+              {/* Pulse toggle */}
+              <div className="flex items-center gap-2 px-2 py-1 border border-border/50 bg-card/20">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <Switch checked={pulseEnabled} onCheckedChange={setPulseEnabled} />
+              </div>
             </div>
           </div>
         </div>
@@ -294,7 +338,11 @@ const TerminalHeader = () => {
             <div className="marquee">
               {[...tickerMessages, ...tickerMessages].map((tickerItem, idx) => (
                 <span key={idx} className="px-4">
-                  <span className="inline-flex items-center gap-2">
+                  <button
+                    className="inline-flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => setActiveTicker(tickerItem)}
+                    title="Click to expand"
+                  >
                     {tickerItem.message.startsWith("github:") ? (
                       <Github className="w-3.5 h-3.5 text-muted-foreground" />
                     ) : tickerItem.message.startsWith("reddit:") ? (
@@ -309,30 +357,50 @@ const TerminalHeader = () => {
                     {(() => {
                       const [prefix, ...rest] = tickerItem.message.split(":");
                       const body = rest.join(":").trim();
-                      const content = (
+                      return (
                         <>
                           <span className="text-muted-foreground">{prefix}:</span>{" "}
                           <span className="text-primary font-semibold">{body}</span>
                         </>
                       );
-                      return tickerItem.link ? (
-                        <a
-                          href={tickerItem.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-primary hover:underline transition-colors cursor-pointer"
-                          title={`Open ${tickerItem.message} in new tab`}
-                        >
-                          {content}
-                        </a>
-                      ) : (
-                        <span>{content}</span>
-                      );
                     })()}
-                  </span>
+                  </button>
                 </span>
               ))}
             </div>
+
+            {activeTicker && (
+              <div
+                ref={tickerPanelRef}
+                className="mt-2 rounded-md border border-border/50 bg-card/60 p-3 text-xs text-foreground"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-semibold text-primary">Details</div>
+                  <button
+                    onClick={() => setActiveTicker(null)}
+                    className="text-muted-foreground hover:text-primary text-xs"
+                    aria-label="Close ticker details"
+                  >
+                    close
+                  </button>
+                </div>
+                <div className="mt-2 text-sm text-foreground">
+                  {activeTicker.message}
+                </div>
+                {activeTicker.link && (
+                  <div className="mt-2">
+                    <a
+                      href={activeTicker.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Open link
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

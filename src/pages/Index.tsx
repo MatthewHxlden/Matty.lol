@@ -11,6 +11,7 @@ import { ArrowRight, Code, Terminal, Zap, Coffee, Skull, Binary, ExternalLink, L
 import { supabase } from "@/integrations/supabase/client";
 import * as LucideIcons from "lucide-react";
 import { changelog } from "@/data/changelog";
+import { toast } from "@/components/ui/use-toast";
 
 const quickLinks = [
   { name: "blog", path: "/blog", icon: Terminal, desc: "thoughts & tutorials" },
@@ -251,6 +252,27 @@ const Index = () => {
 
   // Get latest changelog from imported data
   const latestChangelog = changelog.length > 0 ? changelog[0] : null;
+
+  // Show "What's new" toast once per latest changelog entry
+  useEffect(() => {
+    if (!latestChangelog) return;
+    const key = `whats-new:${latestChangelog.date}:${latestChangelog.title}`;
+    const seen = window.localStorage.getItem(key);
+    if (seen === "shown") return;
+
+    toast({
+      title: "What's new",
+      description: latestChangelog.title,
+      action: (
+        <Link to="/changelog" className="text-primary hover:underline">
+          Read more
+        </Link>
+      ),
+      duration: 8000,
+    });
+
+    window.localStorage.setItem(key, "shown");
+  }, [latestChangelog]);
 
   // Safety timeout to ensure blog loading steps always advance
   useEffect(() => {
