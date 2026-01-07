@@ -8,16 +8,18 @@ export type ChangelogEntry = {
 export const changelog: ChangelogEntry[] = [
   {
     date: "07 January 2026",
-    title: "Brand-aligned theme, dynamic OG images, and ticker polish",
+    title: "Deploy toast, effects panel, softer rain, and terminal safeguards",
     items: [
-      "Set logo green (#9eff47) as the default theme and removed the old turquoise option from the switcher.",
-      "Updated global tokens (primary, border, rings, glow) to align all accents with the logo colour.",
-      "Added dynamic OG image generation for blog posts via /api/og-image/blog/[slug] using @vercel/og.",
-      "Wired blog meta tags to use the generated OG images for rich previews on socials.",
-      "Styled ticker titles so content bodies use the primary colour while prefixes stay muted.",
-      "Throttled crypto price fetch errors and cached last good data to cut console spam and keep UI populated."
+      "Added a deploy \"What's new\" toast on homepage load that links to the changelog.",
+      "Grouped rain / ambient grid / pulse glow / theme switcher into a single header effects dropdown.",
+      "Softened the rain overlay with lower opacity and logo-green streaks so other animations stay visible.",
+      "Replaced nav text glow with a subtle shine hover effect for cleaner typography.",
+      "Added ticker expansion panel with outside-click close to read full Reddit/GitHub entries.",
+      "Implemented a safety fallback to advance the terminal sequence if callbacks stall.",
+      "Retained latest blog and changelog terminal commands with loading sequences intact.",
+      "Kept the brand-aligned logo green theme across tokens and UI accents."
     ],
-    tags: ["theme", "branding", "og-image", "seo", "ticker", "performance", "api"],
+    tags: ["ui", "effects", "rain", "toast", "ticker", "terminal", "theme"],
   },
   {
     date: "06 January 2026",
