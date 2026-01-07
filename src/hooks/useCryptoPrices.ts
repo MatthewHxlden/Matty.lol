@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 interface CryptoPrice {
@@ -22,6 +21,9 @@ const COINGECKO_IDS = {
   ethereum: 'ethereum',
   venice: 'venice-token', // Venice token ID on CoinGecko
 };
+
+const STORAGE_KEY = 'cryptoPricesCache';
+let lastErrorLoggedAt = 0;
 
 export const useCryptoPrices = () => {
   const { data: prices, isLoading, error } = useQuery({
@@ -49,14 +51,30 @@ export const useCryptoPrices = () => {
             changePercent24h: coinData?.usd_24h_change || 0,
           };
         });
-        
+        // cache last good payload
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formattedPrices));
+        } catch {
+          // ignore storage errors
+        }
         return formattedPrices;
       } catch (error) {
-        // Only log error in development to avoid spamming production console
-        if (process.env.NODE_ENV === 'development') {
+        // Throttle console noise in dev
+        const now = Date.now();
+        if (process.env.NODE_ENV === 'development' && now - lastErrorLoggedAt > 60_000) {
           console.error('Error fetching crypto prices:', error);
+          lastErrorLoggedAt = now;
         }
-        // Return empty array on error to prevent breaking the UI
+        // Return cached data if available to avoid UI empty state
+        try {
+          const cached = window.localStorage.getItem(STORAGE_KEY);
+          if (cached) {
+            return JSON.parse(cached) as CryptoPrice[];
+          }
+        } catch {
+          // ignore cache parse errors
+        }
+        // fallback empty array
         return [];
       }
     },
