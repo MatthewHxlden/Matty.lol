@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 // Edge runtime lacks Node typings; declare minimal process.env shape
 declare const process: { env: Record<string, string | undefined> };
 
@@ -47,22 +45,27 @@ export default async function handler(req: Request) {
     return new Response("Missing Supabase environment variables", { status: 500 });
   }
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
+  const apiUrl = `${supabaseUrl}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(
+    slug
+  )}&published=eq.true&select=title,slug,excerpt,content,cover_image,created_at,tags&limit=1`;
+
+  const res = await fetch(apiUrl, {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+    },
   });
 
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("title, slug, excerpt, content, cover_image, created_at, tags")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
-
-  if (error || !data) {
+  if (!res.ok) {
     return new Response("Post not found", { status: 404 });
   }
 
-  const post = data as BlogPost;
+  const rows = (await res.json()) as BlogPost[];
+  const post = rows?.[0];
+
+  if (!post) {
+    return new Response("Post not found", { status: 404 });
+  }
   const title = `Matty.lol - ${post.title}`;
   const description = generateExcerpt(post.content, post.excerpt) || "Matty.lol blog post";
   const imageUrl = post.cover_image || fallbackImage;
