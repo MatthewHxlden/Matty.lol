@@ -13,6 +13,7 @@ export const updateBlogMetaTags = (post: BlogPostMeta) => {
   const baseUrl = "https://matty.lol";
   const blogUrl = `${baseUrl}/blog/${post.slug}`;
   const titleWithSite = `Matty.lol - ${post.title}`;
+  const dynamicOgImage = `${baseUrl}/api/og-image/blog/${post.slug}`;
 
   // Generate excerpt if not provided
   const excerpt = post.excerpt || generateExcerpt(post.content || "");
@@ -21,7 +22,7 @@ export const updateBlogMetaTags = (post: BlogPostMeta) => {
   document.title = titleWithSite;
 
   const fallbackImage = `${baseUrl}/og-banner.png`;
-  const imageUrl = post.cover_image || fallbackImage;
+  const imageUrl = dynamicOgImage || post.cover_image || fallbackImage;
 
   // Open Graph
   setMetaTag("og:title", titleWithSite);
