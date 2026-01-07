@@ -7,6 +7,19 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "07 January 2026",
+    title: "Brand-aligned theme, dynamic OG images, and ticker polish",
+    items: [
+      "Set logo green (#9eff47) as the default theme and removed the old turquoise option from the switcher.",
+      "Updated global tokens (primary, border, rings, glow) to align all accents with the logo colour.",
+      "Added dynamic OG image generation for blog posts via /api/og-image/blog/[slug] using @vercel/og.",
+      "Wired blog meta tags to use the generated OG images for rich previews on socials.",
+      "Styled ticker titles so content bodies use the primary colour while prefixes stay muted.",
+      "Throttled crypto price fetch errors and cached last good data to cut console spam and keep UI populated."
+    ],
+    tags: ["theme", "branding", "og-image", "seo", "ticker", "performance", "api"],
+  },
+  {
     date: "06 January 2026",
     title: "Terminal experience overhaul and homepage enhancements",
     items: [
