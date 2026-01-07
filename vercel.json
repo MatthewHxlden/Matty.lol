@@ -1,16 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/blog/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(facebookexternalhit|twitterbot|discordbot|slackbot|linkedinbot|telegrambot|vkshare|pinterest|embedly|quora|bingbot|googlebot)"
-        }
-      ],
-      "destination": "/api/og/blog/$1"
-    },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/" }
   ]
