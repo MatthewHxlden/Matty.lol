@@ -151,6 +151,25 @@ const CryptoSwaps = () => {
           animate={{ opacity: 1 }}
           className="space-y-8"
         >
+          {/* COMING SOON Banner */}
+          <div className="relative overflow-hidden rounded-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 transform -rotate-3 scale-110"></div>
+            <div className="relative bg-gradient-to-r from-yellow-600/90 to-orange-600/90 text-white p-6 text-center">
+              <div className="flex items-center justify-center gap-3">
+                <div className="bg-white/20 px-4 py-2 rounded-full transform -rotate-12">
+                  <span className="font-bold text-sm tracking-wider">BETA</span>
+                </div>
+                <h2 className="text-3xl font-bold">COMING SOON</h2>
+                <div className="bg-white/20 px-4 py-2 rounded-full transform rotate-12">
+                  <span className="font-bold text-sm tracking-wider">V2</span>
+                </div>
+              </div>
+              <p className="mt-2 text-yellow-100">
+                This tool is currently under development. Check back soon for the crypto swaps feature!
+              </p>
+            </div>
+          </div>
+
           {/* Header */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -158,154 +177,200 @@ const CryptoSwaps = () => {
               <span className="text-foreground">./crypto-swaps --execute</span>
               <span className="cursor-blink text-primary">_</span>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground opacity-50">
               <span className="text-secondary">./</span>
               crypto-swaps
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground opacity-50">
               Powered by Jupiter Plugin - Best rates on Solana
             </p>
           </div>
 
-          {/* Wallet Balance */}
-          <TerminalCard title="Wallet Connection" delay={0.1}>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Disabled Content */}
+          <div className="relative opacity-30 pointer-events-none">
+            {/* Wallet Balance */}
+            <TerminalCard title="Wallet Connection" delay={0.1}>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Wallet className="w-4 h-4" />
+                    <span>
+                      {connected ? "Wallet connected" : "Connect your wallet to swap tokens"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <WalletMultiButton className="!bg-primary !text-primary-foreground !hover:bg-primary/90" />
+                    {connected && (
+                      <button
+                        onClick={disconnect}
+                        className="px-3 py-1 text-sm border border-border rounded hover:border-destructive hover:text-destructive transition-colors flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" />
+                        Disconnect
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                {connected && publicKey && (
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">
+                      Address: <span className="text-foreground font-mono">{publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}</span>
+                    </div>
+                    
+                    {loadingBalance ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        <span className="text-sm text-muted-foreground">Fetching balance...</span>
+                      </div>
+                    ) : balanceError ? (
+                      <div className="text-sm text-destructive">
+                        {balanceError}
+                      </div>
+                    ) : solBalance !== null ? (
+                      <div className="space-y-2">
+                        <div className="text-lg font-semibold text-foreground">
+                          {solBalance.toFixed(4)} SOL
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Available for swap: {(solBalance * 0.99).toFixed(4)} SOL (1% for fees)
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        No balance data
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </TerminalCard>
+
+            {/* Jupiter Plugin Container */}
+            <TerminalCard title="Jupiter Swap Plugin" delay={0.2}>
+              <div className="space-y-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Wallet className="w-4 h-4" />
                   <span>
-                    {connected ? "Wallet connected" : "Connect your wallet to swap tokens"}
+                    {isPluginLoaded && connected ? "Click button below to open Jupiter Swap" : 
+                     isPluginLoaded ? "Connect wallet first" : "Loading Jupiter Plugin..."}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <WalletMultiButton className="!bg-primary !text-primary-foreground !hover:bg-primary/90" />
-                  {connected && (
+                
+                {isPluginLoaded && connected ? (
+                  <div className="space-y-4">
                     <button
-                      onClick={disconnect}
-                      className="px-3 py-1 text-sm border border-border rounded hover:border-destructive hover:text-destructive transition-colors flex items-center gap-1"
+                      onClick={() => {
+                        if (window.Jupiter && window.Jupiter.open) {
+                          window.Jupiter.open();
+                        }
+                      }}
+                      className="w-full py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
                     >
-                      <X className="w-3 h-3" />
-                      Disconnect
+                      Open Jupiter Swap
                     </button>
-                  )}
-                </div>
-              </div>
-              
-              {connected && publicKey && (
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
-                    Address: <span className="text-foreground font-mono">{publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}</span>
+                    <p className="text-xs text-muted-foreground text-center">
+                      This will open Jupiter's swap interface in a modal
+                    </p>
                   </div>
-                  
-                  {loadingBalance ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                      <span className="text-sm text-muted-foreground">Fetching balance...</span>
-                    </div>
-                  ) : balanceError ? (
-                    <div className="text-sm text-destructive">
-                      {balanceError}
-                    </div>
-                  ) : solBalance !== null ? (
-                    <div className="space-y-2">
-                      <div className="text-lg font-semibold text-foreground">
-                        {solBalance.toFixed(4)} SOL
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Available for swap: {(solBalance * 0.99).toFixed(4)} SOL (1% for fees)
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      No balance data
-                    </div>
-                  )}
+                ) : !isPluginLoaded ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : null}
+                
+                <div 
+                  id="jupiter-plugin-container" 
+                  className="hidden" // Hide container since we're using modal
+                >
+                  {/* Jupiter Plugin will be rendered here but hidden */}
                 </div>
-              )}
-            </div>
-          </TerminalCard>
+              </div>
+            </TerminalCard>
 
-          {/* Jupiter Plugin Container */}
-          <TerminalCard title="Jupiter Swap Plugin" delay={0.2}>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="w-4 h-4" />
-                <span>
-                  {isPluginLoaded && connected ? "Click button below to open Jupiter Swap" : 
-                   isPluginLoaded ? "Connect wallet first" : "Loading Jupiter Plugin..."}
-                </span>
-              </div>
-              
-              {isPluginLoaded && connected ? (
-                <div className="space-y-4">
-                  <button
-                    onClick={() => {
-                      if (window.Jupiter && window.Jupiter.open) {
-                        window.Jupiter.open();
-                      }
-                    }}
-                    className="w-full py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
-                  >
-                    Open Jupiter Swap
-                  </button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    This will open Jupiter's swap interface in a modal
-                  </p>
+            {/* Info Card */}
+            <TerminalCard title="About Jupiter Plugin" delay={0.4}>
+              <div className="space-y-4">
+                <p className="text-muted-foreground">
+                  Jupiter Plugin provides seamless integration of swap functionality directly into applications without redirects.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-accent" />
+                    <span className="text-sm">Best rates across multiple DEXs</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-secondary" />
+                    <span className="text-sm">RPC-less - Ultra handles everything</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-primary" />
+                    <span className="text-sm">Powered by Jupiter Ultra API</span>
+                  </div>
                 </div>
-              ) : !isPluginLoaded ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Features:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Multiple display modes (integrated, widget, modal)</li>
+                    <li>Wallet Standard support</li>
+                    <li>Customizable swap form</li>
+                    <li>Referral fee support</li>
+                    <li>Real-time token information</li>
+                  </ul>
                 </div>
-              ) : null}
-              
-              <div 
-                id="jupiter-plugin-container" 
-                className="hidden" // Hide container since we're using modal
-              >
-                {/* Jupiter Plugin will be rendered here but hidden */}
+                <a
+                  href="https://jup.ag"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Visit Jupiter
+                </a>
               </div>
-            </div>
-          </TerminalCard>
+            </TerminalCard>
+          </div>
 
           {/* Info Card */}
-          <TerminalCard title="About Jupiter Plugin" delay={0.4}>
+          <TerminalCard title="~/tools/crypto-swaps/info.log" promptText="cat development.status">
             <div className="space-y-4">
-              <p className="text-muted-foreground">
-                Jupiter Plugin provides seamless integration of swap functionality directly into applications without redirects.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-accent" />
-                  <span className="text-sm">Best rates across multiple DEXs</span>
+              <div className="p-4 border border-border/50 bg-muted/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <h3 className="font-semibold text-yellow-600">Development Status</h3>
                 </div>
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-secondary" />
-                  <span className="text-sm">RPC-less - Ultra handles everything</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4 text-primary" />
-                  <span className="text-sm">Powered by Jupiter Ultra API</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <span>Wallet integration in progress</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <span>Jupiter Plugin being refined</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <span>Swap interface under development</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <span>Fee optimization planned</span>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>Features:</p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Multiple display modes (integrated, widget, modal)</li>
-                  <li>Wallet Standard support</li>
-                  <li>Customizable swap form</li>
-                  <li>Referral fee support</li>
-                  <li>Real-time token information</li>
+              
+              <div className="p-4 border border-border/50 bg-blue-500/10">
+                <div className="flex items-center gap-3 mb-2">
+                  <AlertCircle className="w-5 h-5 text-blue-500" />
+                  <h3 className="font-semibold text-blue-600">What This Tool Will Do</h3>
+                </div>
+                <ul className="text-sm space-y-1 text-muted-foreground">
+                  <li>• Connect to Solana wallets</li>
+                  <li>• Display wallet balance</li>
+                  <li>• Access Jupiter aggregator for best rates</li>
+                  <li>• Seamlessly swap tokens on Solana</li>
                 </ul>
               </div>
-              <a
-                href="https://jup.ag"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Visit Jupiter
-              </a>
             </div>
           </TerminalCard>
         </motion.div>

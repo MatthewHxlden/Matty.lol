@@ -128,29 +128,42 @@ const Tools = () => {
                 transition={{ delay: tools.length * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Link to="/rent-reclaim">
-                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                            Solana Rent Reclaim
-                          </h3>
-                        </div>
-                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-muted/50 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
+                        <AlertCircle className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                        <p className="text-yellow-600 font-semibold">Coming Soon</p>
+                        <p className="text-sm text-muted-foreground mt-1">This tool is under development!</p>
                       </div>
-
-                      <p className="text-sm text-muted-foreground">
-                        Reclaim SOL locked in empty token accounts with 15% fee
-                      </p>
-
-                      <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
-                        blockchain
-                      </span>
                     </div>
                   </div>
-                </Link>
+                  <div className="opacity-30 pointer-events-none">
+                    <Link to="/rent-reclaim">
+                      <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                                Solana Rent Reclaim
+                              </h3>
+                            </div>
+                            <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+
+                          <p className="text-sm text-muted-foreground">
+                            Reclaim SOL locked in empty token accounts with 15% fee
+                          </p>
+
+                          <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
+                            blockchain
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
               </motion.div>
 
               {/* Paper Trading Tool */}
@@ -192,29 +205,42 @@ const Tools = () => {
                 transition={{ delay: (tools.length + 2) * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Link to="/crypto-swaps">
-                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <ArrowUpDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                            Crypto Swaps
-                          </h3>
-                        </div>
-                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-muted/50 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
+                        <AlertCircle className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                        <p className="text-yellow-600 font-semibold">Coming Soon</p>
+                        <p className="text-sm text-muted-foreground mt-1">This tool is under development!</p>
                       </div>
-
-                      <p className="text-sm text-muted-foreground">
-                        Swap tokens on Solana using Jupiter aggregator for best rates
-                      </p>
-
-                      <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
-                        defi
-                      </span>
                     </div>
                   </div>
-                </Link>
+                  <div className="opacity-30 pointer-events-none">
+                    <Link to="/crypto-swaps">
+                      <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <ArrowUpDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                                Crypto Swaps
+                              </h3>
+                            </div>
+                            <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+
+                          <p className="text-sm text-muted-foreground">
+                            Swap tokens on Solana using Jupiter aggregator for best rates
+                          </p>
+
+                          <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
+                            defi
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
               </motion.div>
             </div>
           )}
