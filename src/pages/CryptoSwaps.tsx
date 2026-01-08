@@ -20,6 +20,8 @@ interface SwapQuote {
   outputAmount: string;
   priceImpact: number;
   route: any[];
+  transaction?: string;
+  requestId?: string;
 }
 
 const CryptoSwaps = () => {
@@ -67,6 +69,11 @@ const CryptoSwaps = () => {
       return;
     }
 
+    if (!connected || !publicKey) {
+      setError("Please connect your wallet first");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -80,11 +87,17 @@ const CryptoSwaps = () => {
         toToken,
         amount,
         amountInSmallestUnit,
-        fromTokenDecimals
+        fromTokenDecimals,
+        publicKey: publicKey.toBase58()
       });
       
       const response = await fetch(
-        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`
+        `https://api.jup.ag/ultra/v1/order?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&taker=${publicKey.toBase58()}`,
+        {
+          headers: {
+            'x-api-key': '5da2aa73-807a-4e2a-81b8-4c7bf9d66b29'
+          }
+        }
       );
 
       if (!response.ok) {
@@ -97,10 +110,12 @@ const CryptoSwaps = () => {
       console.log('Jupiter response:', data);
       
       setQuote({
-        inputAmount: data.inAmount,
-        outputAmount: data.outAmount,
+        inputAmount: data.amount,
+        outputAmount: data.outputAmount,
         priceImpact: data.priceImpactPct || 0,
-        route: data.route || [],
+        route: [],
+        transaction: data.transaction,
+        requestId: data.requestId
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -112,7 +127,7 @@ const CryptoSwaps = () => {
   };
 
   const executeSwap = async () => {
-    if (!quote || !walletAddress || !connected || !publicKey) {
+    if (!quote || !walletAddress || !connected || !publicKey || !quote.requestId) {
       setError("Please connect a wallet and get a quote first");
       return;
     }
@@ -121,33 +136,41 @@ const CryptoSwaps = () => {
     setError("");
 
     try {
-      // Get swap transaction from Jupiter
-      const swapResponse = await fetch(
-        `https://api.jup.ag/ultra/swap?inputMint=${fromToken}&outputMint=${toToken}&amount=${quote.inputAmount}&slippage=0.5&userPublicKey=${walletAddress}`,
+      // Execute the order using the requestId
+      const executeResponse = await fetch(
+        `https://api.jup.ag/ultra/v1/execute-order`,
         {
-          method: 'POST'
+          method: 'POST',
+          headers: {
+            'x-api-key': '5da2aa73-807a-4e2a-81b8-4c7bf9d66b29',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            requestId: quote.requestId,
+            taker: publicKey.toBase58()
+          })
         }
       );
 
-      if (!swapResponse.ok) {
-        const errorText = await swapResponse.text();
-        console.error('Swap API error:', swapResponse.status, errorText);
-        throw new Error(`Failed to create swap transaction: ${swapResponse.status} - ${errorText}`);
+      if (!executeResponse.ok) {
+        const errorText = await executeResponse.text();
+        console.error('Execute API error:', executeResponse.status, errorText);
+        throw new Error(`Failed to execute order: ${executeResponse.status} - ${errorText}`);
       }
 
-      const swapData = await swapResponse.json();
-      console.log('Swap transaction:', swapData);
+      const executeData = await executeResponse.json();
+      console.log('Execute response:', executeData);
 
-      // Deserialize transaction (base64)
-      const swapTxB64 = swapData.swapTransaction;
-      if (!swapTxB64) throw new Error("Swap transaction missing from response");
-      const swapTxBytes = Uint8Array.from(atob(swapTxB64), (c) => c.charCodeAt(0));
-      const tx = VersionedTransaction.deserialize(swapTxBytes);
-
-      // Send transaction via adapter
-      const signature = await sendTransaction(tx, connection);
-      console.log("Transaction signature:", signature);
-      alert(`Swap executed! Transaction: ${signature}`);
+      // If we have a transaction from the quote, sign and send it
+      if (quote.transaction) {
+        const swapTxBytes = Uint8Array.from(atob(quote.transaction), (c) => c.charCodeAt(0));
+        const tx = VersionedTransaction.deserialize(swapTxBytes);
+        
+        // Send transaction via adapter
+        const signature = await sendTransaction(tx, connection);
+        console.log("Transaction signature:", signature);
+        alert(`Swap executed! Transaction: ${signature}`);
+      }
 
       setQuote(null);
       setAmount("");
