@@ -59,7 +59,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ConnectionProvider endpoint="https://solana-api.projectserum.com">
+      <ConnectionProvider endpoint="https://api.devnet.solana.com">
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
             <ColorThemeProvider>
