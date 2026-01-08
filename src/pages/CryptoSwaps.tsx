@@ -84,13 +84,7 @@ const CryptoSwaps = () => {
       });
       
       const response = await fetch(
-        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`,
-        {
-          headers: {
-            'Authorization': 'Bearer 5da2aa73-807a-4e2a-81b8-4c7bf9d66b29',
-            'Content-Type': 'application/json'
-          }
-        }
+        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`
       );
 
       if (!response.ok) {
@@ -131,11 +125,7 @@ const CryptoSwaps = () => {
       const swapResponse = await fetch(
         `https://api.jup.ag/ultra/swap?inputMint=${fromToken}&outputMint=${toToken}&amount=${quote.inputAmount}&slippage=0.5&userPublicKey=${walletAddress}`,
         {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer 5da2aa73-807a-4e2a-81b8-4c7bf9d66b29',
-            'Content-Type': 'application/json'
-          }
+          method: 'POST'
         }
       );
 
