@@ -52,11 +52,10 @@ const CryptoSwaps = () => {
     }
   }, [connected, publicKey, connection]);
 
+  // Initialize Jupiter Plugin only once when loaded and wallet is connected
   useEffect(() => {
-    // Only initialize when plugin is loaded and we have balance data
-    if (!isPluginLoaded || !window.Jupiter) return;
+    if (!isPluginLoaded || !window.Jupiter || !connected) return;
 
-    // Small delay to ensure container is ready
     const timer = setTimeout(() => {
       const container = document.getElementById('jupiter-plugin-container');
       if (!container) {
@@ -72,54 +71,35 @@ const CryptoSwaps = () => {
         pluginRef.current.destroy();
       }
 
-      console.log('Initializing Jupiter Plugin with balance:', solBalance);
+      console.log('Initializing Jupiter Plugin');
 
-      // Initialize Jupiter Plugin
       try {
         window.Jupiter.init({
-          // Enable wallet passthrough to use existing wallet adapter
           enableWalletPassthrough: true,
-          // Display mode: 'integrated' | 'widget' | 'modal'
           displayMode: 'integrated',
-          // Container element for integrated mode
           container: container,
-          // Form props
           formProps: {
-            // Default input token (SOL)
             inputMint: 'So11111111111111111111111111111111111111112',
-            // Default output token (USDC)
             outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-            // Default amount (use user's balance or 0.1 SOL)
             amount: solBalance ? Math.max(0.01, Math.min(solBalance * 0.99, solBalance)).toString() : '0.1',
-            // Slippage in basis points (100 = 1%)
             slippageBps: 100,
-            // Referral account (optional)
-            // referralAccount: 'YOUR_REFERRAL_ACCOUNT',
-            // Referral fee in basis points (optional)
-            // referralFeeBps: 10,
           },
-          // Callback functions
           callbacks: {
             onSwapSuccess: (swapData: any) => {
               console.log('Swap successful:', swapData);
               // Refresh balance after successful swap
               setTimeout(() => {
-                const fetchNewBalance = async () => {
-                  if (publicKey && connection) {
-                    try {
-                      const balance = await connection.getBalance(publicKey);
-                      setSolBalance(balance / 1e9);
-                    } catch (error) {
-                      console.error('Error fetching balance after swap:', error);
-                    }
-                  }
-                };
-                fetchNewBalance();
+                if (publicKey && connection) {
+                  connection.getBalance(publicKey).then(balance => {
+                    setSolBalance(balance / 1e9);
+                  }).catch(error => {
+                    console.error('Error fetching balance after swap:', error);
+                  });
+                }
               }, 2000);
             },
             onSwapError: (error: any) => {
               console.error('Swap error:', error);
-              // You can handle swap errors here
             },
           },
         });
@@ -128,10 +108,10 @@ const CryptoSwaps = () => {
       } catch (error) {
         console.error('Error initializing Jupiter Plugin:', error);
       }
-    }, 100);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [isPluginLoaded, solBalance, publicKey, connection]);
+  }, [isPluginLoaded, connected]); // Only re-initialize when connection status changes
 
   useEffect(() => {
     // Load Jupiter Plugin script
