@@ -196,19 +196,12 @@ const TerminalHeader = () => {
                     className={`group relative px-3 py-1 text-sm transition-all duration-300 ${
                       location.pathname === link.path
                         ? "text-primary neon-text"
-                        : "text-muted-foreground hover:shine-text"
+                        : "text-muted-foreground hover:text-primary hover:scale-105"
                     }`}
                   >
                     <span className="text-secondary opacity-50 group-hover:opacity-100 transition-opacity">./</span>
                     <span className="relative">
                       {link.name}
-                      {location.pathname === link.path && (
-                        <motion.span
-                          layoutId="activeTab"
-                          className="absolute inset-0 border border-primary/50 -z-10"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                        />
-                      )}
                     </span>
                   </Link>
                 </motion.div>
@@ -219,20 +212,24 @@ const TerminalHeader = () => {
           {/* Right-side controls */}
           <div className="flex items-center justify-end gap-2">
             {/* Search & Terminal buttons */}
-            <button
+            <motion.button
               onClick={() => setSearchOpen(true)}
               className="px-2 py-1 text-muted-foreground hover:text-primary transition-all"
               title="Search (Ctrl/⌘+Shift+K)"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Search className="w-4 h-4" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={() => setTerminalOpen(true)}
               className="px-2 py-1 text-muted-foreground hover:text-secondary transition-all font-mono"
               title="Command Terminal (Ctrl/⌘+K)"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span className="text-sm leading-none">&gt;_</span>
-            </button>
+            </motion.button>
 
             {/* Account dropdown */}
             <motion.div
