@@ -41,7 +41,7 @@ import CryptoSwaps from "./pages/CryptoSwaps";
 import NotFound from "./pages/NotFound";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { PhantomWalletAdapter, SolflareWalletAdapter, BackpackWalletAdapter, MetaMaskWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter, SolflareWalletAdapter, CoinbaseWalletAdapter, TrustWalletAdapter } from "@solana/wallet-adapter-wallets";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const queryClient = new QueryClient();
@@ -50,9 +50,9 @@ const App = () => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network: "mainnet-beta" }),
-      new BackpackWalletAdapter(),
-      new MetaMaskWalletAdapter()
+      new SolflareWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new TrustWalletAdapter(),
     ],
     []
   );
