@@ -12,6 +12,7 @@ declare global {
     Jupiter?: {
       init: (options: any) => void;
       destroy: () => void;
+      open?: () => void;
     };
   }
 }
@@ -76,7 +77,7 @@ const CryptoSwaps = () => {
       try {
         window.Jupiter.init({
           enableWalletPassthrough: true,
-          displayMode: 'integrated',
+          displayMode: 'modal', // Use modal to trigger wallet popup
           container: container,
           formProps: {
             inputMint: 'So11111111111111111111111111111111111111112',
@@ -230,24 +231,38 @@ const CryptoSwaps = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Wallet className="w-4 h-4" />
                 <span>
-                  {isPluginLoaded ? "Jupiter Plugin loaded" : "Loading Jupiter Plugin..."}
+                  {isPluginLoaded && connected ? "Click button below to open Jupiter Swap" : 
+                   isPluginLoaded ? "Connect wallet first" : "Loading Jupiter Plugin..."}
                 </span>
               </div>
               
-              {!isPluginLoaded && (
+              {isPluginLoaded && connected ? (
+                <div className="space-y-4">
+                  <button
+                    onClick={() => {
+                      if (window.Jupiter && window.Jupiter.open) {
+                        window.Jupiter.open();
+                      }
+                    }}
+                    className="w-full py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
+                  >
+                    Open Jupiter Swap
+                  </button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    This will open Jupiter's swap interface in a modal
+                  </p>
+                </div>
+              ) : !isPluginLoaded ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
-              )}
+              ) : null}
               
               <div 
                 id="jupiter-plugin-container" 
-                className="min-h-[400px] bg-background/50 rounded-lg p-4"
-                style={{
-                  minHeight: '400px'
-                }}
+                className="hidden" // Hide container since we're using modal
               >
-                {/* Jupiter Plugin will be rendered here */}
+                {/* Jupiter Plugin will be rendered here but hidden */}
               </div>
             </div>
           </TerminalCard>
