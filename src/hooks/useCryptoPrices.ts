@@ -20,6 +20,7 @@ const COINGECKO_IDS = {
   bitcoin: 'bitcoin',
   ethereum: 'ethereum',
   venice: 'venice-token', // Venice token ID on CoinGecko
+  diem: 'diem', // DIEM token ID on CoinGecko
 };
 
 const STORAGE_KEY = 'cryptoPricesCache';
@@ -43,8 +44,10 @@ export const useCryptoPrices = () => {
         
         const formattedPrices: CryptoPrice[] = Object.entries(COINGECKO_IDS).map(([symbol, id]) => {
           const coinData = data[id];
+          // Custom symbol mapping
+          const displaySymbol = symbol === 'venice' ? 'VVV' : symbol.toUpperCase();
           return {
-            symbol: symbol.toUpperCase(),
+            symbol: displaySymbol,
             name: symbol.charAt(0).toUpperCase() + symbol.slice(1),
             price: coinData?.usd || 0,
             change24h: 0, // CoinGecko doesn't provide absolute change, only percentage
