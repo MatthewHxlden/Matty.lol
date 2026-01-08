@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink } from "lucide-react";
+import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet, Plug } from "lucide-react";
 
 interface Token {
   address: string;
@@ -19,6 +19,13 @@ interface SwapQuote {
   route: any[];
 }
 
+interface WalletInfo {
+  name: string;
+  icon: string;
+  installed: boolean;
+  connect: () => Promise<any>;
+}
+
 const CryptoSwaps = () => {
   const [fromToken, setFromToken] = useState("So11111111111111111111111111111111111111112"); // SOL
   const [toToken, setToToken] = useState("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"); // USDC
@@ -26,6 +33,8 @@ const CryptoSwaps = () => {
   const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [wallet, setWallet] = useState<any>(null);
+  const [walletAddress, setWalletAddress] = useState<string>("");
 
   // Common tokens for demo
   const commonTokens: Token[] = [
@@ -78,7 +87,13 @@ const CryptoSwaps = () => {
       });
       
       const response = await fetch(
-        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`
+        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`,
+        {
+          headers: {
+            'Authorization': 'Bearer 73825dd1-1e66-4466-a2e9-ad4276bb0168',
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
       if (!response.ok) {
@@ -106,15 +121,64 @@ const CryptoSwaps = () => {
   };
 
   const executeSwap = async () => {
-    if (!quote) return;
+    if (!quote || !wallet || !walletAddress) {
+      setError("Please connect a wallet and get a quote first");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
 
     try {
-      // This would integrate with Jupiter's swap API
-      // For now, we'll just show a message
-      alert("Swap functionality would be implemented here with Jupiter's swap API");
+      // Get swap transaction from Jupiter
+      const swapResponse = await fetch(
+        `https://api.jup.ag/ultra/swap?inputMint=${fromToken}&outputMint=${toToken}&amount=${quote.inputAmount}&slippage=0.5&userPublicKey=${walletAddress}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer 73825dd1-1e66-4466-a2e9-ad4276bb0168',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!swapResponse.ok) {
+        const errorText = await swapResponse.text();
+        console.error('Swap API error:', swapResponse.status, errorText);
+        throw new Error(`Failed to create swap transaction: ${swapResponse.status}`);
+      }
+
+      const swapData = await swapResponse.json();
+      console.log('Swap transaction:', swapData);
+
+      // Sign and send transaction
+      if (wallet.isPhantom || wallet.isSolflare) {
+        // Solana wallet
+        const transaction = swapData.swapTransaction;
+        const signedTransaction = await wallet.signAndSendTransaction(transaction);
+        console.log('Transaction sent:', signedTransaction);
+        alert(`Swap executed! Transaction: ${signedTransaction.signature}`);
+      } else if (wallet.isMetaMask) {
+        // MetaMask with Solana support
+        const transaction = swapData.swapTransaction;
+        const signedTransaction = await wallet.request({
+          method: 'sol_signAndSendTransaction',
+          params: [transaction]
+        });
+        console.log('Transaction sent:', signedTransaction);
+        alert(`Swap executed! Transaction: ${signedTransaction.signature}`);
+      }
+
+      // Reset quote after successful swap
+      setQuote(null);
+      setAmount("");
+
     } catch (err) {
-      setError("Failed to execute swap");
-      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to execute swap: ${errorMessage}`);
+      console.error('Swap error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,6 +192,93 @@ const CryptoSwaps = () => {
     const num = parseFloat(amount) / Math.pow(10, decimals);
     return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
   };
+
+  // Wallet detection and connection
+  const detectWallets = (): WalletInfo[] => {
+    const wallets: WalletInfo[] = [];
+
+    // Phantom
+    if (typeof window !== 'undefined' && (window as any).solana?.isPhantom) {
+      wallets.push({
+        name: 'Phantom',
+        icon: '👻',
+        installed: true,
+        connect: async () => {
+          try {
+            const response = await (window as any).solana.connect();
+            setWallet((window as any).solana);
+            setWalletAddress(response.publicKey.toString());
+            return response;
+          } catch (err) {
+            throw new Error('Failed to connect to Phantom');
+          }
+        }
+      });
+    }
+
+    // MetaMask (Solana support)
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      wallets.push({
+        name: 'MetaMask',
+        icon: '🦊',
+        installed: true,
+        connect: async () => {
+          try {
+            // Switch to Solana network
+            await (window as any).ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x65' }], // Solana mainnet chain ID
+            });
+            const accounts = await (window as any).ethereum.request({
+              method: 'eth_requestAccounts'
+            });
+            setWallet((window as any).ethereum);
+            setWalletAddress(accounts[0]);
+            return accounts;
+          } catch (err) {
+            throw new Error('Failed to connect to MetaMask');
+          }
+        }
+      });
+    }
+
+    // Solflare
+    if (typeof window !== 'undefined' && (window as any).solflare) {
+      wallets.push({
+        name: 'Solflare',
+        icon: '🔥',
+        installed: true,
+        connect: async () => {
+          try {
+            const response = await (window as any).solflare.connect();
+            setWallet((window as any).solflare);
+            setWalletAddress(response.publicKey.toString());
+            return response;
+          } catch (err) {
+            throw new Error('Failed to connect to Solflare');
+          }
+        }
+      });
+    }
+
+    return wallets;
+  };
+
+  const connectWallet = async (walletInfo: WalletInfo) => {
+    try {
+      setError("");
+      await walletInfo.connect();
+    } catch (err) {
+      setError(`Failed to connect wallet: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
+  const disconnectWallet = () => {
+    setWallet(null);
+    setWalletAddress("");
+  };
+
+  const availableWallets = detectWallets();
 
   return (
     <TerminalLayout>
@@ -152,6 +303,74 @@ const CryptoSwaps = () => {
               Powered by Jupiter Aggregator - Best rates on Solana
             </p>
           </div>
+
+          {/* Wallet Connection */}
+          <TerminalCard title="Wallet Connection" delay={0.1}>
+            {!walletAddress ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Wallet className="w-4 h-4" />
+                  <span>Connect your wallet to swap tokens</span>
+                </div>
+                
+                {availableWallets.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {availableWallets.map((walletInfo, index) => (
+                      <motion.button
+                        key={walletInfo.name}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => connectWallet(walletInfo)}
+                        className="flex items-center gap-3 p-4 border border-border rounded hover:border-primary hover:bg-primary/5 transition-all"
+                      >
+                        <span className="text-2xl">{walletInfo.icon}</span>
+                        <div className="text-left">
+                          <div className="font-semibold text-foreground">{walletInfo.name}</div>
+                          <div className="text-xs text-muted-foreground">Click to connect</div>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <Plug className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">No wallets detected</p>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>Install one of these wallets:</p>
+                      <div className="flex justify-center gap-4">
+                        <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Phantom</a>
+                        <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MetaMask</a>
+                        <a href="https://solflare.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Solflare</a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <Wallet className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground">
+                      {wallet?.isPhantom ? 'Phantom' : wallet?.isMetaMask ? 'MetaMask' : 'Wallet'} Connected
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={disconnectWallet}
+                  className="px-3 py-1 text-sm border border-border rounded hover:border-destructive hover:text-destructive transition-colors"
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </TerminalCard>
 
           {/* Swap Interface */}
           <TerminalCard title="Swap Interface" delay={0.2}>
