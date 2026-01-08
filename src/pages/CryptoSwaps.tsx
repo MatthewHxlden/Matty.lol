@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet, Plug } from "lucide-react";
+import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet } from "lucide-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { VersionedTransaction } from "@solana/web3.js";
 
 interface Token {
   address: string;
@@ -19,13 +22,6 @@ interface SwapQuote {
   route: any[];
 }
 
-interface WalletInfo {
-  name: string;
-  icon: string;
-  installed: boolean;
-  connect: () => Promise<any>;
-}
-
 const CryptoSwaps = () => {
   const [fromToken, setFromToken] = useState("So11111111111111111111111111111111111111112"); // SOL
   const [toToken, setToToken] = useState("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"); // USDC
@@ -33,8 +29,9 @@ const CryptoSwaps = () => {
   const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [wallet, setWallet] = useState<any>(null);
-  const [walletAddress, setWalletAddress] = useState<string>("");
+  const { connection } = useConnection();
+  const { publicKey, connected, sendTransaction, signTransaction, wallet } = useWallet();
+  const walletAddress = useMemo(() => publicKey?.toBase58() ?? "", [publicKey]);
 
   // Common tokens for demo
   const commonTokens: Token[] = [
@@ -121,7 +118,7 @@ const CryptoSwaps = () => {
   };
 
   const executeSwap = async () => {
-    if (!quote || !wallet || !walletAddress) {
+    if (!quote || !walletAddress || !connected || !publicKey) {
       setError("Please connect a wallet and get a quote first");
       return;
     }
@@ -145,31 +142,23 @@ const CryptoSwaps = () => {
       if (!swapResponse.ok) {
         const errorText = await swapResponse.text();
         console.error('Swap API error:', swapResponse.status, errorText);
-        throw new Error(`Failed to create swap transaction: ${swapResponse.status}`);
+        throw new Error(`Failed to create swap transaction: ${swapResponse.status} - ${errorText}`);
       }
 
       const swapData = await swapResponse.json();
       console.log('Swap transaction:', swapData);
 
-      // Sign and send transaction
-      if (wallet.isPhantom || wallet.isSolflare) {
-        // Solana wallet
-        const transaction = swapData.swapTransaction;
-        const signedTransaction = await wallet.signAndSendTransaction(transaction);
-        console.log('Transaction sent:', signedTransaction);
-        alert(`Swap executed! Transaction: ${signedTransaction.signature}`);
-      } else if (wallet.isMetaMask) {
-        // MetaMask with Solana support
-        const transaction = swapData.swapTransaction;
-        const signedTransaction = await wallet.request({
-          method: 'sol_signAndSendTransaction',
-          params: [transaction]
-        });
-        console.log('Transaction sent:', signedTransaction);
-        alert(`Swap executed! Transaction: ${signedTransaction.signature}`);
-      }
+      // Deserialize transaction (base64)
+      const swapTxB64 = swapData.swapTransaction;
+      if (!swapTxB64) throw new Error("Swap transaction missing from response");
+      const swapTxBytes = Uint8Array.from(atob(swapTxB64), (c) => c.charCodeAt(0));
+      const tx = VersionedTransaction.deserialize(swapTxBytes);
 
-      // Reset quote after successful swap
+      // Send transaction via adapter
+      const signature = await sendTransaction(tx, connection);
+      console.log("Transaction signature:", signature);
+      alert(`Swap executed! Transaction: ${signature}`);
+
       setQuote(null);
       setAmount("");
 
@@ -192,93 +181,6 @@ const CryptoSwaps = () => {
     const num = parseFloat(amount) / Math.pow(10, decimals);
     return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
   };
-
-  // Wallet detection and connection
-  const detectWallets = (): WalletInfo[] => {
-    const wallets: WalletInfo[] = [];
-
-    // Phantom
-    if (typeof window !== 'undefined' && (window as any).solana?.isPhantom) {
-      wallets.push({
-        name: 'Phantom',
-        icon: '👻',
-        installed: true,
-        connect: async () => {
-          try {
-            const response = await (window as any).solana.connect();
-            setWallet((window as any).solana);
-            setWalletAddress(response.publicKey.toString());
-            return response;
-          } catch (err) {
-            throw new Error('Failed to connect to Phantom');
-          }
-        }
-      });
-    }
-
-    // MetaMask (Solana support)
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      wallets.push({
-        name: 'MetaMask',
-        icon: '🦊',
-        installed: true,
-        connect: async () => {
-          try {
-            // Switch to Solana network
-            await (window as any).ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x65' }], // Solana mainnet chain ID
-            });
-            const accounts = await (window as any).ethereum.request({
-              method: 'eth_requestAccounts'
-            });
-            setWallet((window as any).ethereum);
-            setWalletAddress(accounts[0]);
-            return accounts;
-          } catch (err) {
-            throw new Error('Failed to connect to MetaMask');
-          }
-        }
-      });
-    }
-
-    // Solflare
-    if (typeof window !== 'undefined' && (window as any).solflare) {
-      wallets.push({
-        name: 'Solflare',
-        icon: '🔥',
-        installed: true,
-        connect: async () => {
-          try {
-            const response = await (window as any).solflare.connect();
-            setWallet((window as any).solflare);
-            setWalletAddress(response.publicKey.toString());
-            return response;
-          } catch (err) {
-            throw new Error('Failed to connect to Solflare');
-          }
-        }
-      });
-    }
-
-    return wallets;
-  };
-
-  const connectWallet = async (walletInfo: WalletInfo) => {
-    try {
-      setError("");
-      await walletInfo.connect();
-    } catch (err) {
-      setError(`Failed to connect wallet: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    }
-  };
-
-  const disconnectWallet = () => {
-    setWallet(null);
-    setWalletAddress("");
-  };
-
-  const availableWallets = detectWallets();
 
   return (
     <TerminalLayout>
@@ -306,68 +208,16 @@ const CryptoSwaps = () => {
 
           {/* Wallet Connection */}
           <TerminalCard title="Wallet Connection" delay={0.1}>
-            {!walletAddress ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Wallet className="w-4 h-4" />
-                  <span>Connect your wallet to swap tokens</span>
-                </div>
-                
-                {availableWallets.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {availableWallets.map((walletInfo, index) => (
-                      <motion.button
-                        key={walletInfo.name}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        onClick={() => connectWallet(walletInfo)}
-                        className="flex items-center gap-3 p-4 border border-border rounded hover:border-primary hover:bg-primary/5 transition-all"
-                      >
-                        <span className="text-2xl">{walletInfo.icon}</span>
-                        <div className="text-left">
-                          <div className="font-semibold text-foreground">{walletInfo.name}</div>
-                          <div className="text-xs text-muted-foreground">Click to connect</div>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-6">
-                    <Plug className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground mb-4">No wallets detected</p>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p>Install one of these wallets:</p>
-                      <div className="flex justify-center gap-4">
-                        <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Phantom</a>
-                        <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MetaMask</a>
-                        <a href="https://solflare.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Solflare</a>
-                      </div>
-                    </div>
-                  </div>
-                )}
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Wallet className="w-4 h-4" />
+                <span>{connected ? "Wallet connected" : "Connect your wallet to swap tokens"}</span>
               </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                    <Wallet className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground">
-                      {wallet?.isPhantom ? 'Phantom' : wallet?.isMetaMask ? 'MetaMask' : 'Wallet'} Connected
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={disconnectWallet}
-                  className="px-3 py-1 text-sm border border-border rounded hover:border-destructive hover:text-destructive transition-colors"
-                >
-                  Disconnect
-                </button>
+              <WalletMultiButton className="!bg-primary !text-primary-foreground !hover:bg-primary/90" />
+            </div>
+            {connected && walletAddress && (
+              <div className="mt-3 text-sm text-muted-foreground">
+                Address: <span className="text-foreground font-mono">{walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}</span>
               </div>
             )}
           </TerminalCard>

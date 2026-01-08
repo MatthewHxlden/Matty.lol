@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,61 +39,83 @@ import RentReclaim from "./pages/RentReclaim";
 import PaperTrading from "./pages/PaperTrading";
 import CryptoSwaps from "./pages/CryptoSwaps";
 import NotFound from "./pages/NotFound";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { PhantomWalletAdapter, SolflareWalletAdapter, BackpackWalletAdapter, MetaMaskWalletAdapter } from "@solana/wallet-adapter-wallets";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ColorThemeProvider>
-      <PulseThemeProvider>
-        <AmbientThemeProvider>
-          <RainThemeProvider>
-            <AuthProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <AnimatePresence mode="wait">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/blog" element={<Blog />} />
-                      <Route path="/blog/:slug" element={<BlogPost />} />
-                      <Route path="/admin" element={<AdminHub />} />
-                      <Route path="/admin/site" element={<SiteAdmin />} />
-                      <Route path="/admin/blog" element={<BlogAdmin />} />
-                      <Route path="/admin/apps" element={<AppsAdmin />} />
-                      <Route path="/admin/tools" element={<ToolsAdmin />} />
-                      <Route path="/admin/links" element={<LinksAdmin />} />
-                      <Route path="/admin/contact" element={<ContactAdmin />} />
-                      <Route path="/admin/trades" element={<TradesAdmin />} />
-                      <Route path="/admin/now" element={<NowAdmin />} />
-                      <Route path="/admin/feed" element={<FeedAdmin />} />
-                      <Route path="/admin/analytics" element={<Analytics />} />
-                      <Route path="/apps" element={<Apps />} />
-                      <Route path="/changelog" element={<Changelog />} />
-                      <Route path="/feed" element={<Feed />} />
-                      <Route path="/trades" element={<Trades />} />
-                      <Route path="/paper-trading" element={<PaperTrading />} />
-                      <Route path="/crypto-swaps" element={<CryptoSwaps />} />
-                      <Route path="/tools" element={<Tools />} />
-                      <Route path="/rent-reclaim" element={<RentReclaim />} />
-                      <Route path="/links" element={<Links />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/now" element={<Now />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/rss" element={<RssFeed />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </AnimatePresence>
-                </BrowserRouter>
-              </TooltipProvider>
-            </AuthProvider>
-          </RainThemeProvider>
-        </AmbientThemeProvider>
-      </PulseThemeProvider>
-    </ColorThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter({ network: "mainnet-beta" }),
+      new BackpackWalletAdapter(),
+      new MetaMaskWalletAdapter()
+    ],
+    []
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ConnectionProvider endpoint="https://api.mainnet-beta.solana.com">
+        <WalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider>
+            <ColorThemeProvider>
+              <PulseThemeProvider>
+                <AmbientThemeProvider>
+                  <RainThemeProvider>
+                    <AuthProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <Sonner />
+                        <BrowserRouter>
+                          <AnimatePresence mode="wait">
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="/blog" element={<Blog />} />
+                              <Route path="/blog/:slug" element={<BlogPost />} />
+                              <Route path="/admin" element={<AdminHub />} />
+                              <Route path="/admin/site" element={<SiteAdmin />} />
+                              <Route path="/admin/blog" element={<BlogAdmin />} />
+                              <Route path="/admin/apps" element={<AppsAdmin />} />
+                              <Route path="/admin/tools" element={<ToolsAdmin />} />
+                              <Route path="/admin/links" element={<LinksAdmin />} />
+                              <Route path="/admin/contact" element={<ContactAdmin />} />
+                              <Route path="/admin/trades" element={<TradesAdmin />} />
+                              <Route path="/admin/now" element={<NowAdmin />} />
+                              <Route path="/admin/feed" element={<FeedAdmin />} />
+                              <Route path="/admin/analytics" element={<Analytics />} />
+                              <Route path="/apps" element={<Apps />} />
+                              <Route path="/changelog" element={<Changelog />} />
+                              <Route path="/feed" element={<Feed />} />
+                              <Route path="/trades" element={<Trades />} />
+                              <Route path="/paper-trading" element={<PaperTrading />} />
+                              <Route path="/crypto-swaps" element={<CryptoSwaps />} />
+                              <Route path="/tools" element={<Tools />} />
+                              <Route path="/rent-reclaim" element={<RentReclaim />} />
+                              <Route path="/links" element={<Links />} />
+                              <Route path="/contact" element={<Contact />} />
+                              <Route path="/now" element={<Now />} />
+                              <Route path="/auth" element={<Auth />} />
+                              <Route path="/profile" element={<Profile />} />
+                              <Route path="/rss" element={<RssFeed />} />
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
+                          </AnimatePresence>
+                        </BrowserRouter>
+                      </TooltipProvider>
+                    </AuthProvider>
+                  </RainThemeProvider>
+                </AmbientThemeProvider>
+              </PulseThemeProvider>
+            </ColorThemeProvider>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
