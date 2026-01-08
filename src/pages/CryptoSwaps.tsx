@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet } from "lucide-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 
 // Type declarations for Jupiter Plugin
 declare global {
@@ -15,8 +16,36 @@ declare global {
 }
 
 const CryptoSwaps = () => {
+  const { publicKey, connected } = useWallet();
+  const { connection } = useConnection();
   const [isPluginLoaded, setIsPluginLoaded] = useState(false);
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
   const pluginRef = useRef<any>(null);
+
+  // Fetch SOL balance when wallet connects
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!publicKey || !connection) return;
+      
+      setLoadingBalance(true);
+      try {
+        const balance = await connection.getBalance(publicKey);
+        setSolBalance(balance / 1e9); // Convert lamports to SOL
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        setSolBalance(null);
+      } finally {
+        setLoadingBalance(false);
+      }
+    };
+
+    if (connected && publicKey && connection) {
+      fetchBalance();
+    } else {
+      setSolBalance(null);
+    }
+  }, [connected, publicKey, connection]);
 
   useEffect(() => {
     // Load Jupiter Plugin script
@@ -41,8 +70,8 @@ const CryptoSwaps = () => {
             inputMint: 'So11111111111111111111111111111111111111112',
             // Default output token (USDC)
             outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-            // Default amount
-            amount: '0.1',
+            // Default amount (use user's balance or 0.1 SOL)
+            amount: solBalance ? Math.max(0.01, Math.min(solBalance * 0.99, solBalance)).toString() : '0.1',
             // Slippage in basis points (100 = 1%)
             slippageBps: 100,
             // Referral account (optional)
@@ -54,7 +83,20 @@ const CryptoSwaps = () => {
           callbacks: {
             onSwapSuccess: (swapData: any) => {
               console.log('Swap successful:', swapData);
-              // You can handle successful swap here
+              // Refresh balance after successful swap
+              setTimeout(() => {
+                const fetchNewBalance = async () => {
+                  if (publicKey && connection) {
+                    try {
+                      const balance = await connection.getBalance(publicKey);
+                      setSolBalance(balance / 1e9);
+                    } catch (error) {
+                      console.error('Error fetching balance after swap:', error);
+                    }
+                  }
+                };
+                fetchNewBalance();
+              }, 2000);
             },
             onSwapError: (error: any) => {
               console.error('Swap error:', error);
@@ -82,7 +124,7 @@ const CryptoSwaps = () => {
         pluginRef.current.destroy();
       }
     };
-  }, []);
+  }, [solBalance, publicKey, connection]);
 
   return (
     <TerminalLayout>
@@ -107,6 +149,46 @@ const CryptoSwaps = () => {
               Powered by Jupiter Plugin - Best rates on Solana
             </p>
           </div>
+
+          {/* Wallet Balance */}
+          <TerminalCard title="Wallet Balance" delay={0.1}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Wallet className="w-4 h-4" />
+                <span>
+                  {connected ? "Wallet connected" : "Connect your wallet to see balance"}
+                </span>
+              </div>
+              
+              {connected && publicKey && (
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">
+                    Address: <span className="text-foreground font-mono">{publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}</span>
+                  </div>
+                  
+                  {loadingBalance ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      <span className="text-sm text-muted-foreground">Fetching balance...</span>
+                    </div>
+                  ) : solBalance !== null ? (
+                    <div className="space-y-2">
+                      <div className="text-lg font-semibold text-foreground">
+                        {solBalance.toFixed(4)} SOL
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Available for swap: {(solBalance * 0.99).toFixed(4)} SOL (1% for fees)
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Unable to fetch balance
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </TerminalCard>
 
           {/* Jupiter Plugin Container */}
           <TerminalCard title="Jupiter Swap Plugin" delay={0.2}>
