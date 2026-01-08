@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet } from "lucide-react";
+import { ArrowUpDown, TrendingUp, AlertCircle, ExternalLink, Wallet, X } from "lucide-react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 // Type declarations for Jupiter Plugin
 declare global {
@@ -16,11 +17,12 @@ declare global {
 }
 
 const CryptoSwaps = () => {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, disconnect } = useWallet();
   const { connection } = useConnection();
   const [isPluginLoaded, setIsPluginLoaded] = useState(false);
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
   const pluginRef = useRef<any>(null);
 
   // Fetch SOL balance when wallet connects
@@ -29,11 +31,13 @@ const CryptoSwaps = () => {
       if (!publicKey || !connection) return;
       
       setLoadingBalance(true);
+      setBalanceError(null);
       try {
         const balance = await connection.getBalance(publicKey);
         setSolBalance(balance / 1e9); // Convert lamports to SOL
       } catch (error) {
         console.error('Error fetching balance:', error);
+        setBalanceError('Failed to fetch balance');
         setSolBalance(null);
       } finally {
         setLoadingBalance(false);
@@ -44,6 +48,7 @@ const CryptoSwaps = () => {
       fetchBalance();
     } else {
       setSolBalance(null);
+      setBalanceError(null);
     }
   }, [connected, publicKey, connection]);
 
@@ -182,13 +187,27 @@ const CryptoSwaps = () => {
           </div>
 
           {/* Wallet Balance */}
-          <TerminalCard title="Wallet Balance" delay={0.1}>
+          <TerminalCard title="Wallet Connection" delay={0.1}>
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="w-4 h-4" />
-                <span>
-                  {connected ? "Wallet connected" : "Connect your wallet to see balance"}
-                </span>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Wallet className="w-4 h-4" />
+                  <span>
+                    {connected ? "Wallet connected" : "Connect your wallet to swap tokens"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <WalletMultiButton className="!bg-primary !text-primary-foreground !hover:bg-primary/90" />
+                  {connected && (
+                    <button
+                      onClick={disconnect}
+                      className="px-3 py-1 text-sm border border-border rounded hover:border-destructive hover:text-destructive transition-colors flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" />
+                      Disconnect
+                    </button>
+                  )}
+                </div>
               </div>
               
               {connected && publicKey && (
@@ -202,6 +221,10 @@ const CryptoSwaps = () => {
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                       <span className="text-sm text-muted-foreground">Fetching balance...</span>
                     </div>
+                  ) : balanceError ? (
+                    <div className="text-sm text-destructive">
+                      {balanceError}
+                    </div>
                   ) : solBalance !== null ? (
                     <div className="space-y-2">
                       <div className="text-lg font-semibold text-foreground">
@@ -213,7 +236,7 @@ const CryptoSwaps = () => {
                     </div>
                   ) : (
                     <div className="text-sm text-muted-foreground">
-                      Unable to fetch balance
+                      No balance data
                     </div>
                   )}
                 </div>
