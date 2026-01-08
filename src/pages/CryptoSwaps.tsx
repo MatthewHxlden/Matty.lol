@@ -87,7 +87,7 @@ const CryptoSwaps = () => {
         `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`,
         {
           headers: {
-            'Authorization': 'Bearer 73825dd1-1e66-4466-a2e9-ad4276bb0168',
+            'Authorization': 'Bearer 5da2aa73-807a-4e2a-81b8-4c7bf9d66b29',
             'Content-Type': 'application/json'
           }
         }
@@ -133,7 +133,7 @@ const CryptoSwaps = () => {
         {
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer 73825dd1-1e66-4466-a2e9-ad4276bb0168',
+            'Authorization': 'Bearer 5da2aa73-807a-4e2a-81b8-4c7bf9d66b29',
             'Content-Type': 'application/json'
           }
         }
