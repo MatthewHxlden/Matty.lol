@@ -48,22 +48,36 @@ const CryptoSwaps = () => {
   }, [connected, publicKey, connection]);
 
   useEffect(() => {
-    // Load Jupiter Plugin script
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@jup-ag/plugin@latest/dist/index.js';
-    script.async = true;
-    
-    script.onload = () => {
-      setIsPluginLoaded(true);
+    // Only initialize when plugin is loaded and we have balance data
+    if (!isPluginLoaded || !window.Jupiter) return;
+
+    // Small delay to ensure container is ready
+    const timer = setTimeout(() => {
+      const container = document.getElementById('jupiter-plugin-container');
+      if (!container) {
+        console.error('Jupiter Plugin container not found');
+        return;
+      }
+
+      // Clear container before re-initializing
+      container.innerHTML = '';
+
+      // Destroy previous instance if exists
+      if (pluginRef.current && pluginRef.current.destroy) {
+        pluginRef.current.destroy();
+      }
+
+      console.log('Initializing Jupiter Plugin with balance:', solBalance);
+
       // Initialize Jupiter Plugin
-      if (window.Jupiter && window.Jupiter.init) {
+      try {
         window.Jupiter.init({
           // Enable wallet passthrough to use existing wallet adapter
           enableWalletPassthrough: true,
           // Display mode: 'integrated' | 'widget' | 'modal'
           displayMode: 'integrated',
           // Container element for integrated mode
-          container: document.getElementById('jupiter-plugin-container'),
+          container: container,
           // Form props
           formProps: {
             // Default input token (SOL)
@@ -105,7 +119,24 @@ const CryptoSwaps = () => {
           },
         });
         pluginRef.current = window.Jupiter;
+        console.log('Jupiter Plugin initialized successfully');
+      } catch (error) {
+        console.error('Error initializing Jupiter Plugin:', error);
       }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isPluginLoaded, solBalance, publicKey, connection]);
+
+  useEffect(() => {
+    // Load Jupiter Plugin script
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@jup-ag/plugin@latest/dist/index.js';
+    script.async = true;
+    
+    script.onload = () => {
+      console.log('Jupiter Plugin script loaded');
+      setIsPluginLoaded(true);
     };
 
     script.onerror = () => {
@@ -124,7 +155,7 @@ const CryptoSwaps = () => {
         pluginRef.current.destroy();
       }
     };
-  }, [solBalance, publicKey, connection]);
+  }, []);
 
   return (
     <TerminalLayout>
