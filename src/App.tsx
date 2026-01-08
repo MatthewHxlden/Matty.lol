@@ -36,6 +36,7 @@ import Trades from "./pages/Trades";
 import Changelog from "./pages/Changelog";
 import RentReclaim from "./pages/RentReclaim";
 import PaperTrading from "./pages/PaperTrading";
+import CryptoSwaps from "./pages/CryptoSwaps";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
                       <Route path="/feed" element={<Feed />} />
                       <Route path="/trades" element={<Trades />} />
                       <Route path="/paper-trading" element={<PaperTrading />} />
+                      <Route path="/crypto-swaps" element={<CryptoSwaps />} />
                       <Route path="/tools" element={<Tools />} />
                       <Route path="/rent-reclaim" element={<RentReclaim />} />
                       <Route path="/links" element={<Links />} />

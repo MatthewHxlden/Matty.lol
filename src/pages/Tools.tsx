@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
-import { Wrench, ExternalLink, Sparkles, AlertCircle, Trash2, TrendingUp } from "lucide-react";
+import { Wrench, ExternalLink, Sparkles, AlertCircle, Trash2, TrendingUp, ArrowUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
@@ -179,6 +179,38 @@ const Tools = () => {
 
                       <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
                         trading
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+
+              {/* Crypto Swaps Tool */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: (tools.length + 2) * 0.05 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <Link to="/crypto-swaps">
+                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <ArrowUpDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                            Crypto Swaps
+                          </h3>
+                        </div>
+                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        Swap tokens on Solana using Jupiter aggregator for best rates
+                      </p>
+
+                      <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
+                        defi
                       </span>
                     </div>
                   </div>
