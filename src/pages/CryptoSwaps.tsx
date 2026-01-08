@@ -65,15 +65,31 @@ const CryptoSwaps = () => {
     setError("");
 
     try {
+      // Convert amount to smallest unit (for SOL, multiply by 1e9)
+      const fromTokenDecimals = commonTokens.find(t => t.address === fromToken)?.decimals || 9;
+      const amountInSmallestUnit = Math.floor(parseFloat(amount) * Math.pow(10, fromTokenDecimals)).toString();
+      
+      console.log('Fetching quote:', {
+        fromToken,
+        toToken,
+        amount,
+        amountInSmallestUnit,
+        fromTokenDecimals
+      });
+      
       const response = await fetch(
-        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amount}&slippage=0.5`
+        `https://api.jup.ag/ultra/quote?inputMint=${fromToken}&outputMint=${toToken}&amount=${amountInSmallestUnit}&slippage=0.5`
       );
 
       if (!response.ok) {
-        throw new Error("Failed to get quote");
+        const errorText = await response.text();
+        console.error('Jupiter API error:', response.status, errorText);
+        throw new Error(`Jupiter API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Jupiter response:', data);
+      
       setQuote({
         inputAmount: data.inAmount,
         outputAmount: data.outAmount,
@@ -81,8 +97,9 @@ const CryptoSwaps = () => {
         route: data.route || [],
       });
     } catch (err) {
-      setError("Failed to get quote. Please try again.");
-      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to get quote: ${errorMessage}`);
+      console.error('Quote error:', err);
     } finally {
       setLoading(false);
     }
