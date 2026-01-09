@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
@@ -19,7 +20,6 @@ const POPULAR_TOKENS = [
   { mint: "So11111111111111111111111111111111111111112", name: "Solana", symbol: "SOL" },
   { mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", name: "USDC", symbol: "USDC" },
   { mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", name: "USDT", symbol: "USDT" },
-  { mint: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedKNsDwJDT", name: "Jupiter", symbol: "JUP" },
 ];
 
 const PriceTracker = () => {
@@ -29,6 +29,9 @@ const PriceTracker = () => {
   const [searchMint, setSearchMint] = useState("");
   const [customToken, setCustomToken] = useState<TokenPrice | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  console.log('PriceTracker component rendered');
+  console.log('Popular tokens:', POPULAR_TOKENS);
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
