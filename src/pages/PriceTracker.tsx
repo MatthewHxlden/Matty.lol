@@ -6,6 +6,7 @@ import TerminalCard from "@/components/TerminalCard";
 import TerminalChart from "@/components/TerminalChart";
 import { TrendingUp, TrendingDown, DollarSign, Activity, RefreshCw, Search } from "lucide-react";
 import { UTCTimestamp } from "lightweight-charts";
+import { useSearchParams } from "react-router-dom";
 
 interface TokenPrice {
   id: string;
@@ -25,6 +26,7 @@ const POPULAR_TOKENS = [
 ];
 
 const PriceTracker = () => {
+  const [searchParams] = useSearchParams();
   const [prices, setPrices] = useState<TokenPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,18 @@ const PriceTracker = () => {
 
   console.log('PriceTracker component rendered');
   console.log('Popular tokens:', POPULAR_TOKENS);
+
+  // Handle URL parameter for custom token
+  useEffect(() => {
+    const tokenParam = searchParams.get('token');
+    if (tokenParam && tokenParam.trim()) {
+      setSearchMint(tokenParam.trim());
+      // Auto-search for the token
+      setTimeout(() => {
+        searchCustomToken();
+      }, 500);
+    }
+  }, [searchParams]);
 
   // Generate sample chart data (in real app, this would come from an API)
   const generateChartData = (basePrice: number) => {
@@ -70,19 +84,25 @@ const PriceTracker = () => {
 
   // Update chart data when prices change
   useEffect(() => {
-    if (prices.length > 0) {
+    let basePrice = 135; // Default SOL price
+    
+    // Use custom token price if available, otherwise use SOL
+    if (customToken) {
+      basePrice = parseFloat(customToken.price);
+    } else if (prices.length > 0) {
       const solPrice = prices.find(p => p.symbol === 'SOL');
       if (solPrice) {
-        const basePrice = parseFloat(solPrice.price);
-        const newData = generateChartData(basePrice);
-        
-        // For smoother updates, only update if price changed significantly
-        if (chartData.length === 0 || Math.abs(newData[newData.length - 1].close - (chartData[chartData.length - 1]?.close || 0)) > 0.01) {
-          setChartData(newData);
-        }
+        basePrice = parseFloat(solPrice.price);
       }
     }
-  }, [prices]);
+    
+    const newData = generateChartData(basePrice);
+    
+    // For smoother updates, only update if price changed significantly
+    if (chartData.length === 0 || Math.abs(newData[newData.length - 1].close - (chartData[chartData.length - 1]?.close || 0)) > 0.01) {
+      setChartData(newData);
+    }
+  }, [prices, customToken]);
 
   // Auto-refresh effect
   useEffect(() => {
@@ -232,7 +252,7 @@ const PriceTracker = () => {
           </div>
 
           {/* Chart */}
-          <TerminalCard title="SOL Price Chart" delay={0.15}>
+          <TerminalCard title={`${customToken ? customToken.symbol : 'SOL'} Price Chart`} delay={0.15}>
             <div className="space-y-4">
               {/* Chart Controls */}
               <div className="flex items-center gap-4 p-3 border border-border/50 bg-muted/20 rounded">
@@ -270,7 +290,7 @@ const PriceTracker = () => {
 
               {chartData.length > 0 ? (
                 <TerminalChart 
-                  symbol="SOL" 
+                  symbol={customToken ? customToken.symbol : 'SOL'} 
                   data={chartData} 
                   height={400}
                   chartType={chartType}

@@ -1081,56 +1081,108 @@ const Index = () => {
                 typeof n === "number" ? `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "-";
 
               return (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
-                  <div className="p-4 border border-border/50 bg-muted/20">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="text-xs text-accent">BTC</div>
-                      <a
-                        href="https://www.coingecko.com/en/coins/bitcoin"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        title="View on CoinGecko"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                <div className="space-y-4">
+                  {/* Main Signals Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="text-xs text-accent">BTC</div>
+                        <a
+                          href="https://www.coingecko.com/en/coins/bitcoin"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title="View on CoinGecko"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                      <div className={`text-sm ${btcClass}`}>{fmt(btc)}</div>
                     </div>
-                    <div className={`text-sm ${btcClass}`}>{fmt(btc)}</div>
-                  </div>
-                  <div className="p-4 border border-border/50 bg-muted/20">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="text-xs text-accent">ETH</div>
-                      <a
-                        href="https://www.coingecko.com/en/coins/ethereum"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        title="View on CoinGecko"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="text-xs text-accent">ETH</div>
+                        <a
+                          href="https://www.coingecko.com/en/coins/ethereum"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title="View on CoinGecko"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                      <div className={`text-sm ${ethClass}`}>{fmt(eth)}</div>
                     </div>
-                    <div className={`text-sm ${ethClass}`}>{fmt(eth)}</div>
-                  </div>
-                  <div className="p-4 border border-border/50 bg-muted/20">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="text-xs text-accent">SOL</div>
-                      <a
-                        href="https://www.coingecko.com/en/coins/solana"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        title="View on CoinGecko"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="text-xs text-accent">SOL</div>
+                        <a
+                          href="https://www.coingecko.com/en/coins/solana"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title="View on CoinGecko"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                      <div className={`text-sm ${solClass}`}>{fmt(sol)}</div>
                     </div>
-                    <div className={`text-sm ${solClass}`}>{fmt(sol)}</div>
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="text-xs text-accent">F/G</div>
+                      <div className={`text-sm ${fgClass}`}>{fg?.value || "-"}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">{fgLabel || ""}</div>
+                    </div>
                   </div>
-                  <div className="p-4 border border-border/50 bg-muted/20">
-                    <div className="text-xs text-accent">F/G</div>
-                    <div className={`text-sm ${fgClass}`}>{fg?.value || "-"}</div>
-                    <div className="text-[10px] text-muted-foreground mt-1">{fgLabel || ""}</div>
+
+                  {/* Solana Tokens Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="text-xs text-accent">VVV</div>
+                        <button
+                          onClick={() => window.open('/price-tracker?token=HHztphBGZoUzbPPMriCbxeuCzAm6p9HvhSKok1z1pump', '_blank')}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title="View VVV Chart"
+                        >
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="text-sm text-muted-foreground">Venice</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
+                    </div>
+                    <div className="p-4 border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="text-xs text-accent">DIEM</div>
+                        <button
+                          onClick={() => window.open('/price-tracker?token=xgJfMMeeHo4UoEai3JRGezNMTJmcn3j2boKVfVWfcFU', '_blank')}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title="View DIEM Chart"
+                        >
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="text-sm text-muted-foreground">Diem Archive</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
+                    </div>
+                  </div>
+
+                  {/* Mini Chart Section */}
+                  <div className="border border-border/50 bg-muted/20 rounded p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-accent">SOL Live Chart</span>
+                      <button
+                        onClick={() => window.open('/price-tracker', '_blank')}
+                        className="text-muted-foreground hover:text-primary transition-colors text-xs"
+                        title="Open full chart"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <div className="h-32 bg-terminal-black rounded border border-terminal-green flex items-center justify-center">
+                      <span className="text-terminal-green text-xs font-mono">Live SOL Chart</span>
+                    </div>
                   </div>
                 </div>
               );
