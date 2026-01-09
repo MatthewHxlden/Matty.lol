@@ -5,6 +5,7 @@ import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
 import TerminalChart from "@/components/TerminalChart";
 import { TrendingUp, TrendingDown, DollarSign, Activity, RefreshCw, Search } from "lucide-react";
+import { UTCTimestamp } from "lightweight-charts";
 
 interface TokenPrice {
   id: string;
@@ -30,7 +31,9 @@ const PriceTracker = () => {
   const [searchMint, setSearchMint] = useState("");
   const [customToken, setCustomToken] = useState<TokenPrice | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [chartData, setChartData] = useState<Array<{time: number; open: number; high: number; low: number; close: number; volume: number}>>([]);
+  const [chartData, setChartData] = useState<Array<{time: UTCTimestamp; open: number; high: number; low: number; close: number; volume: number}>>([]);
+  const [updateInterval, setUpdateInterval] = useState<number>(60000); // 1 minute default
+  const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
 
   console.log('PriceTracker component rendered');
   console.log('Popular tokens:', POPULAR_TOKENS);
@@ -38,11 +41,11 @@ const PriceTracker = () => {
   // Generate sample chart data (in real app, this would come from an API)
   const generateChartData = (basePrice: number) => {
     const data = [];
-    const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000) as UTCTimestamp;
     const oneDay = 24 * 60 * 60;
     
     for (let i = 100; i >= 0; i--) {
-      const time = now - (i * oneDay / 100); // 1 data point per ~14.4 minutes
+      const time = (now - (i * oneDay / 100)) as UTCTimestamp; // 1 data point per ~14.4 minutes
       const volatility = basePrice * 0.02; // 2% volatility
       const trend = Math.sin(i * 0.1) * basePrice * 0.01; // Slight trend
       
@@ -75,6 +78,20 @@ const PriceTracker = () => {
       }
     }
   }, [prices]);
+
+  // Auto-refresh effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAllPrices();
+    }, updateInterval);
+
+    return () => clearInterval(interval);
+  }, [updateInterval]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchAllPrices();
+  }, []);
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
@@ -110,6 +127,7 @@ const PriceTracker = () => {
   };
 
   const fetchAllPrices = async () => {
+    console.log('fetchAllPrices called');
     setLoading(true);
     setError(null);
     
@@ -118,9 +136,13 @@ const PriceTracker = () => {
       const results = [];
       
       for (const token of POPULAR_TOKENS) {
+        console.log(`Fetching ${token.symbol}...`);
         const price = await fetchTokenPrice(token.mint, token.name, token.symbol);
         if (price) {
           results.push(price);
+          console.log(`Got ${token.symbol} price: ${price.price}`);
+        } else {
+          console.log(`Failed to get ${token.symbol} price`);
         }
         // Small delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -130,8 +152,8 @@ const PriceTracker = () => {
       setPrices(results);
       setLastUpdated(new Date());
     } catch (error) {
+      console.error('Error in fetchAllPrices:', error);
       setError("Failed to fetch prices");
-      console.error("Error fetching prices:", error);
     } finally {
       setLoading(false);
     }
@@ -317,11 +339,46 @@ const PriceTracker = () => {
           {/* Chart */}
           <TerminalCard title="SOL Price Chart" delay={0.3}>
             <div className="space-y-4">
+              {/* Chart Controls */}
+              <div className="flex items-center gap-4 p-3 border border-border/50 bg-muted/20 rounded">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Update:</span>
+                  <select 
+                    value={updateInterval} 
+                    onChange={(e) => setUpdateInterval(Number(e.target.value))}
+                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
+                  >
+                    <option value={1000}>1 second</option>
+                    <option value={30000}>30 seconds</option>
+                    <option value={60000}>1 minute</option>
+                    <option value={300000}>5 minutes</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Type:</span>
+                  <select 
+                    value={chartType} 
+                    onChange={(e) => setChartType(e.target.value as 'line' | 'candlestick')}
+                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
+                  >
+                    <option value="line">Line</option>
+                    <option value="candlestick">Candlestick</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Activity className="w-3 h-3" />
+                  <span>Auto-refresh: {(updateInterval / 1000).toFixed(0)}s</span>
+                </div>
+              </div>
+
               {chartData.length > 0 ? (
                 <TerminalChart 
                   symbol="SOL" 
                   data={chartData} 
                   height={400}
+                  chartType={chartType}
                 />
               ) : (
                 <div className="flex items-center justify-center py-8 text-muted-foreground">
