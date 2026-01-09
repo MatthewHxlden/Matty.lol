@@ -7,6 +7,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "09 January 2026",
+    title: "Jupiter Price Tracker and Tools UI improvements",
+    items: [
+      "Added Jupiter Price Tracker page with real-time token prices from Jupiter API V3.",
+      "Implemented secure API routing to handle Jupiter API authentication server-side.",
+      "Added popular tokens display (SOL, USDC, USDT) with 24h price changes and visual indicators.",
+      "Added custom token search functionality for any Solana token by mint address.",
+      "Fixed Jupiter Perps API authentication issues with updated API key.",
+      "Standardized tool box sizes on Tools page with consistent 180px minimum height.",
+      "Improved Tools page layout with better flexbox structure for uniform card sizing.",
+      "Added proper React imports to resolve component rendering errors."
+    ],
+    tags: ["new-feature", "api", "ui-improvement"]
+  },
+  {
     date: "07 January 2026",
     title: "Deploy toast, effects panel, softer rain, and terminal safeguards",
     items: [

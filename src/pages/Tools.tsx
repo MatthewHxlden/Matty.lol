@@ -93,27 +93,25 @@ const Tools = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.02 }}
-                  className="group"
+                  className="block h-full"
                 >
-                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <Wrench className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                            {tool.name}
-                          </h3>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group min-h-[180px] flex flex-col">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Wrench className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                          {tool.name}
+                        </h3>
                       </div>
+                      <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
 
-                      <p className="text-sm text-muted-foreground">
-                        {tool.description}
-                      </p>
+                    <p className="text-sm text-muted-foreground mb-auto">
+                      {tool.description}
+                    </p>
 
-                      <span
-                        className={`inline-block text-xs px-2 py-1 border ${categoryColors[tool.category] || categoryColors.dev}`}
-                      >
+                    <div className="mt-3">
+                      <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
                         {tool.category}
                       </span>
                     </div>
@@ -128,9 +126,9 @@ const Tools = () => {
                 transition={{ delay: tools.length * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <div className="relative">
+                <div className="relative h-full">
                   <Link to="/rent-reclaim" onClick={(e) => e.preventDefault()}>
-                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group relative overflow-hidden">
+                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group relative overflow-hidden min-h-[180px] flex flex-col">
                       {/* Coming Soon Badge */}
                       <div className="absolute top-2 right-2 z-10">
                         <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-full px-3 py-1">
@@ -138,21 +136,21 @@ const Tools = () => {
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                              Solana Rent Reclaim
-                            </h3>
-                          </div>
-                          <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                            Solana Rent Reclaim
+                          </h3>
                         </div>
+                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
 
-                        <p className="text-sm text-muted-foreground">
-                          Reclaim SOL locked in empty token accounts with 15% fee
-                        </p>
+                      <p className="text-sm text-muted-foreground mb-auto">
+                        Reclaim SOL locked in empty token accounts with 15% fee
+                      </p>
 
+                      <div className="mt-3">
                         <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
                           blockchain
                         </span>
@@ -172,10 +170,10 @@ const Tools = () => {
                 transition={{ delay: (tools.length + 1) * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Link to="/paper-trading">
-                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
+                <div className="h-full">
+                  <Link to="/paper-trading">
+                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group min-h-[180px] flex flex-col">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                           <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
@@ -185,16 +183,18 @@ const Tools = () => {
                         <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
 
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mb-auto">
                         Practice Solana DEX trading with real Jupiter prices and $10,000 virtual USD
                       </p>
 
-                      <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
-                        trading
-                      </span>
+                      <div className="mt-3">
+                        <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
+                          trading
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               </motion.div>
 
               {/* Crypto Swaps Tool */}
@@ -204,9 +204,9 @@ const Tools = () => {
                 transition={{ delay: (tools.length + 2) * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <div className="relative">
+                <div className="relative h-full">
                   <Link to="/crypto-swaps" onClick={(e) => e.preventDefault()}>
-                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group relative overflow-hidden">
+                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group relative overflow-hidden min-h-[180px] flex flex-col">
                       {/* Coming Soon Badge */}
                       <div className="absolute top-2 right-2 z-10">
                         <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-full px-3 py-1">
@@ -214,21 +214,21 @@ const Tools = () => {
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            <ArrowUpDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
-                              Crypto Swaps
-                            </h3>
-                          </div>
-                          <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <ArrowUpDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                            Crypto Swaps
+                          </h3>
                         </div>
+                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
 
-                        <p className="text-sm text-muted-foreground">
-                          Swap tokens on Solana using Jupiter aggregator for best rates
-                        </p>
+                      <p className="text-sm text-muted-foreground mb-auto">
+                        Swap tokens on Solana using Jupiter aggregator for best rates
+                      </p>
 
+                      <div className="mt-3">
                         <span className="inline-block text-xs px-2 py-1 border border-accent text-accent">
                           defi
                         </span>
@@ -248,10 +248,10 @@ const Tools = () => {
                 transition={{ delay: (tools.length + 3) * 0.05 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Link to="/price-tracker">
-                  <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
+                <div className="h-full">
+                  <Link to="/price-tracker">
+                    <div className="border border-border p-4 h-full transition-all duration-300 hover:border-primary hover:neon-border bg-card/30 backdrop-blur-sm group min-h-[180px] flex flex-col">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                           <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
@@ -261,16 +261,18 @@ const Tools = () => {
                         <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
 
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mb-auto">
                         Real-time token prices from Jupiter aggregator with 24h changes
                       </p>
 
-                      <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
-                        prices
-                      </span>
+                      <div className="mt-3">
+                        <span className="inline-block text-xs px-2 py-1 border border-secondary text-secondary">
+                          prices
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               </motion.div>
             </div>
           )}
