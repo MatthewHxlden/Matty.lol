@@ -34,17 +34,23 @@ const PriceTracker = () => {
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
-      const response = await fetch(`https://price.jup.ag/v1/price?id=${mint}`);
+      // Use API route instead of direct API call to avoid exposing API key
+      const response = await fetch(`/api/jupiter-price?ids=${mint}`);
+      
       if (!response.ok) return null;
       
       const data = await response.json();
+      const tokenData = data[mint];
+      
+      if (!tokenData) return null;
+      
       return {
         id: symbol,
         mint,
         name,
         symbol,
-        price: data.data?.price || "0",
-        priceChange24h: data.data?.change24h || "0",
+        price: tokenData.usdPrice?.toString() || "0",
+        priceChange24h: tokenData.priceChange24h?.toString() || "0",
         timestamp: Date.now(),
       };
     } catch (error) {
@@ -58,13 +64,36 @@ const PriceTracker = () => {
     setError(null);
     
     try {
-      const pricePromises = POPULAR_TOKENS.map(token => 
-        fetchTokenPrice(token.mint, token.name, token.symbol)
-      );
+      // Fetch all tokens in one batch for efficiency
+      const allMints = POPULAR_TOKENS.map(t => t.mint).join(',');
+      console.log('Fetching prices for mints:', allMints);
       
-      const results = await Promise.all(pricePromises);
-      const validPrices = results.filter((price): price is TokenPrice => price !== null);
+      const response = await fetch(`/api/jupiter-price?ids=${allMints}`);
       
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      const validPrices: TokenPrice[] = POPULAR_TOKENS.map(token => {
+        const tokenData = data[token.mint];
+        console.log(`Token ${token.symbol} data:`, tokenData);
+        if (!tokenData) return null;
+        
+        return {
+          id: token.symbol,
+          mint: token.mint,
+          name: token.name,
+          symbol: token.symbol,
+          price: tokenData.usdPrice?.toString() || "0",
+          priceChange24h: tokenData.priceChange24h?.toString() || "0",
+          timestamp: Date.now(),
+        };
+      }).filter((price): price is TokenPrice => price !== null);
+      
+      console.log('Valid prices:', validPrices);
       setPrices(validPrices);
       setLastUpdated(new Date());
     } catch (error) {

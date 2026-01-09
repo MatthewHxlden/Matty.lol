@@ -72,6 +72,71 @@ export default defineConfig(({ mode }) => {
               );
             }
           });
+
+          server.middlewares.use("/api/jupiter-price", async (req: any, res: any, next: any) => {
+            if (req.method && req.method !== "GET") {
+              res.statusCode = 405;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: "Method not allowed" }));
+              return;
+            }
+
+            const apiKey = env.JUP_PORTFOLIO_API_KEY;
+            if (!apiKey) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: "Missing JUP_PORTFOLIO_API_KEY" }));
+              return;
+            }
+
+            try {
+              const url = new URL(req.url, `http://${req.headers.host}`);
+              const ids = url.searchParams.get('ids');
+              
+              if (!ids) {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ error: "Missing 'ids' parameter" }));
+                return;
+              }
+
+              const upstreamRes = await fetch(
+                `https://api.jup.ag/price/v3?ids=${ids}`,
+                {
+                  headers: {
+                    "x-api-key": apiKey,
+                  },
+                }
+              );
+
+              if (!upstreamRes.ok) {
+                const text = await upstreamRes.text();
+                res.statusCode = upstreamRes.status;
+                res.setHeader("Content-Type", "application/json");
+                res.end(
+                  JSON.stringify({
+                    error: "Upstream error",
+                    status: upstreamRes.status,
+                    body: text,
+                  })
+                );
+                return;
+              }
+
+              const data = await upstreamRes.json();
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(data));
+            } catch (e) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(
+                JSON.stringify({
+                  error: e instanceof Error ? e.message : "Unknown error",
+                })
+              );
+            }
+          });
         },
       }) as any,
     mode === "development" && componentTagger(),
