@@ -14,13 +14,11 @@ interface TokenPrice {
   timestamp: number;
 }
 
+// Use only the most reliable tokens with confirmed mint addresses
 const POPULAR_TOKENS = [
   { mint: "So11111111111111111111111111111111111111112", name: "Solana", symbol: "SOL" },
-  { mint: "9n4nbM75f5Ui33ZbPYxnHN37iepbEBhC2DyiVzjRGbbQ", name: "Bitcoin", symbol: "BTC" },
-  { mint: "2FPyTwcZLUg1MDYws8Xx2KTNW8HdpfKhpCrygTrAkLfR", name: "Ethereum", symbol: "ETH" },
   { mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", name: "USDC", symbol: "USDC" },
   { mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", name: "USDT", symbol: "USDT" },
-  { mint: "4k3Dyjzvzp8eM4UXycqet7gQgTmGxULTYbQFiqAu1gTH", name: "Raydium", symbol: "RAY" },
   { mint: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedKNsDwJDT", name: "Jupiter", symbol: "JUP" },
 ];
 
@@ -34,15 +32,21 @@ const PriceTracker = () => {
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
-      // Use API route instead of direct API call to avoid exposing API key
       const response = await fetch(`/api/jupiter-price?ids=${mint}`);
       
-      if (!response.ok) return null;
+      if (!response.ok) {
+        console.error(`API response not ok for ${symbol}:`, response.status);
+        return null;
+      }
       
       const data = await response.json();
-      const tokenData = data[mint];
+      console.log(`API response for ${symbol}:`, data);
       
-      if (!tokenData) return null;
+      const tokenData = data[mint];
+      if (!tokenData) {
+        console.log(`No data found for ${symbol} with mint ${mint}`);
+        return null;
+      }
       
       return {
         id: symbol,
@@ -64,37 +68,20 @@ const PriceTracker = () => {
     setError(null);
     
     try {
-      // Fetch all tokens in one batch for efficiency
-      const allMints = POPULAR_TOKENS.map(t => t.mint).join(',');
-      console.log('Fetching prices for mints:', allMints);
+      // Fetch tokens one by one to avoid issues with batch requests
+      const results = [];
       
-      const response = await fetch(`/api/jupiter-price?ids=${allMints}`);
-      
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+      for (const token of POPULAR_TOKENS) {
+        const price = await fetchTokenPrice(token.mint, token.name, token.symbol);
+        if (price) {
+          results.push(price);
+        }
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      const data = await response.json();
-      console.log('API Response:', data);
-      
-      const validPrices: TokenPrice[] = POPULAR_TOKENS.map(token => {
-        const tokenData = data[token.mint];
-        console.log(`Token ${token.symbol} data:`, tokenData);
-        if (!tokenData) return null;
-        
-        return {
-          id: token.symbol,
-          mint: token.mint,
-          name: token.name,
-          symbol: token.symbol,
-          price: tokenData.usdPrice?.toString() || "0",
-          priceChange24h: tokenData.priceChange24h?.toString() || "0",
-          timestamp: Date.now(),
-        };
-      }).filter((price): price is TokenPrice => price !== null);
-      
-      console.log('Valid prices:', validPrices);
-      setPrices(validPrices);
+      console.log('Final results:', results);
+      setPrices(results);
       setLastUpdated(new Date());
     } catch (error) {
       setError("Failed to fetch prices");
@@ -167,7 +154,7 @@ const PriceTracker = () => {
               {">"} Jupiter Price Tracker
             </h1>
             <p className="text-muted-foreground">
-              // Real-time token prices from Jupiter aggregator
+              // Real-time token prices from Jupiter aggregator V3
             </p>
           </div>
 
@@ -223,7 +210,7 @@ const PriceTracker = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Activity className="w-4 h-4" />
-                  <span>Live prices</span>
+                  <span>Live prices (Jupiter V3)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">
@@ -246,6 +233,10 @@ const PriceTracker = () => {
               ) : error ? (
                 <div className="text-center py-8 text-destructive">
                   <p>{error}</p>
+                </div>
+              ) : prices.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No price data available</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -278,16 +269,17 @@ const PriceTracker = () => {
           </TerminalCard>
 
           {/* Info */}
-          <TerminalCard title="About Jupiter Price API" delay={0.4}>
+          <TerminalCard title="About Jupiter Price API V3" delay={0.4}>
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                Real-time price data powered by Jupiter aggregator, the best source for Solana token prices.
+                Real-time price data powered by Jupiter Price API V3, the most accurate source for Solana token prices.
               </p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p>• Prices update every 30 seconds</p>
-                <p>• Data sourced from multiple DEXs</p>
+                <p>• Data sourced from multiple DEXs with heuristics</p>
                 <p>• Search any token by mint address</p>
                 <p>• 24-hour price changes included</p>
+                <p>• Enhanced price accuracy and reliability</p>
               </div>
               <a
                 href="https://jup.ag"
