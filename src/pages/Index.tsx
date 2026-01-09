@@ -13,8 +13,19 @@ import * as LucideIcons from "lucide-react";
 import { changelog } from "@/data/changelog";
 import { toast } from "@/components/ui/use-toast";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
-import TerminalChart from "@/components/TerminalChart";
-import { UTCTimestamp } from "lightweight-charts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from "recharts";
 
 const quickLinks = [
   { name: "blog", path: "/blog", icon: Terminal, desc: "thoughts & tutorials" },
@@ -1032,40 +1043,14 @@ const Index = () => {
     ),
     signals: () => {
   const { prices: cryptoPrices, isLoading, formatPrice, formatChange, getChangeColor } = useCryptoPrices();
-  const [chartData, setChartData] = useState<Array<{time: UTCTimestamp; open: number; high: number; low: number; close: number; volume: number}>>([]);
 
   // Generate chart data based on SOL price
-  useEffect(() => {
-    const solPrice = cryptoPrices?.find(p => p.symbol === 'SOL');
-    if (solPrice) {
-      const data = [];
-      const now = Math.floor(Date.now() / 1000) as UTCTimestamp;
-      const oneDay = 24 * 60 * 60;
-      
-      for (let i = 100; i >= 0; i--) {
-        const time = (now - (i * oneDay / 100)) as UTCTimestamp; // 1 data point per ~14.4 minutes
-        const volatility = solPrice.price * 0.02; // 2% volatility
-        const trend = Math.sin(i * 0.1) * solPrice.price * 0.01; // Slight trend
-        
-        const open = solPrice.price + (Math.random() - 0.5) * volatility + trend;
-        const close = open + (Math.random() - 0.5) * volatility * 0.5;
-        const high = Math.max(open, close) + Math.random() * volatility * 0.3;
-        const low = Math.min(open, close) - Math.random() * volatility * 0.3;
-        const volume = Math.random() * 1000000 + 500000;
-        
-        data.push({
-          time,
-          open: Number(open.toFixed(2)),
-          high: Number(high.toFixed(2)),
-          low: Number(low.toFixed(2)),
-          close: Number(close.toFixed(2)),
-          volume: Number(volume.toFixed(0))
-        });
-      }
-      
-      setChartData(data);
-    }
-  }, [cryptoPrices]);
+  const chartData = cryptoPrices?.map((crypto, index) => ({
+    name: crypto.symbol,
+    price: crypto.price,
+    change: crypto.changePercent24h,
+    time: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)), // Each point represents a day
+  })) || [];
 
   return (
     <>
@@ -1099,7 +1084,7 @@ const Index = () => {
             {/* Live Chart Section */}
             <div className="border border-border/50 bg-muted/20 rounded p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-accent">SOL Live Chart</span>
+                <span className="text-xs text-accent">SOL Price Chart</span>
                 <button
                   onClick={() => window.open('/price-tracker', '_blank')}
                   className="text-muted-foreground hover:text-primary transition-colors text-xs"
@@ -1108,18 +1093,48 @@ const Index = () => {
                   <ExternalLink className="w-3 h-3" />
                 </button>
               </div>
-              {chartData.length > 0 ? (
-                <TerminalChart 
-                  symbol="SOL" 
-                  data={chartData} 
-                  height={200}
-                  chartType="line"
-                />
-              ) : (
-                <div className="h-48 bg-terminal-black rounded border border-terminal-green flex items-center justify-center">
-                  <span className="text-terminal-green text-xs font-mono">Loading chart...</span>
-                </div>
-              )}
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#9cfa47" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#9cfa47" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(180 100% 25%)" />
+                    <XAxis 
+                      dataKey="time" 
+                      tick={{ fontSize: 10 }}
+                      stroke="hsl(180 100% 25%)"
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return date.toLocaleDateString();
+                      }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 10 }}
+                      stroke="hsl(180 100% 25%)"
+                      tickFormatter={(value) => `$${value.toFixed(2)}`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1a1a1a', 
+                        border: '1px solid #9cfa47',
+                        borderRadius: '4px' 
+                      }}
+                      labelStyle={{ color: '#9cfa47' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="price" 
+                      stroke="#9cfa47" 
+                      fill="url(#colorGradient)" 
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </TerminalCard>
