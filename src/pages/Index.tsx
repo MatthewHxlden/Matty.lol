@@ -12,6 +12,9 @@ import { supabase } from "@/integrations/supabase/client";
 import * as LucideIcons from "lucide-react";
 import { changelog } from "@/data/changelog";
 import { toast } from "@/components/ui/use-toast";
+import { useCryptoPrices } from "@/hooks/useCryptoPrices";
+import TerminalChart from "@/components/TerminalChart";
+import { UTCTimestamp } from "lightweight-charts";
 
 const quickLinks = [
   { name: "blog", path: "/blog", icon: Terminal, desc: "thoughts & tutorials" },
@@ -1027,164 +1030,103 @@ const Index = () => {
         </section>
       </>
     ),
-    signals: () => (
-      <>
-        <section>
-          <TerminalCard title="~/signals.log" delay={0.48} promptText="watch signals --live">
-            {(() => {
-              const btc = marketPrices?.bitcoin?.usd;
-              const eth = marketPrices?.ethereum?.usd;
-              const sol = marketPrices?.solana?.usd;
+    signals: () => {
+  const { prices: cryptoPrices, isLoading, formatPrice, formatChange, getChangeColor } = useCryptoPrices();
+  const [chartData, setChartData] = useState<Array<{time: UTCTimestamp; open: number; high: number; low: number; close: number; volume: number}>>([]);
 
-              const btcPrev = prevSignalByKeyRef.current.btc;
-              const ethPrev = prevSignalByKeyRef.current.eth;
-              const solPrev = prevSignalByKeyRef.current.sol;
+  // Generate chart data based on SOL price
+  useEffect(() => {
+    const solPrice = cryptoPrices?.find(p => p.symbol === 'SOL');
+    if (solPrice) {
+      const data = [];
+      const now = Math.floor(Date.now() / 1000) as UTCTimestamp;
+      const oneDay = 24 * 60 * 60;
+      
+      for (let i = 100; i >= 0; i--) {
+        const time = (now - (i * oneDay / 100)) as UTCTimestamp; // 1 data point per ~14.4 minutes
+        const volatility = solPrice.price * 0.02; // 2% volatility
+        const trend = Math.sin(i * 0.1) * solPrice.price * 0.01; // Slight trend
+        
+        const open = solPrice.price + (Math.random() - 0.5) * volatility + trend;
+        const close = open + (Math.random() - 0.5) * volatility * 0.5;
+        const high = Math.max(open, close) + Math.random() * volatility * 0.3;
+        const low = Math.min(open, close) - Math.random() * volatility * 0.3;
+        const volume = Math.random() * 1000000 + 500000;
+        
+        data.push({
+          time,
+          open: Number(open.toFixed(2)),
+          high: Number(high.toFixed(2)),
+          low: Number(low.toFixed(2)),
+          close: Number(close.toFixed(2)),
+          volume: Number(volume.toFixed(0))
+        });
+      }
+      
+      setChartData(data);
+    }
+  }, [cryptoPrices]);
 
-              const btcClass =
-                typeof btc === "number" && typeof btcPrev === "number"
-                  ? btc > btcPrev
-                    ? "text-secondary"
-                    : btc < btcPrev
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  : "text-muted-foreground";
-              const ethClass =
-                typeof eth === "number" && typeof ethPrev === "number"
-                  ? eth > ethPrev
-                    ? "text-secondary"
-                    : eth < ethPrev
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  : "text-muted-foreground";
-              const solClass =
-                typeof sol === "number" && typeof solPrev === "number"
-                  ? sol > solPrev
-                    ? "text-secondary"
-                    : sol < solPrev
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  : "text-muted-foreground";
-
-              const fg = fearGreed?.data?.[0];
-              const fgValueNum = fg?.value ? Number(fg.value) : undefined;
-              const fgLabel = fg?.value_classification;
-              const fgClass =
-                typeof fgValueNum === "number"
-                  ? fgValueNum >= 60
-                    ? "text-secondary"
-                    : fgValueNum <= 40
-                      ? "text-destructive"
-                      : "text-accent"
-                  : "text-muted-foreground";
-
-              const fmt = (n?: number) =>
-                typeof n === "number" ? `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "-";
-
-              return (
-                <div className="space-y-4">
-                  {/* Main Signals Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">BTC</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=bitcoin', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View BTC Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className={`text-sm ${btcClass}`}>{fmt(btc)}</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">ETH</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=ethereum', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View ETH Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className={`text-sm ${ethClass}`}>{fmt(eth)}</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">SOL</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=solana', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View SOL Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className={`text-sm ${solClass}`}>{fmt(sol)}</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="text-xs text-accent">F/G</div>
-                      <div className={`text-sm ${fgClass}`}>{fg?.value || "-"}</div>
-                      <div className="text-[10px] text-muted-foreground mt-1">{fgLabel || ""}</div>
-                    </div>
+  return (
+    <>
+      <section>
+        <TerminalCard title="~/signals.log" delay={0.48} promptText="watch signals --live">
+          <div className="space-y-4">
+            {/* Main Signals Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
+              {cryptoPrices?.map((crypto) => (
+                <div key={crypto.symbol} className="p-4 border border-border/50 bg-muted/20">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="text-xs text-accent">{crypto.symbol}</div>
+                    <button
+                      onClick={() => window.open(`/price-tracker?token=${crypto.symbol.toLowerCase()}`, '_blank')}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                      title={`View ${crypto.symbol} Chart`}
+                    >
+                      <TrendingUp className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-
-                  {/* Additional Tokens Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">VVV</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View VVV Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="text-sm text-muted-foreground">Venice</div>
-                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">DIEM</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=0xfb8688a7eb1ad431f3957103b2bd014fb2228cfa', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View DIEM Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="text-sm text-muted-foreground">Diem</div>
-                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
-                    </div>
+                  <div className={`text-sm ${getChangeColor(crypto.changePercent24h)}`}>
+                    {formatPrice(crypto.price)}
                   </div>
-
-                  {/* Live Chart Section */}
-                  <div className="border border-border/50 bg-muted/20 rounded p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-accent">SOL Live Chart</span>
-                      <button
-                        onClick={() => window.open('/price-tracker', '_blank')}
-                        className="text-muted-foreground hover:text-primary transition-colors text-xs"
-                        title="Open full chart"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </div>
-                    <div className="h-32 bg-terminal-black rounded border border-terminal-green flex items-center justify-center">
-                      <span className="text-terminal-green text-xs font-mono">Live SOL Chart</span>
-                    </div>
+                  <div className={`text-xs ${getChangeColor(crypto.changePercent24h)}`}>
+                    {formatChange(crypto.changePercent24h)}
                   </div>
                 </div>
-              );
-            })()}
-          </TerminalCard>
-        </section>
-      </>
-    ),
+              ))}
+            </div>
+
+            {/* Live Chart Section */}
+            <div className="border border-border/50 bg-muted/20 rounded p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-accent">SOL Live Chart</span>
+                <button
+                  onClick={() => window.open('/price-tracker', '_blank')}
+                  className="text-muted-foreground hover:text-primary transition-colors text-xs"
+                  title="Open full chart"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              </div>
+              {chartData.length > 0 ? (
+                <TerminalChart 
+                  symbol="SOL" 
+                  data={chartData} 
+                  height={200}
+                  chartType="line"
+                />
+              ) : (
+                <div className="h-48 bg-terminal-black rounded border border-terminal-green flex items-center justify-center">
+                  <span className="text-terminal-green text-xs font-mono">Loading chart...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </TerminalCard>
+      </section>
+    </>
+  );
+},
     quick_links: () => (
       <>
         {/* Quick Links Grid */}
