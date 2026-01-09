@@ -1,6 +1,4 @@
 # Matty.lol
-
-> Personal website
 ## About
 
 Matty.lol is my personal website showcasing cryptocurrency trading insights, development tutorials, DeFi guides, custom apps, tools, and a tech blog. Built with modern web technologies and a terminal-inspired aesthetic.
