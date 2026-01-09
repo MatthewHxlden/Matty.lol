@@ -119,16 +119,18 @@ const PriceTracker = () => {
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
-      // Check if it's an Ethereum token (starts with 0x) or Solana token
+      // Check if it's an Ethereum token (starts with 0x) or Solana token or a major crypto
       const isEthereumToken = mint.startsWith('0x');
+      const isMajorCrypto = ['bitcoin', 'ethereum', 'solana'].includes(mint.toLowerCase());
       
       let response;
       
-      if (isEthereumToken) {
-        // Use CoinGecko API for Ethereum tokens
-        // Note: For demo purposes, we'll use a mock implementation
-        // In production, you'd need to map mint addresses to CoinGecko IDs
+      if (isEthereumToken || isMajorCrypto) {
+        // Use CoinGecko API for Ethereum tokens and major cryptos
         const coinGeckoIds: Record<string, string> = {
+          'bitcoin': 'bitcoin',
+          'ethereum': 'ethereum',
+          'solana': 'solana',
           '0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf': 'venice-token',
           '0xfb8688a7eb1ad431f3957103b2bd014fb2228cfa': 'diem'
         };
@@ -139,7 +141,7 @@ const PriceTracker = () => {
           return null;
         }
         
-        response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+        response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`);
       } else {
         // Use Jupiter API for Solana tokens
         response = await fetch(`/api/jupiter-price?ids=${mint}`);
@@ -154,7 +156,7 @@ const PriceTracker = () => {
       console.log(`API response for ${symbol}:`, data);
       
       let tokenData;
-      if (isEthereumToken) {
+      if (isEthereumToken || isMajorCrypto) {
         // CoinGecko format
         const coinId = Object.keys(data)[0];
         tokenData = data[coinId];
@@ -168,7 +170,7 @@ const PriceTracker = () => {
         return null;
       }
       
-      if (isEthereumToken) {
+      if (isEthereumToken || isMajorCrypto) {
         return {
           id: symbol,
           mint,

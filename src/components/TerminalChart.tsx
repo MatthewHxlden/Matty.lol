@@ -88,12 +88,12 @@ const TerminalChart: React.FC<TerminalChartProps> = ({ symbol, data, height = 40
       } else {
         // Add line series with terminal colors
         series = chart.addSeries(LineSeries, {
-          color: '#00ff00',
+          color: '#9cfa47',
           lineWidth: 2,
           lineType: 0,
           crosshairMarkerVisible: true,
           crosshairMarkerRadius: 4,
-          crosshairMarkerBorderColor: '#00ff00',
+          crosshairMarkerBorderColor: '#9cfa47',
           crosshairMarkerBackgroundColor: '#1a1a1a',
         });
       }

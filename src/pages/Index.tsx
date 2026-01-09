@@ -1087,45 +1087,39 @@ const Index = () => {
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
                         <div className="text-xs text-accent">BTC</div>
-                        <a
-                          href="https://www.coingecko.com/en/coins/bitcoin"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => window.open('/price-tracker?token=bitcoin', '_blank')}
                           className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View on CoinGecko"
+                          title="View BTC Chart"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                       <div className={`text-sm ${btcClass}`}>{fmt(btc)}</div>
                     </div>
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
                         <div className="text-xs text-accent">ETH</div>
-                        <a
-                          href="https://www.coingecko.com/en/coins/ethereum"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => window.open('/price-tracker?token=ethereum', '_blank')}
                           className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View on CoinGecko"
+                          title="View ETH Chart"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                       <div className={`text-sm ${ethClass}`}>{fmt(eth)}</div>
                     </div>
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
                         <div className="text-xs text-accent">SOL</div>
-                        <a
-                          href="https://www.coingecko.com/en/coins/solana"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => window.open('/price-tracker?token=solana', '_blank')}
                           className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View on CoinGecko"
+                          title="View SOL Chart"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                       <div className={`text-sm ${solClass}`}>{fmt(sol)}</div>
                     </div>
@@ -1136,7 +1130,7 @@ const Index = () => {
                     </div>
                   </div>
 
-                  {/* Ethereum Tokens Grid */}
+                  {/* Additional Tokens Grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
@@ -1168,7 +1162,7 @@ const Index = () => {
                     </div>
                   </div>
 
-                  {/* Mini Chart Section */}
+                  {/* Live Chart Section */}
                   <div className="border border-border/50 bg-muted/20 rounded p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-accent">SOL Live Chart</span>
