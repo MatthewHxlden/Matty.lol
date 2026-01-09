@@ -1044,14 +1044,21 @@ const Index = () => {
     signals: () => {
   const { prices: cryptoPrices, isLoading, formatPrice, formatChange, getChangeColor } = useCryptoPrices();
 
-  // Generate chart data based on VVV price (1-minute intervals)
+  // Generate chart data based on VVV price (last 1 minute with 12 data points)
   const vvvPrice = cryptoPrices?.find(p => p.symbol === 'VVV');
   const chartData = vvvPrice ? [
-    { name: '5m ago', price: vvvPrice.price * 0.998, time: new Date(Date.now() - 5 * 60 * 1000) },
-    { name: '4m ago', price: vvvPrice.price * 1.001, time: new Date(Date.now() - 4 * 60 * 1000) },
-    { name: '3m ago', price: vvvPrice.price * 0.999, time: new Date(Date.now() - 3 * 60 * 1000) },
-    { name: '2m ago', price: vvvPrice.price * 1.002, time: new Date(Date.now() - 2 * 60 * 1000) },
-    { name: '1m ago', price: vvvPrice.price * 0.997, time: new Date(Date.now() - 1 * 60 * 1000) },
+    { name: '60s', price: vvvPrice.price * 0.9995, time: new Date(Date.now() - 60 * 1000) },
+    { name: '55s', price: vvvPrice.price * 1.0002, time: new Date(Date.now() - 55 * 1000) },
+    { name: '50s', price: vvvPrice.price * 0.9998, time: new Date(Date.now() - 50 * 1000) },
+    { name: '45s', price: vvvPrice.price * 1.0001, time: new Date(Date.now() - 45 * 1000) },
+    { name: '40s', price: vvvPrice.price * 0.9999, time: new Date(Date.now() - 40 * 1000) },
+    { name: '35s', price: vvvPrice.price * 1.0003, time: new Date(Date.now() - 35 * 1000) },
+    { name: '30s', price: vvvPrice.price * 0.9997, time: new Date(Date.now() - 30 * 1000) },
+    { name: '25s', price: vvvPrice.price * 1.0001, time: new Date(Date.now() - 25 * 1000) },
+    { name: '20s', price: vvvPrice.price * 0.9996, time: new Date(Date.now() - 20 * 1000) },
+    { name: '15s', price: vvvPrice.price * 1.0002, time: new Date(Date.now() - 15 * 1000) },
+    { name: '10s', price: vvvPrice.price * 0.9998, time: new Date(Date.now() - 10 * 1000) },
+    { name: '5s', price: vvvPrice.price * 1.0001, time: new Date(Date.now() - 5 * 1000) },
     { name: 'Now', price: vvvPrice.price, time: new Date() },
   ] : [];
 

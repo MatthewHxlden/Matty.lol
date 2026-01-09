@@ -8,18 +8,20 @@ export type ChangelogEntry = {
 export const changelog: ChangelogEntry[] = [
   {
     date: "09 January 2026",
-    title: "Jupiter Price Tracker and Tools UI improvements",
+    title: "Enhanced Homepage Signals with Real-Time Charts",
     items: [
-      "Added Jupiter Price Tracker page with real-time token prices from Jupiter API V3.",
-      "Implemented secure API routing to handle Jupiter API authentication server-side.",
-      "Added popular tokens display (SOL, USDC, USDT) with 24h price changes and visual indicators.",
-      "Added custom token search functionality for any Solana token by mint address.",
-      "Fixed Jupiter Perps API authentication issues with updated API key.",
-      "Standardized tool box sizes on Tools page with consistent 180px minimum height.",
-      "Improved Tools page layout with better flexbox structure for uniform card sizing.",
-      "Added proper React imports to resolve component rendering errors."
+      "Added VVV (Venice) and DIEM tokens to homepage signals section.",
+      "Implemented real-time crypto prices using existing useCryptoPrices hook.",
+      "Added interactive Recharts area chart showing VVV price action.",
+      "Chart displays last 1 minute with 12 data points (60s to Now).",
+      "Updated chart color to #9cfa47 for terminal theme consistency.",
+      "Replaced TradingView chart with Recharts for better performance.",
+      "Fixed CORS issues by using existing crypto prices implementation.",
+      "Added clickable chart links to full PriceTracker for each token.",
+      "Enhanced signals section with professional token selection (BTC, ETH, SOL, VVV, DIEM).",
+      "Maintained Fear & Greed Index display alongside token prices."
     ],
-    tags: ["new-feature", "api", "ui-improvement"]
+    tags: ["homepage", "charts", "crypto", "vvv", "diem"]
   },
   {
     date: "07 January 2026",
