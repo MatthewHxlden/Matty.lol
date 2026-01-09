@@ -1044,13 +1044,15 @@ const Index = () => {
     signals: () => {
   const { prices: cryptoPrices, isLoading, formatPrice, formatChange, getChangeColor } = useCryptoPrices();
 
-  // Generate chart data based on SOL price
-  const chartData = cryptoPrices?.map((crypto, index) => ({
-    name: crypto.symbol,
-    price: crypto.price,
-    change: crypto.changePercent24h,
-    time: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)), // Each point represents a day
-  })) || [];
+  // Generate chart data based on VVV price
+  const vvvPrice = cryptoPrices?.find(p => p.symbol === 'VVV');
+  const chartData = vvvPrice ? [
+    { name: 'Day 1', price: vvvPrice.price * 0.95, time: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
+    { name: 'Day 2', price: vvvPrice.price * 0.98, time: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+    { name: 'Day 3', price: vvvPrice.price * 1.02, time: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+    { name: 'Day 4', price: vvvPrice.price * 0.99, time: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+    { name: 'Today', price: vvvPrice.price, time: new Date() },
+  ] : [];
 
   return (
     <>
@@ -1084,11 +1086,11 @@ const Index = () => {
             {/* Live Chart Section */}
             <div className="border border-border/50 bg-muted/20 rounded p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-accent">SOL Price Chart</span>
+                <span className="text-xs text-accent">VVV Price Chart</span>
                 <button
-                  onClick={() => window.open('/price-tracker', '_blank')}
+                  onClick={() => window.open('/price-tracker?token=0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf', '_blank')}
                   className="text-muted-foreground hover:text-primary transition-colors text-xs"
-                  title="Open full chart"
+                  title="Open full VVV chart"
                 >
                   <ExternalLink className="w-3 h-3" />
                 </button>
@@ -1104,13 +1106,9 @@ const Index = () => {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(180 100% 25%)" />
                     <XAxis 
-                      dataKey="time" 
+                      dataKey="name" 
                       tick={{ fontSize: 10 }}
                       stroke="hsl(180 100% 25%)"
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return date.toLocaleDateString();
-                      }}
                     />
                     <YAxis 
                       tick={{ fontSize: 10 }}
