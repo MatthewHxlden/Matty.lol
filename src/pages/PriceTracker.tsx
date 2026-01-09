@@ -113,14 +113,37 @@ const PriceTracker = () => {
     return () => clearInterval(interval);
   }, [updateInterval]);
 
-  // Initial fetch
   useEffect(() => {
     fetchAllPrices();
   }, []);
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
-      const response = await fetch(`/api/jupiter-price?ids=${mint}`);
+      // Check if it's an Ethereum token (starts with 0x) or Solana token
+      const isEthereumToken = mint.startsWith('0x');
+      
+      let response;
+      
+      if (isEthereumToken) {
+        // Use CoinGecko API for Ethereum tokens
+        // Note: For demo purposes, we'll use a mock implementation
+        // In production, you'd need to map mint addresses to CoinGecko IDs
+        const coinGeckoIds: Record<string, string> = {
+          '0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf': 'venice-token',
+          '0xfb8688a7eb1ad431f3957103b2bd014fb2228cfa': 'diem'
+        };
+        
+        const coinId = coinGeckoIds[mint.toLowerCase()];
+        if (!coinId) {
+          console.log(`No CoinGecko ID found for ${symbol} with mint ${mint}`);
+          return null;
+        }
+        
+        response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+      } else {
+        // Use Jupiter API for Solana tokens
+        response = await fetch(`/api/jupiter-price?ids=${mint}`);
+      }
       
       if (!response.ok) {
         console.error(`API response not ok for ${symbol}:`, response.status);
@@ -130,21 +153,42 @@ const PriceTracker = () => {
       const data = await response.json();
       console.log(`API response for ${symbol}:`, data);
       
-      const tokenData = data[mint];
+      let tokenData;
+      if (isEthereumToken) {
+        // CoinGecko format
+        const coinId = Object.keys(data)[0];
+        tokenData = data[coinId];
+      } else {
+        // Jupiter format
+        tokenData = data[mint];
+      }
+      
       if (!tokenData) {
         console.log(`No data found for ${symbol} with mint ${mint}`);
         return null;
       }
       
-      return {
-        id: symbol,
-        mint,
-        name,
-        symbol,
-        price: tokenData.usdPrice?.toString() || "0",
-        priceChange24h: tokenData.priceChange24h?.toString() || "0",
-        timestamp: Date.now(),
-      };
+      if (isEthereumToken) {
+        return {
+          id: symbol,
+          mint,
+          name,
+          symbol,
+          price: tokenData.usd?.toString() || "0",
+          priceChange24h: tokenData.usd_24h_change?.toString() || "0",
+          timestamp: Date.now(),
+        };
+      } else {
+        return {
+          id: symbol,
+          mint,
+          name,
+          symbol,
+          price: tokenData.usdPrice?.toString() || "0",
+          priceChange24h: tokenData.priceChange24h?.toString() || "0",
+          timestamp: Date.now(),
+        };
+      }
     } catch (error) {
       console.error(`Error fetching price for ${symbol}:`, error);
       return null;

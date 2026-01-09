@@ -1136,62 +1136,34 @@ const Index = () => {
                     </div>
                   </div>
 
-                  {/* Solana Tokens Grid */}
+                  {/* Ethereum Tokens Grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs md:text-sm font-mono">
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">BONK</div>
+                        <div className="text-xs text-accent">VVV</div>
                         <button
-                          onClick={() => window.open('/price-tracker?token=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', '_blank')}
+                          onClick={() => window.open('/price-tracker?token=0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf', '_blank')}
                           className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View BONK Chart"
+                          title="View VVV Chart"
                         >
                           <TrendingUp className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <div className="text-sm text-muted-foreground">Bonk</div>
+                      <div className="text-sm text-muted-foreground">Venice</div>
                       <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
                     </div>
                     <div className="p-4 border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">WIF</div>
+                        <div className="text-xs text-accent">DIEM</div>
                         <button
-                          onClick={() => window.open('/price-tracker?token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', '_blank')}
+                          onClick={() => window.open('/price-tracker?token=0xfb8688a7eb1ad431f3957103b2bd014fb2228cfa', '_blank')}
                           className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View WIF Chart"
+                          title="View DIEM Chart"
                         >
                           <TrendingUp className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <div className="text-sm text-muted-foreground">Dogwifhat</div>
-                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">RAY</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=4k3Dyjzvzp8eM4UXycqet7gQgTmGxULTYbQFiqAu1gTH', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View RAY Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="text-sm text-muted-foreground">Raydium</div>
-                      <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
-                    </div>
-                    <div className="p-4 border border-border/50 bg-muted/20">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="text-xs text-accent">PYTH</div>
-                        <button
-                          onClick={() => window.open('/price-tracker?token=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', '_blank')}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="View PYTH Chart"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="text-sm text-muted-foreground">Pyth Network</div>
+                      <div className="text-sm text-muted-foreground">Diem</div>
                       <div className="text-[10px] text-muted-foreground mt-1">Click for chart</div>
                     </div>
                   </div>
