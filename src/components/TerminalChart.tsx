@@ -18,6 +18,7 @@ interface TerminalChartProps {
 const TerminalChart: React.FC<TerminalChartProps> = ({ symbol, data, height = 400, chartType = 'line' }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
+  const seriesRef = useRef<any>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current || data.length === 0) return;
@@ -111,9 +112,23 @@ const TerminalChart: React.FC<TerminalChartProps> = ({ symbol, data, height = 40
         series.setData(lineData);
       }
 
+      // Enable smooth transitions
+      chart.applyOptions({
+        timeScale: {
+          borderColor: '#00ff00',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+        kineticScroll: {
+          mouse: true,
+          touch: true,
+        },
+      });
+
       console.log('Data set successfully');
 
       chartRef.current = chart;
+      seriesRef.current = series;
 
       // Handle resize
       const handleResize = () => {
@@ -136,6 +151,21 @@ const TerminalChart: React.FC<TerminalChartProps> = ({ symbol, data, height = 40
       console.error('Error creating chart:', error);
     }
   }, [data, height, chartType]);
+
+  // Update data smoothly when it changes
+  useEffect(() => {
+    if (seriesRef.current && data.length > 0) {
+      if (chartType === 'candlestick') {
+        seriesRef.current.setData(data);
+      } else {
+        const lineData = data.map(item => ({
+          time: item.time,
+          value: item.close
+        }));
+        seriesRef.current.setData(lineData);
+      }
+    }
+  }, [data, chartType]);
 
   return (
     <div className="w-full">

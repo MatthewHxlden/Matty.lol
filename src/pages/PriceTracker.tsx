@@ -74,7 +74,12 @@ const PriceTracker = () => {
       const solPrice = prices.find(p => p.symbol === 'SOL');
       if (solPrice) {
         const basePrice = parseFloat(solPrice.price);
-        setChartData(generateChartData(basePrice));
+        const newData = generateChartData(basePrice);
+        
+        // For smoother updates, only update if price changed significantly
+        if (chartData.length === 0 || Math.abs(newData[newData.length - 1].close - (chartData[chartData.length - 1]?.close || 0)) > 0.01) {
+          setChartData(newData);
+        }
       }
     }
   }, [prices]);
