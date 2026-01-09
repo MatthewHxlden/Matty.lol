@@ -41,6 +41,12 @@
     --neon-green: 120 100% 50%;
     --neon-magenta: 300 100% 60%;
     --neon-cyan: 90 100% 64%;
+    
+    /* Terminal theme colors */
+    --terminal-black: #1a1a1a;
+    --terminal-green: #00ff00;
+    --terminal-red: #ff0000;
+    --terminal-border: #00ff00;
 
     --sidebar-background: 220 20% 4%;
     --sidebar-foreground: 90 100% 64%;
@@ -440,6 +446,19 @@
   100% {
     transform: translateX(120%);
   }
+}
+
+/* Terminal theme classes */
+.bg-terminal-black {
+  background-color: var(--terminal-black);
+}
+
+.border-terminal-green {
+  border-color: var(--terminal-green);
+}
+
+.text-terminal-green {
+  color: var(--terminal-green);
 }
 
 @keyframes marquee {

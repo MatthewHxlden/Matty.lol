@@ -3,6 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import TerminalLayout from "@/components/TerminalLayout";
 import TerminalCard from "@/components/TerminalCard";
+import TerminalChart from "@/components/TerminalChart";
 import { TrendingUp, TrendingDown, DollarSign, Activity, RefreshCw, Search } from "lucide-react";
 
 interface TokenPrice {
@@ -29,9 +30,51 @@ const PriceTracker = () => {
   const [searchMint, setSearchMint] = useState("");
   const [customToken, setCustomToken] = useState<TokenPrice | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [chartData, setChartData] = useState<Array<{time: number; open: number; high: number; low: number; close: number; volume: number}>>([]);
 
   console.log('PriceTracker component rendered');
   console.log('Popular tokens:', POPULAR_TOKENS);
+
+  // Generate sample chart data (in real app, this would come from an API)
+  const generateChartData = (basePrice: number) => {
+    const data = [];
+    const now = Math.floor(Date.now() / 1000);
+    const oneDay = 24 * 60 * 60;
+    
+    for (let i = 100; i >= 0; i--) {
+      const time = now - (i * oneDay / 100); // 1 data point per ~14.4 minutes
+      const volatility = basePrice * 0.02; // 2% volatility
+      const trend = Math.sin(i * 0.1) * basePrice * 0.01; // Slight trend
+      
+      const open = basePrice + (Math.random() - 0.5) * volatility + trend;
+      const close = open + (Math.random() - 0.5) * volatility * 0.5;
+      const high = Math.max(open, close) + Math.random() * volatility * 0.3;
+      const low = Math.min(open, close) - Math.random() * volatility * 0.3;
+      const volume = Math.random() * 1000000 + 500000;
+      
+      data.push({
+        time,
+        open: Number(open.toFixed(2)),
+        high: Number(high.toFixed(2)),
+        low: Number(low.toFixed(2)),
+        close: Number(close.toFixed(2)),
+        volume: Number(volume.toFixed(0))
+      });
+    }
+    
+    return data;
+  };
+
+  // Update chart data when prices change
+  useEffect(() => {
+    if (prices.length > 0) {
+      const solPrice = prices.find(p => p.symbol === 'SOL');
+      if (solPrice) {
+        const basePrice = parseFloat(solPrice.price);
+        setChartData(generateChartData(basePrice));
+      }
+    }
+  }, [prices]);
 
   const fetchTokenPrice = async (mint: string, name: string, symbol: string): Promise<TokenPrice | null> => {
     try {
@@ -266,6 +309,24 @@ const PriceTracker = () => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          </TerminalCard>
+
+          {/* Chart */}
+          <TerminalCard title="SOL Price Chart" delay={0.3}>
+            <div className="space-y-4">
+              {chartData.length > 0 ? (
+                <TerminalChart 
+                  symbol="SOL" 
+                  data={chartData} 
+                  height={400}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                  <span>Loading chart data...</span>
                 </div>
               )}
             </div>
