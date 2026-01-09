@@ -226,6 +226,59 @@ const PriceTracker = () => {
             </p>
           </div>
 
+          {/* Chart */}
+          <TerminalCard title="SOL Price Chart" delay={0.15}>
+            <div className="space-y-4">
+              {/* Chart Controls */}
+              <div className="flex items-center gap-4 p-3 border border-border/50 bg-muted/20 rounded">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Update:</span>
+                  <select 
+                    value={updateInterval} 
+                    onChange={(e) => setUpdateInterval(Number(e.target.value))}
+                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
+                  >
+                    <option value={1000}>1 second</option>
+                    <option value={30000}>30 seconds</option>
+                    <option value={60000}>1 minute</option>
+                    <option value={300000}>5 minutes</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Type:</span>
+                  <select 
+                    value={chartType} 
+                    onChange={(e) => setChartType(e.target.value as 'line' | 'candlestick')}
+                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
+                  >
+                    <option value="line">Line</option>
+                    <option value="candlestick">Candlestick</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Activity className="w-3 h-3" />
+                  <span>Auto-refresh: {(updateInterval / 1000).toFixed(0)}s</span>
+                </div>
+              </div>
+
+              {chartData.length > 0 ? (
+                <TerminalChart 
+                  symbol="SOL" 
+                  data={chartData} 
+                  height={400}
+                  chartType={chartType}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                  <span>Loading chart data...</span>
+                </div>
+              )}
+            </div>
+          </TerminalCard>
+
           {/* Search Custom Token */}
           <TerminalCard title="Token Search" delay={0.1}>
             <div className="space-y-4">
@@ -331,59 +384,6 @@ const PriceTracker = () => {
                       </div>
                     );
                   })}
-                </div>
-              )}
-            </div>
-          </TerminalCard>
-
-          {/* Chart */}
-          <TerminalCard title="SOL Price Chart" delay={0.3}>
-            <div className="space-y-4">
-              {/* Chart Controls */}
-              <div className="flex items-center gap-4 p-3 border border-border/50 bg-muted/20 rounded">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Update:</span>
-                  <select 
-                    value={updateInterval} 
-                    onChange={(e) => setUpdateInterval(Number(e.target.value))}
-                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
-                  >
-                    <option value={1000}>1 second</option>
-                    <option value={30000}>30 seconds</option>
-                    <option value={60000}>1 minute</option>
-                    <option value={300000}>5 minutes</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Type:</span>
-                  <select 
-                    value={chartType} 
-                    onChange={(e) => setChartType(e.target.value as 'line' | 'candlestick')}
-                    className="bg-background border border-border rounded px-2 py-1 text-sm text-foreground focus:outline-none focus:border-primary"
-                  >
-                    <option value="line">Line</option>
-                    <option value="candlestick">Candlestick</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Activity className="w-3 h-3" />
-                  <span>Auto-refresh: {(updateInterval / 1000).toFixed(0)}s</span>
-                </div>
-              </div>
-
-              {chartData.length > 0 ? (
-                <TerminalChart 
-                  symbol="SOL" 
-                  data={chartData} 
-                  height={400}
-                  chartType={chartType}
-                />
-              ) : (
-                <div className="flex items-center justify-center py-8 text-muted-foreground">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
-                  <span>Loading chart data...</span>
                 </div>
               )}
             </div>

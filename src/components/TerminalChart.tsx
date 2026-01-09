@@ -40,14 +40,10 @@ const TerminalChart: React.FC<TerminalChartProps> = ({ symbol, data, height = 40
         },
         grid: {
           vertLines: {
-            color: '#00ff00',
-            style: 1,
-            visible: true,
+            visible: false,
           },
           horzLines: {
-            color: '#00ff00',
-            style: 1,
-            visible: true,
+            visible: false,
           },
         },
         crosshair: {
