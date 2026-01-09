@@ -1044,14 +1044,14 @@ const Index = () => {
     signals: () => {
   const { prices: cryptoPrices, isLoading, formatPrice, formatChange, getChangeColor } = useCryptoPrices();
 
-  // Generate chart data based on VVV price (5-minute intervals)
+  // Generate chart data based on VVV price (1-minute intervals)
   const vvvPrice = cryptoPrices?.find(p => p.symbol === 'VVV');
   const chartData = vvvPrice ? [
-    { name: '25m ago', price: vvvPrice.price * 0.998, time: new Date(Date.now() - 25 * 60 * 1000) },
-    { name: '20m ago', price: vvvPrice.price * 1.001, time: new Date(Date.now() - 20 * 60 * 1000) },
-    { name: '15m ago', price: vvvPrice.price * 0.999, time: new Date(Date.now() - 15 * 60 * 1000) },
-    { name: '10m ago', price: vvvPrice.price * 1.002, time: new Date(Date.now() - 10 * 60 * 1000) },
-    { name: '5m ago', price: vvvPrice.price * 0.997, time: new Date(Date.now() - 5 * 60 * 1000) },
+    { name: '5m ago', price: vvvPrice.price * 0.998, time: new Date(Date.now() - 5 * 60 * 1000) },
+    { name: '4m ago', price: vvvPrice.price * 1.001, time: new Date(Date.now() - 4 * 60 * 1000) },
+    { name: '3m ago', price: vvvPrice.price * 0.999, time: new Date(Date.now() - 3 * 60 * 1000) },
+    { name: '2m ago', price: vvvPrice.price * 1.002, time: new Date(Date.now() - 2 * 60 * 1000) },
+    { name: '1m ago', price: vvvPrice.price * 0.997, time: new Date(Date.now() - 1 * 60 * 1000) },
     { name: 'Now', price: vvvPrice.price, time: new Date() },
   ] : [];
 
