@@ -38,6 +38,7 @@ import Changelog from "./pages/Changelog";
 import RentReclaim from "./pages/RentReclaim";
 import PaperTrading from "./pages/PaperTrading";
 import CryptoSwaps from "./pages/CryptoSwaps";
+import PriceTracker from "./pages/PriceTracker";
 import NotFound from "./pages/NotFound";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
@@ -93,6 +94,7 @@ const App = () => {
                               <Route path="/trades" element={<Trades />} />
                               <Route path="/paper-trading" element={<PaperTrading />} />
                               <Route path="/crypto-swaps" element={<CryptoSwaps />} />
+                              <Route path="/price-tracker" element={<PriceTracker />} />
                               <Route path="/tools" element={<Tools />} />
                               <Route path="/rent-reclaim" element={<RentReclaim />} />
                               <Route path="/links" element={<Links />} />
