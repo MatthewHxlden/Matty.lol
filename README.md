@@ -1,7 +1,4 @@
 # Matty.lol
-
-> Personal website and digital playground of Matty (JaeSwift) - Crypto Trader & Developer
-
 ## About
 
 Matty.lol is my personal website showcasing cryptocurrency trading insights, development tutorials, DeFi guides, custom apps, tools, and a tech blog. Built with modern web technologies and a terminal-inspired aesthetic.
@@ -81,8 +78,8 @@ src/
 ## Connect
 
 - **GitHub**: [@MatthewHxlden](https://github.com/MatthewHxlden)
-- **Twitter/X**: [@matty](https://twitter.com/matty)
+- **Discord**: MattyMonero
 
 ## License
 
-MIT License - feel free to learn from the code and build something awesome!
+MIT License
